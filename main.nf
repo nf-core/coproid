@@ -1,0 +1,305 @@
+#!/usr/bin/env nextflow
+
+/*
+========================================================================================
+                                      CoproID
+========================================================================================
+ CoproID: Coprolite Identification
+#### Homepage / Documentation
+https://github.com/maxibor/coproid
+#### Authors
+ Maxime Borry <borry@shh.mpg.de>
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+Pipeline overview:
+ - 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
+ - 1.2:   Bowtie Indexing of Genome1
+ - 1.3:   Bowtie Indexing of Genome2
+ - 2.1:   Reads alignment on Genome1
+ - 2.2:   Reads alignment on Genome2
+ - 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1
+ - 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
+ - 4:     Compute read proportion Nnr1/Nnr2 and write PDF report
+
+ ----------------------------------------------------------------------------------------
+*/
+
+def helpMessage() {
+    log.info"""
+    =========================================
+     coproID: Coprolite Identification
+     Homepage / Documentation: https://github.com/maxibor/coproid
+     Author: Maxime Borry <borry@shh.mpg.de>
+     Version ${version}
+     Last updated on ${version_date}
+    =========================================
+    Usage:
+    The typical command for running the pipeline is as follows:
+    nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --reads '*_R{1,2}.fastq.gz'
+    Mandatory arguments:
+      --reads                       Path to input data (must be surrounded with quotes)
+      --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes)
+      --genome2                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes)
+
+    Options:
+      --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
+      --trimmingCPU                 Specifies the number of CPU used to trimming/cleaning by AdapterRemoval. Defaults to ${params.trimmingCPU}
+      --bowtieCPU                   Specifies the number of CPU used by bowtie2 aligner. Defaults to ${params.bowtieCPU}
+      --countCPU                    Specifies the number of CPU used for counting and normalizing reads. Defaults to ${params.countCPU}
+
+    Other options:
+      --results                     Name of result directory. Defaults to ${params.results}
+      --help  --h                   Shows this help page
+
+    """.stripIndent()
+}
+
+
+version = "0.1"
+version_date = "September 14th, 2018"
+
+params.phred = 33
+params.trimmingCPU = 4
+params.bowtieCPU = 4
+params.countCPU = 4
+
+params.results = "./results"
+params.reads = ''
+params.genome1 = ''
+params.genome2 = ''
+
+// Show help message
+params.help = false
+params.h = false
+if (params.help || params.h){
+    helpMessage()
+    exit 0
+}
+
+if( ! nextflow.version.matches(">= 0.30") ){
+    throw GroovyException('Your version of Nextflow is too old, please update to Nextflow >= 0.30')
+    exit 0
+}
+
+// Creating reads channel
+Channel
+    .fromFilePairs( params.reads, size: 2 )
+    .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\n" }
+	.into { reads_to_trim; reads_to_log }
+
+
+// Creating genome1 channel
+Channel
+    .fromPath(params.genome1)
+    .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
+    .into {genome1Fasta; genome1Size; genome1Log}
+
+// Creating genome2 channel
+Channel
+    .fromPath(params.genome2)
+    .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
+    .into {genome2Fasta; genome1Size; genome2Log}
+
+
+//Logging parameters
+log.info "================================================================"
+log.info " coproID: Coprolite Identification"
+log.info " Homepage / Documentation: https://github.com/maxibor/coproid"
+log.info " Author: Maxime Borry <borry@shh.mpg.de>"
+log.info " Version ${version}"
+log.info " Last updated on ${version_date}"
+log.info "================================================================"
+def summary = [:]
+summary['Reads'] = params.reads
+summary['phred quality'] = params.phred
+summary['Genome1'] = params.genome1
+summary['Genome2'] = params.genome2
+summary["Result directory"] = params.results
+log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
+log.info "========================================="
+
+
+// 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
+process AdapterRemoval {
+    tag "$name"
+
+    conda 'bioconda::adapterremoval'
+
+    label 'expresso'
+
+    cpus params.trimmingCPU
+
+    input:
+        set val(name), file(reads) from reads_to_trim
+
+    output:
+        set val(name), file('*.collapsed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
+        //set val(name), file("*.settings") into adapter_removal_results
+
+    script:
+        out1 = name+".pair1.discarded.fastq"
+        out2 = name+".pair2.discarded.fastq"
+        col_out = name+".collapsed.fastq"
+        """
+        AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --collapse --output1 $out1 --output2 $out2 --outputcollapsed $col_out --threads ${task.cpus} --qualitybase ${params.phred}
+        """
+}
+
+// 1.2:   Bowtie Indexing of Genome1
+process BowtieIndexGenome1 {
+    tag "$name"
+
+    conda 'bioconda::bowtie2'
+
+    label 'intenso'
+
+    cpus params.bowtieCPU
+
+    input:
+        file(fasta) from genome1Fasta
+    output:
+        set val(name), file("*.bt2") into bt_index_genome1
+    script:
+        name = fasta.baseName
+        """
+        bowtie2-build --threads ${task.cpus} $contig $name
+        """
+}
+
+// 1.3:   Bowtie Indexing of Genome2
+process BowtieIndexGenome2 {
+    tag "$name"
+
+    conda 'bioconda::bowtie2'
+
+    label 'intenso'
+
+    cpus params.bowtieCPU
+
+    input:
+        file(fasta) from genome2Fasta
+    output:
+        set val(name), file("*.bt2") into bt_index_genome2
+    script:
+        name = fasta.baseName
+        """
+        bowtie2-build --threads ${task.cpus} $contig $name
+        """
+}
+
+// 2.1:   Reads alignment on Genome1
+process AlignToGenome1 {
+    tag "$name"
+
+    conda 'bioconda::bowtie2 bioconda::samtools'
+
+    label 'intenso'
+
+    cpus params.bowtieCPU
+
+    //publishDir "${params.results}/alignment", mode: 'copy'
+
+    input:
+        set val(name), file(reads) from trimmed_reads_genome1
+        set val(index_name), file(index) from bt_index_genome1
+    output:
+        set val(name), file("*.sorted.bam") into alignment_genome1
+    script:
+        outfile = name+".sorted.bam"
+        """
+        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort - > $outfile
+        """
+}
+
+// 2.2:   Reads alignment on Genome2
+process AlignToGenome2 {
+    tag "$name"
+
+    conda 'bioconda::bowtie2 bioconda::samtools'
+
+    label 'intenso'
+
+    cpus params.bowtieCPU
+
+    //publishDir "${params.results}/alignment", mode: 'copy'
+
+    input:
+        set val(name), file(reads) from trimmed_reads_genome2
+        set val(index_name), file(index) from bt_index_genome2
+    output:
+        set val(name), file("*.sorted.bam") into alignment_genome2
+    script:
+        outfile = name+".sorted.bam"
+        """
+        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort - > $outfile
+        """
+}
+
+// 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1
+process countReads1{
+    tag "$name"
+
+    conda 'python=3.6 bioconda::pysam'
+
+    label 'expresso'
+
+    cpus params.countCPU
+
+    input:
+        set val(name), file(bam) from alignment_genome1
+        file(fasta) from genome1Size
+    output:
+        set val(name), file("*.out") into read_count_genome1
+    script:
+        outfile = name+"_"+genome1Size.baseName+".out"
+        """
+        normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
+        """
+}
+
+// 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
+process countReads2{
+    tag "$name"
+
+    conda 'python=3.6 bioconda::pysam'
+
+    label 'expresso'
+
+    cpus params.countCPU
+
+    input:
+        set val(name), file(bam) from alignment_genome2
+        file(fasta) from genome2Size
+    output:
+        set val(name), file("*.out") into read_count_genome2
+    script:
+        outfile = name+"_"+genome2Size.baseName+".out"
+        """
+        normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
+        """
+}
+
+// 4:     Compute read proportion Nnr1/Nnr2 and write PDF report
+process proportionAndReport {
+    tag "$name3"
+
+    conda 'python=3.6 matplotlib conda-forge::pandoc'
+
+    label 'expresso'
+
+    publishDir "${params.results}", mode: 'copy'
+
+    input:
+        set val(name1), file(readCount1) from read_count_genome1
+        set val(name2), file(readCount2) from read_count_genome2
+        set val(name3), file(reads) from reads_to_log
+        file(genome1) from genome1Log
+        file(genome2) from genome2Log
+    output:
+        set val(name), file("*.pdf") into coproIDResult
+    script:
+        outfile = name3+".coproID_result.pdf"
+        """
+        computeRatio -c1 $readCount1 -c2 $readCount2 -r1 ${reads[0]} -r2 ${reads[1]} -g1 $genome1Log -g2 $genome2Log -o $outfile
+        """
+}
