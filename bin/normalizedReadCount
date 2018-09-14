@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+
+import argparse
+import pysam
+import multiprocessing
+import sys
+
+
+def get_args():
+    '''This function parses and return arguments passed in'''
+    parser = argparse.ArgumentParser(
+        prog='normalizedReadCount',
+        description='Counts reads aligned to genome, and normalize by genome size')
+    parser.add_argument(
+        '-b',
+        dest='bam',
+        default=None,
+        help="Bam aligment file on genome1")
+    parser.add_argument(
+        '-g',
+        dest="genome",
+        default=None,
+        help="Fasta file of genome1")
+    parser.add_argument(
+        '-o',
+        dest="output",
+        default=None,
+        help="Output file basename. Default = {BAM_GENOME}.out")
+    parser.add_argument(
+        '-p',
+        dest="processes",
+        default=4,
+        help="Number of parallel process. Default = 4",
+    )
+
+    args = parser.parse_args()
+
+    bam = args.bam
+    genome = args.genome
+    outfile = args.output
+    processes = args.processes
+
+    return(bam, genome, outfile, processes)
+
+
+def getBasename(file_name):
+    if ("/") in file_name:
+        basename = file_name.split("/")[-1].split(".")[0]
+    else:
+        basename = file_name.split(".")[0]
+    return(basename)
+
+
+def computeGenomeSize(fasta):
+    gs = 0
+    with open(fasta, "r") as f:
+        for line in f:
+            line = line.rstrip()
+            if not line.startswith(">"):
+                gs += len(line)
+    return(gs)
+
+
+def getNumberMappedReads(bam):
+    nb_mapped_reads = 0
+    min_identity = 0.99
+    bamfile = pysam.AlignmentFile(bam, "rb")
+
+    for read in bamfile:
+        identity = read.query_alignment_length / read.query_length
+        if identity >= min_identity:
+            nb_mapped_reads += 1
+    return(nb_mapped_reads)
+
+
+def getNumberMappedReadsMultiprocess(bam, processes):
+    nb_mapped_reads = 0
+    bamfile = pysam.AlignmentFile(bam, "rb")
+    chrs = bamfile.references
+
+    def _perChromosome(chr):
+        nb_mapped_reads_chr = 0
+        min_identity = 0.99
+        reads = bam.fetch(chr, multiple_iterators=True)
+        for read in bamfile:
+            identity = read.query_alignment_length / read.query_length
+            if identity >= min_identity:
+                nb_mapped_reads_chr += 1
+        return(nb_mapped_reads_chr)
+
+    p = multiprocessing.Pool(processes)
+    result = p.map(_perChromosome, chrs)
+    p.close()
+    p.join()
+    nb_mapped_reads = sum(result)
+    return(nb_mapped_reads)
+
+
+if __name__ == "__main__":
+    BAM, GENOME, OUTFILE, PROCESSES = get_args()
+
+    if BAM is None and GENOME is None:
+        print("Missing BAM and genome fasta file")
+        sys.exit(1)
+    elif BAM is None:
+        print("Missing BAM file")
+        sys.exit(1)
+    elif GENOME is None:
+        print("Missing genome fastas file")
+        sys.exit(1)
+
+    bam_basename = getBasename(BAM)
+    organism = getBasename(GENOME)
+
+    if not OUTFILE:
+        OUTFILE = bam_basename + "_" + organism + ".out"
+
+    gs = computeGenomeSize(GENOME)
+    nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
+    with open(OUTFILE, 'w') as w:
+        w.write(organism, str(round((nb_mapped_reads / gs), 6)))

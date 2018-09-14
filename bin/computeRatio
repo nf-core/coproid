@@ -1,0 +1,145 @@
+#!/usr/bin/env python
+
+import argparse
+import sys
+import matplotlib.pyplot as plt
+import numpy as np
+import datetime
+
+
+def get_args():
+    '''This function parses and return arguments passed in'''
+    parser = argparse.ArgumentParser(
+        prog='computeRatio',
+        description='Compute read count ratio between target genome1 and target genome2')
+    parser.add_argument(
+        '-c1',
+        dest='countFile1',
+        default=None,
+        help="Normalized read count aligned to genome1")
+    parser.add_argument(
+        '-c2',
+        dest='countFile2',
+        default=None,
+        help="Normalized read count aligned to genome2")
+    parser.add_argument(
+        '-r1',
+        dest='reads1',
+        default=None,
+        help="Path to fastq reads file 1"
+    )
+    parser.add_argument(
+        '-r2',
+        dest='reads2',
+        default=None,
+        help="Path to fastq reads file 2"
+    )
+    parser.add_argument(
+        '-g1',
+        dest='genome1',
+        default=None,
+        help="Path to genome1 fasta file"
+    )
+    parser.add_argument(
+        '-g2',
+        dest='genome2',
+        default=None,
+        help="Path to genome2 fasta file"
+    )
+    parser.add_argument(
+        '-o',
+        dest="output",
+        default="coproID_result.md",
+        help="Output file basename. Default = coproID_result.pdf")
+
+    args = parser.parse_args()
+
+    countFile1 = args.countFile1
+    countFile2 = args.countFile2
+    reads1 = args.reads1
+    reads2 = args.reads2
+    genome1 = args.genome1
+    genome2 = args.genome2
+    outfile = args.output
+
+    return(countFile1, countFile2, reads1, reads2, genome1, genome2, outfile)
+
+
+def getBasename(file_name):
+    if ("/") in file_name:
+        basename = file_name.split("/")[-1].split(".")[0]
+    else:
+        basename = file_name.split(".")[0]
+    return(basename)
+
+
+def getFile(path):
+    if ("/") in path:
+        filename = path.split("/")[-1]
+    else:
+        filename = path
+    return(filename)
+
+
+if __name__ == "__main__":
+    CF1, CF2, R1, R2, G1, G2, OUTFILE = get_args()
+
+    if CF1 is None and CF2 is None:
+        print("Count file 1 and Count file 2 are missing")
+        sys.exit(1)
+    elif CF1 is None:
+        print("Count file 1 is missing")
+        sys.exit(1)
+    elif CF2 is None:
+        print("Count file 2 is missing")
+        sys.exit(1)
+
+    organisms = ["", ""]
+    readCnt = [0, 0]
+    with open(CF1, "r") as f1:
+        for line in f1:
+            line = line.rstrip().split(",")
+            organisms[0] = line[0]
+            readCnt[0] = float(line[1])
+
+    with open(CF2, "r") as f2:
+        for line in f2:
+            line = line.rstrip().split(",")
+            organisms[1] = line[0]
+            readCnt[1] = float(line[1])
+
+    ratio = round((readCnt[0] / readCnt[1]), 3)
+
+    ticklist = [getBasename(G2)] + [str(round(x, 2))
+                                    for x in list(np.arange(0.1, ratio + 0.1, 0.1))] + [getBasename(G1)]
+
+    with plt.xkcd():
+        plt.plot(0.9, 0, "ro")
+        plt.tick_params(
+            axis='y',          # changes apply to the y-axis
+            which='both',      # both major and minor ticks are affected
+            bottom=False,      # ticks along the bottom edge are off
+            top=False,         # ticks along the top edge are off
+            left=False,  # labels along the bottom edge are off
+            labelleft=False)
+        plt.xticks((np.arange(0, ratio + 0.2, 0.1)),
+                   (ticklist), rotation="vertical")
+
+        plt.savefig("./ratio.png")
+
+    now = datetime.datetime.now()
+    with open(OUTFILE, "w") as fw:
+        fw.write("# coproID: Coprolite Identification\nHomepage/Documentation: https://github.com/coproID  \nAuthor: Maxime Borry <borry@shh.mpg.de>  ")
+
+        fw.write("Report generated on " + str(now.year) + "-" + str(now.month) + "-" +
+                 str(now.day) + "  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "  ")
+        fw.write("----  \n## Files used:")
+        fw.write("Fastq files: " + getFile(R1) + " and " + getFile(R2) + "  ")
+        fw.write("Genomes used: " + getFile(G1) + " and " + getFile(G2) + "  ")
+        fw.write("----  ")
+        print(
+            "The formula used to compute the read ratio is the following: $NormlizedRead_ratio = \\frac\{\\frac\{reads_\{aligned genome 1\}\}\{size\{genome1\}\}\}\{\\frac\{reads_\{aligned genome 2\}\}\{size\{genome2\}\}\}$  ")
+        print("Normalized Read ratio (" + getBasename(G1) + "/" +
+              getBasename(G2) + ") = " + str(ratio) + "   \n\n  ")
+        print("![Normalized read ratio (" + getBasename(G1) +
+              "/" + getBasename(G2) + ")](./ratio.png)")
