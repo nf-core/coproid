@@ -19,7 +19,8 @@ Pipeline overview:
  - 2.2:   Reads alignment on Genome2
  - 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1
  - 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
- - 4:     Compute read proportion Nnr1/Nnr2 and write PDF report
+ - 4:     Compute read proportion Nnr1/Nnr2 and write Markdown report
+ - 5:     Convert Markdown report to PDF
 
  ----------------------------------------------------------------------------------------
 */
@@ -296,10 +297,34 @@ process proportionAndReport {
         file(genome1) from genome1Log
         file(genome2) from genome2Log
     output:
-        set val(name), file("*.pdf") into coproIDResult
+        set val(name), file("*.md") into coproIDResult
     script:
-        outfile = name3+".coproID_result.pdf"
+        outfile = name3+".coproID_result.md"
         """
         computeRatio -c1 $readCount1 -c2 $readCount2 -r1 ${reads[0]} -r2 ${reads[1]} -g1 $genome1Log -g2 $genome2Log -o $outfile
+        """
+}
+
+// 5:     Convert Markdown report to PDF
+
+process md2pdf {
+    tag "$name"
+
+    conda 'conda-forge::pandoc'
+
+    label 'expresso'
+
+    errorStategy 'ignore'
+
+    publishDir "${params.results}", mode: 'copy'
+
+    input:
+        set val(name), file(report) from coproIDResult
+    output:
+        set val(name), file("*.pdf") into pdfReport
+    script:
+        outfile = name+".pdf"
+        """
+        pandoc $report --pdf-engine=xelatex -o $outfile
         """
 }
