@@ -39,11 +39,15 @@ def helpMessage() {
     nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --reads '*_R{1,2}.fastq.gz'
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
-      --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes)
-      --genome2                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes)
 
     Options:
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
+      --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes) - If index1 is not set
+      --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/bt_index_basename* - If genome1 is not set
+      --genome1Size                 Size of candidate 1 Coprolite maker's genome in bp - If genome1 is not set
+      --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
+      --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/bt_index_basename* - If genome2 is not set
+      --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
       --trimmingCPU                 Specifies the number of CPU used to trimming/cleaning by AdapterRemoval. Defaults to ${params.trimmingCPU}
       --bowtieCPU                   Specifies the number of CPU used by bowtie2 aligner. Defaults to ${params.bowtieCPU}
       --countCPU                    Specifies the number of CPU used for counting and normalizing reads. Defaults to ${params.countCPU}
@@ -68,6 +72,8 @@ params.results = "./results"
 params.reads = ''
 params.genome1 = ''
 params.genome2 = ''
+params.genome1Size = 0
+params.genome2Size = 0
 
 // Show help message
 params.help = false
@@ -89,17 +95,41 @@ Channel
 	.into { reads_to_trim; reads_to_log }
 
 
-// Creating genome1 channel
-Channel
-    .fromPath(params.genome1)
-    .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
-    .into {genome1Fasta; genome1Size; genome1Log}
+// Creating genome1 channels
+if (params.genome1 != ""){
+    Channel
+        .fromPath(params.genome1)
+        .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
+        .into {genome1Fasta; genome1Size; genome1Log}
+} else {
+    Channel
+        .fromPath(params.index1)
+        .ifEmpty {exit 1, "Cannot find any index matching : ${params.index1}\n"}
+        .into {bt_index_genome1; genome1Log}
 
-// Creating genome2 channel
-Channel
-    .fromPath(params.genome2)
-    .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
-    .into {genome2Fasta; genome1Size; genome2Log}
+    Channel
+        .value(params.genome1Size)
+        .set(genome1Size)
+}
+
+
+// Creating genome2 channels
+if (params.genome2 != ""){
+    Channel
+        .fromPath(params.genome2)
+        .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
+        .into {genome2Fasta; genome1Size; genome2Log}
+} else {
+    Channel
+        .fromPath(params.index2)
+        .ifEmpty {exit 1, "Cannot find any index matching : ${params.index2}\n"}
+        .into {bt_index_genome2; genome2Log}
+
+    Channel
+        .value(params.genome2Size)
+        .set(genome2Size)
+}
+
 
 
 //Logging parameters
@@ -113,8 +143,18 @@ log.info "================================================================"
 def summary = [:]
 summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
-summary['Genome1'] = params.genome1
-summary['Genome2'] = params.genome2
+if (params.genome1 != ""){
+    summary['Genome1'] = params.genome1
+} else {
+    summary["Genome1 BT2 index"] = params.index1
+    summary["Genome 1 size (bp)"] = params.genome1Size
+}
+if (params.genome2 != ""){
+    summary['Genome2'] = params.genome2
+} else {
+    summary["Genome2 BT2 index"] = params.index2
+    summary["Genome 2 size (bp)"] = params.genome2Size
+}
 summary["Result directory"] = params.results
 log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
 log.info "========================================="
@@ -156,6 +196,9 @@ process BowtieIndexGenome1 {
 
     cpus params.bowtieCPU
 
+    when:
+        params.genome1 != ""
+
     input:
         file(fasta) from genome1Fasta
     output:
@@ -176,6 +219,9 @@ process BowtieIndexGenome2 {
     label 'intenso'
 
     cpus params.bowtieCPU
+
+    when:
+        params.genome2 != ""
 
     input:
         file(fasta) from genome2Fasta
@@ -202,7 +248,7 @@ process AlignToGenome1 {
 
     input:
         set val(name), file(reads) from trimmed_reads_genome1
-        set val(index_name), file(index) from bt_index_genome1
+        set val(index_name), file(index) from bt_index_genome1.collect()
     output:
         set val(name), file("*.sorted.bam") into alignment_genome1
     script:
@@ -226,7 +272,7 @@ process AlignToGenome2 {
 
     input:
         set val(name), file(reads) from trimmed_reads_genome2
-        set val(index_name), file(index) from bt_index_genome2
+        set val(index_name), file(index) from bt_index_genome2.collect()
     output:
         set val(name), file("*.sorted.bam") into alignment_genome2
     script:
@@ -236,49 +282,99 @@ process AlignToGenome2 {
         """
 }
 
-// 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1
-process countReads1{
-    tag "$name"
 
-    conda 'python=3.6 bioconda::pysam'
 
-    label 'expresso'
+// 3.1a:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1 - If no genome index provided
+if (params.genome1 != ""){
+    process countReads1{
+        tag "$name"
 
-    cpus params.countCPU
+        conda 'python=3.6 bioconda::pysam'
 
-    input:
-        set val(name), file(bam) from alignment_genome1
-        file(fasta) from genome1Size
-    output:
-        set val(name), file("*.out") into read_count_genome1
-    script:
-        outfile = name+"_"+genome1Size.baseName+".out"
-        """
-        normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
-        """
+        label 'expresso'
+
+        cpus params.countCPU
+
+        input:
+            set val(name), file(bam) from alignment_genome1
+            file(fasta) from genome1Size
+        output:
+            set val(name), file("*.out") into read_count_genome1
+        script:
+            outfile = name+"_"+genome1Size.baseName+".out"
+            """
+            normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
+            """
+    }
+} else {
+    process countReads1WithIndex{
+        tag "$name"
+
+        conda 'python=3.6 bioconda::pysam'
+
+        label 'expresso'
+
+        cpus params.countCPU
+
+        input:
+            set val(name), file(bam) from alignment_genome1
+            value(genomeSize) from genome1Size
+        output:
+            set val(name), file("*.out") into read_count_genome1
+        script:
+            outfile = name+"_"+genome1Size.baseName+".out"
+            """
+            normalizedReadCount -b $bam -s $genomeSize -o $outfile -p ${task.cpus}
+            """
+    }
 }
+
 
 // 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
-process countReads2{
-    tag "$name"
+if (params.genome2 != ""){
+    process countReads2{
+        tag "$name"
 
-    conda 'python=3.6 bioconda::pysam'
+        conda 'python=3.6 bioconda::pysam'
 
-    label 'expresso'
+        label 'expresso'
 
-    cpus params.countCPU
+        cpus params.countCPU
 
-    input:
-        set val(name), file(bam) from alignment_genome2
-        file(fasta) from genome2Size
-    output:
-        set val(name), file("*.out") into read_count_genome2
-    script:
-        outfile = name+"_"+genome2Size.baseName+".out"
-        """
-        normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
-        """
+        input:
+            set val(name), file(bam) from alignment_genome2
+            file(fasta) from genome2Size
+        output:
+            set val(name), file("*.out") into read_count_genome2
+        script:
+            outfile = name+"_"+genome2Size.baseName+".out"
+            """
+            normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
+            """
+    }
+} else {
+    process countReads2WithIndex{
+        tag "$name"
+
+        conda 'python=3.6 bioconda::pysam'
+
+        label 'expresso'
+
+        cpus params.countCPU
+
+        input:
+            set val(name), file(bam) from alignment_genome2
+            value(genomeSize) from genome2Size
+        output:
+            set val(name), file("*.out") into read_count_genome2
+        script:
+            outfile = name+"_"+genome2Size.baseName+".out"
+            """
+            normalizedReadCount -b $bam -s genomeSize -o $outfile -p ${task.cpus}
+            """
+    }
 }
+
 
 // 4:     Compute read proportion Nnr1/Nnr2 and write PDF report
 process proportionAndReport {

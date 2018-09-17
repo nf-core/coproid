@@ -15,12 +15,17 @@ def get_args():
         '-b',
         dest='bam',
         default=None,
-        help="Bam aligment file on genome1")
+        help="Bam aligment file on genome")
     parser.add_argument(
         '-g',
         dest="genome",
         default=None,
-        help="Fasta file of genome1")
+        help="Fasta file of genome")
+    parser.add_argument(
+        '-s',
+        dest='size',
+        default=None,
+        help='Genome size in bp')
     parser.add_argument(
         '-o',
         dest="output",
@@ -37,10 +42,11 @@ def get_args():
 
     bam = args.bam
     genome = args.genome
+    size = args.size
     outfile = args.output
     processes = args.processes
 
-    return(bam, genome, outfile, processes)
+    return(bam, genome, size, outfile, processes)
 
 
 def getBasename(file_name):
@@ -97,7 +103,7 @@ def getNumberMappedReadsMultiprocess(bam, processes):
 
 
 if __name__ == "__main__":
-    BAM, GENOME, OUTFILE, PROCESSES = get_args()
+    BAM, GENOME, SIZE, OUTFILE, PROCESSES = get_args()
 
     if BAM is None and GENOME is None:
         print("Missing BAM and genome fasta file")
@@ -115,7 +121,10 @@ if __name__ == "__main__":
     if not OUTFILE:
         OUTFILE = bam_basename + "_" + organism + ".out"
 
-    gs = computeGenomeSize(GENOME)
+    if SIZE is None:
+        gs = computeGenomeSize(GENOME)
+    else:
+        gs = int(SIZE)
     nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
     with open(OUTFILE, 'w') as w:
         w.write(organism, str(round((nb_mapped_reads / gs), 6)))
