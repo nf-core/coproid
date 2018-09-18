@@ -36,17 +36,19 @@ def helpMessage() {
     =========================================
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --reads '*_R{1,2}.fastq.gz'
+    nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
+      --name1                       Name of candidate 1. Example: "Homo sapiens"
+      --name2                       Name of candidate 2. Example: "Canis familiaris"
 
     Options:
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
       --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes) - If index1 is not set
-      --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/bt_index_basename* - If genome1 is not set
+      --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome1 is not set
       --genome1Size                 Size of candidate 1 Coprolite maker's genome in bp - If genome1 is not set
       --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
-      --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/bt_index_basename* - If genome2 is not set
+      --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
       --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
       --trimmingCPU                 Specifies the number of CPU used to trimming/cleaning by AdapterRemoval. Defaults to ${params.trimmingCPU}
       --bowtieCPU                   Specifies the number of CPU used by bowtie2 aligner. Defaults to ${params.bowtieCPU}
@@ -61,7 +63,7 @@ def helpMessage() {
 
 
 version = "0.1"
-version_date = "September 14th, 2018"
+version_date = "September 18th, 2018"
 
 params.phred = 33
 params.trimmingCPU = 4
@@ -74,6 +76,10 @@ params.genome1 = ''
 params.genome2 = ''
 params.genome1Size = 0
 params.genome2Size = 0
+params.index1 = ''
+params.index2 = ''
+params.name1 = ''
+params.name2 = ''
 
 // Show help message
 params.help = false
@@ -93,6 +99,14 @@ Channel
     .fromFilePairs( params.reads, size: 2 )
     .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\n" }
 	.into { reads_to_trim; reads_to_log }
+
+// Creating name channels
+Channel
+    .value(params.name1)
+    .into {name1_index; name1_countReads; name1_countReadsIndex; name1_log}
+Channel
+    .value(params.name2)
+    .set {name2_index; name2_countReads; name2_countReadsIndex; name2_log}
 
 
 // Creating genome1 channels
@@ -201,10 +215,10 @@ process BowtieIndexGenome1 {
 
     input:
         file(fasta) from genome1Fasta
+        value(name) from name1_index
     output:
         set val(name), file("*.bt2") into bt_index_genome1
     script:
-        name = fasta.baseName
         """
         bowtie2-build --threads ${task.cpus} $contig $name
         """
@@ -225,10 +239,10 @@ process BowtieIndexGenome2 {
 
     input:
         file(fasta) from genome2Fasta
+        value(name) from name2_index
     output:
         set val(name), file("*.bt2") into bt_index_genome2
     script:
-        name = fasta.baseName
         """
         bowtie2-build --threads ${task.cpus} $contig $name
         """
@@ -250,9 +264,9 @@ process AlignToGenome1 {
         set val(name), file(reads) from trimmed_reads_genome1
         set val(index_name), file(index) from bt_index_genome1.collect()
     output:
-        set val(name), file("*.sorted.bam") into alignment_genome1
+        set val(index_name+name), file("*.sorted.bam") into alignment_genome1
     script:
-        outfile = name+".sorted.bam"
+        outfile = index_name+"_"+name+".sorted.bam"
         """
         bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort - > $outfile
         """
@@ -274,9 +288,9 @@ process AlignToGenome2 {
         set val(name), file(reads) from trimmed_reads_genome2
         set val(index_name), file(index) from bt_index_genome2.collect()
     output:
-        set val(name), file("*.sorted.bam") into alignment_genome2
+        set val(index_name+name), file("*.sorted.bam") into alignment_genome2
     script:
-        outfile = name+".sorted.bam"
+        outfile = index_name+"_"+name+".sorted.bam"
         """
         bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort - > $outfile
         """
@@ -298,10 +312,11 @@ if (params.genome1 != ""){
         input:
             set val(name), file(bam) from alignment_genome1
             file(fasta) from genome1Size
+            value(orgaName) from name1_countReads
         output:
             set val(name), file("*.out") into read_count_genome1
         script:
-            outfile = name+"_"+genome1Size.baseName+".out"
+            outfile = name+"_"+orgaName+".out"
             """
             normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
             """
@@ -319,10 +334,11 @@ if (params.genome1 != ""){
         input:
             set val(name), file(bam) from alignment_genome1
             value(genomeSize) from genome1Size
+            value(orgaName) from name1_countReadsIndex
         output:
             set val(name), file("*.out") into read_count_genome1
         script:
-            outfile = name+"_"+genome1Size.baseName+".out"
+            outfile = name+"_"+orgaName+".out"
             """
             normalizedReadCount -b $bam -s $genomeSize -o $outfile -p ${task.cpus}
             """
@@ -344,10 +360,11 @@ if (params.genome2 != ""){
         input:
             set val(name), file(bam) from alignment_genome2
             file(fasta) from genome2Size
+            value(orgaName) from name2_countReads
         output:
             set val(name), file("*.out") into read_count_genome2
         script:
-            outfile = name+"_"+genome2Size.baseName+".out"
+            outfile = name+"_"+orgaName+".out"
             """
             normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
             """
@@ -365,10 +382,11 @@ if (params.genome2 != ""){
         input:
             set val(name), file(bam) from alignment_genome2
             value(genomeSize) from genome2Size
+            value(orgaName) from name2_countReadsIndex
         output:
             set val(name), file("*.out") into read_count_genome2
         script:
-            outfile = name+"_"+genome2Size.baseName+".out"
+            outfile = name+"_"+orgaName+".out"
             """
             normalizedReadCount -b $bam -s genomeSize -o $outfile -p ${task.cpus}
             """
@@ -390,14 +408,14 @@ process proportionAndReport {
         set val(name1), file(readCount1) from read_count_genome1
         set val(name2), file(readCount2) from read_count_genome2
         set val(name3), file(reads) from reads_to_log
-        file(genome1) from genome1Log
-        file(genome2) from genome2Log
+        value(orgaName1) from name1_log
+        value(orgaName2) from name2_log
     output:
         set val(name), file("*.md") into coproIDResult
     script:
         outfile = name3+".coproID_result.md"
         """
-        computeRatio -c1 $readCount1 -c2 $readCount2 -r1 ${reads[0]} -r2 ${reads[1]} -g1 $genome1Log -g2 $genome2Log -o $outfile
+        computeRatio -c1 $readCount1 -c2 $readCount2 -r1 ${reads[0]} -r2 ${reads[1]} -g1 $orgaName1 -g2 $orgaName2 -o $outfile
         """
 }
 
