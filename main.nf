@@ -50,9 +50,6 @@ def helpMessage() {
       --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
       --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
-      --trimmingCPU                 Specifies the number of CPU used to trimming/cleaning by AdapterRemoval. Defaults to ${params.trimmingCPU}
-      --bowtieCPU                   Specifies the number of CPU used by bowtie2 aligner. Defaults to ${params.bowtieCPU}
-      --countCPU                    Specifies the number of CPU used for counting and normalizing reads. Defaults to ${params.countCPU}
 
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
@@ -66,9 +63,6 @@ version = "0.1"
 version_date = "September 18th, 2018"
 
 params.phred = 33
-params.trimmingCPU = 4
-params.bowtieCPU = 4
-params.countCPU = 4
 
 params.results = "./results"
 params.reads = ''
@@ -182,8 +176,6 @@ process AdapterRemoval {
 
     label 'expresso'
 
-    cpus params.trimmingCPU
-
     input:
         set val(name), file(reads) from reads_to_trim
 
@@ -209,8 +201,6 @@ if (params.genome1 != ''){
 
         label 'intenso'
 
-        cpus params.bowtieCPU
-
         when:
             params.genome1 != ""
 
@@ -234,8 +224,6 @@ if (params.genome2 != ''){
         conda 'bioconda::bowtie2'
 
         label 'intenso'
-
-        cpus params.bowtieCPU
 
         when:
             params.genome2 != ""
@@ -261,8 +249,6 @@ process AlignToGenome1 {
 
     label 'intenso'
 
-    cpus params.bowtieCPU
-
     //publishDir "${params.results}/alignment", mode: 'copy'
 
     input:
@@ -285,8 +271,6 @@ process AlignToGenome2 {
     conda 'bioconda::bowtie2 bioconda::samtools'
 
     label 'intenso'
-
-    cpus params.bowtieCPU
 
     //publishDir "${params.results}/alignment", mode: 'copy'
 
@@ -314,8 +298,6 @@ if (params.genome1 != ""){
 
         label 'expresso'
 
-        cpus params.countCPU
-
         input:
             set val(name), file(bam) from alignment_genome1
             file(fasta) from genome1Size
@@ -325,6 +307,7 @@ if (params.genome1 != ""){
         script:
             outfile = name+"_"+orgaName+".out"
             """
+            samtools index $bam
             normalizedReadCount -b $bam -g $fasta -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
@@ -336,8 +319,6 @@ if (params.genome1 != ""){
 
         label 'expresso'
 
-        cpus params.countCPU
-
         input:
             set val(name), file(bam) from alignment_genome1
             val(genomeSize) from genome1Size
@@ -347,6 +328,7 @@ if (params.genome1 != ""){
         script:
             outfile = name+"_"+orgaName+".out"
             """
+            samtools index $bam
             normalizedReadCount -b $bam -s $genomeSize -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
@@ -362,8 +344,6 @@ if (params.genome2 != ""){
 
         label 'expresso'
 
-        cpus params.countCPU
-
         input:
             set val(name), file(bam) from alignment_genome2
             file(fasta) from genome2Size
@@ -373,6 +353,7 @@ if (params.genome2 != ""){
         script:
             outfile = name+"_"+orgaName+".out"
             """
+            samtools index $bam
             normalizedReadCount -b $bam -g $fasta -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
@@ -384,8 +365,6 @@ if (params.genome2 != ""){
 
         label 'expresso'
 
-        cpus params.countCPU
-
         input:
             set val(name), file(bam) from alignment_genome2
             val(genomeSize) from genome2Size
@@ -395,6 +374,7 @@ if (params.genome2 != ""){
         script:
             outfile = name+"_"+orgaName+".out"
             """
+            samtools index $bam
             normalizedReadCount -b $bam -s $genomeSize -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
@@ -407,7 +387,7 @@ process proportionAndReport {
 
     conda 'python=3.6 matplotlib'
 
-    label 'expresso'
+    label 'ristretto'
 
     publishDir "${params.results}", mode: 'copy'
 
@@ -434,7 +414,7 @@ process md2pdf {
 
     conda 'conda-forge::pandoc'
 
-    label 'expresso'
+    label 'ristretto'
 
     errorStrategy 'ignore'
 
