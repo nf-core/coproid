@@ -74,7 +74,7 @@ params.results = "./results"
 params.reads = ''
 params.genome1 = ''
 params.genome2 = ''
-params.genome1Size = 0
+params.genome1Size = ''
 params.genome2Size = 0
 params.index1 = ''
 params.index2 = ''
@@ -106,11 +106,11 @@ Channel
     .into {name1_index; name1_countReads; name1_countReadsIndex; name1_log}
 Channel
     .value(params.name2)
-    .set {name2_index; name2_countReads; name2_countReadsIndex; name2_log}
+    .into {name2_index; name2_countReads; name2_countReadsIndex; name2_log}
 
 
 // Creating genome1 channels
-if (params.genome1 != ""){
+if (params.genome1 != ''){
     Channel
         .fromPath(params.genome1)
         .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
@@ -123,16 +123,16 @@ if (params.genome1 != ""){
 
     Channel
         .value(params.genome1Size)
-        .set(genome1Size)
+        .set{genome1Size}
 }
 
 
 // Creating genome2 channels
-if (params.genome2 != ""){
+if (params.genome2 != ''){
     Channel
         .fromPath(params.genome2)
         .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
-        .into {genome2Fasta; genome1Size; genome2Log}
+        .into {genome2Fasta; genome2Size; genome2Log}
 } else {
     Channel
         .fromPath(params.index2)
@@ -141,7 +141,7 @@ if (params.genome2 != ""){
 
     Channel
         .value(params.genome2Size)
-        .set(genome2Size)
+        .set{genome2Size}
 }
 
 
@@ -200,53 +200,58 @@ process AdapterRemoval {
         """
 }
 
-// 1.2:   Bowtie Indexing of Genome1
-process BowtieIndexGenome1 {
-    tag "$name"
+if (params.genome1 != ''){
+    // 1.2:   Bowtie Indexing of Genome1
+    process BowtieIndexGenome1 {
+        tag "$name"
 
-    conda 'bioconda::bowtie2'
+        conda 'bioconda::bowtie2'
 
-    label 'intenso'
+        label 'intenso'
 
-    cpus params.bowtieCPU
+        cpus params.bowtieCPU
 
-    when:
-        params.genome1 != ""
+        when:
+            params.genome1 != ""
 
-    input:
-        file(fasta) from genome1Fasta
-        value(name) from name1_index
-    output:
-        set val(name), file("*.bt2") into bt_index_genome1
-    script:
-        """
-        bowtie2-build --threads ${task.cpus} $contig $name
-        """
+        input:
+            file(fasta) from genome1Fasta
+            val(name) from name1_index
+        output:
+            file("*.bt2") into bt_index_genome1
+        script:
+            """
+            bowtie2-build --threads ${task.cpus} $fasta $name
+            """
+    }
 }
 
-// 1.3:   Bowtie Indexing of Genome2
-process BowtieIndexGenome2 {
-    tag "$name"
+if (params.genome2 != ''){
+    // 1.3:   Bowtie Indexing of Genome2
+    process BowtieIndexGenome2 {
+        tag "$name"
 
-    conda 'bioconda::bowtie2'
+        conda 'bioconda::bowtie2'
 
-    label 'intenso'
+        label 'intenso'
 
-    cpus params.bowtieCPU
+        cpus params.bowtieCPU
 
-    when:
-        params.genome2 != ""
+        when:
+            params.genome2 != ""
 
-    input:
-        file(fasta) from genome2Fasta
-        value(name) from name2_index
-    output:
-        set val(name), file("*.bt2") into bt_index_genome2
-    script:
-        """
-        bowtie2-build --threads ${task.cpus} $contig $name
-        """
+        input:
+            file(fasta) from genome2Fasta
+            val(name) from name2_index
+        output:
+            file("*.bt2") into bt_index_genome2
+        script:
+            """
+            bowtie2-build --threads ${task.cpus} $fasta $name
+            """
+    }
 }
+
 
 // 2.1:   Reads alignment on Genome1
 process AlignToGenome1 {
@@ -262,13 +267,14 @@ process AlignToGenome1 {
 
     input:
         set val(name), file(reads) from trimmed_reads_genome1
-        set val(index_name), file(index) from bt_index_genome1.collect()
+        file(index) from bt_index_genome1.collect()
     output:
-        set val(index_name+name), file("*.sorted.bam") into alignment_genome1
+        set val(name), file("*.sorted.bam") into alignment_genome1
     script:
+        index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
         outfile = index_name+"_"+name+".sorted.bam"
         """
-        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort - > $outfile
+        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
         """
 }
 
@@ -286,13 +292,14 @@ process AlignToGenome2 {
 
     input:
         set val(name), file(reads) from trimmed_reads_genome2
-        set val(index_name), file(index) from bt_index_genome2.collect()
+        file(index) from bt_index_genome2.collect()
     output:
-        set val(index_name+name), file("*.sorted.bam") into alignment_genome2
+        set val(name), file("*.sorted.bam") into alignment_genome2
     script:
+        index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
         outfile = index_name+"_"+name+".sorted.bam"
         """
-        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort - > $outfile
+        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
         """
 }
 
@@ -312,13 +319,13 @@ if (params.genome1 != ""){
         input:
             set val(name), file(bam) from alignment_genome1
             file(fasta) from genome1Size
-            value(orgaName) from name1_countReads
+            val(orgaName) from name1_countReads
         output:
             set val(name), file("*.out") into read_count_genome1
         script:
             outfile = name+"_"+orgaName+".out"
             """
-            normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -g $fasta -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
 } else {
@@ -333,14 +340,14 @@ if (params.genome1 != ""){
 
         input:
             set val(name), file(bam) from alignment_genome1
-            value(genomeSize) from genome1Size
-            value(orgaName) from name1_countReadsIndex
+            val(genomeSize) from genome1Size
+            val(orgaName) from name1_countReadsIndex
         output:
             set val(name), file("*.out") into read_count_genome1
         script:
             outfile = name+"_"+orgaName+".out"
             """
-            normalizedReadCount -b $bam -s $genomeSize -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
 }
@@ -360,13 +367,13 @@ if (params.genome2 != ""){
         input:
             set val(name), file(bam) from alignment_genome2
             file(fasta) from genome2Size
-            value(orgaName) from name2_countReads
+            val(orgaName) from name2_countReads
         output:
             set val(name), file("*.out") into read_count_genome2
         script:
             outfile = name+"_"+orgaName+".out"
             """
-            normalizedReadCount -b $bam -g $fasta -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -g $fasta -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
 } else {
@@ -381,14 +388,14 @@ if (params.genome2 != ""){
 
         input:
             set val(name), file(bam) from alignment_genome2
-            value(genomeSize) from genome2Size
-            value(orgaName) from name2_countReadsIndex
+            val(genomeSize) from genome2Size
+            val(orgaName) from name2_countReadsIndex
         output:
             set val(name), file("*.out") into read_count_genome2
         script:
             outfile = name+"_"+orgaName+".out"
             """
-            normalizedReadCount -b $bam -s genomeSize -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -o $outfile -p ${task.cpus}
             """
     }
 }
@@ -398,7 +405,7 @@ if (params.genome2 != ""){
 process proportionAndReport {
     tag "$name3"
 
-    conda 'python=3.6 matplotlib conda-forge::pandoc'
+    conda 'python=3.6 matplotlib'
 
     label 'expresso'
 
@@ -408,10 +415,11 @@ process proportionAndReport {
         set val(name1), file(readCount1) from read_count_genome1
         set val(name2), file(readCount2) from read_count_genome2
         set val(name3), file(reads) from reads_to_log
-        value(orgaName1) from name1_log
-        value(orgaName2) from name2_log
+        val(orgaName1) from name1_log
+        val(orgaName2) from name2_log
     output:
-        set val(name), file("*.md") into coproIDResult
+        set val(name1), file("*.md") into coproIDResult
+        file("*.png") into plot
     script:
         outfile = name3+".coproID_result.md"
         """
@@ -428,17 +436,18 @@ process md2pdf {
 
     label 'expresso'
 
-    errorStategy 'ignore'
+    errorStrategy 'ignore'
 
     publishDir "${params.results}", mode: 'copy'
 
     input:
         set val(name), file(report) from coproIDResult
+        file(fig) from plot
     output:
         set val(name), file("*.pdf") into pdfReport
     script:
         outfile = name+".pdf"
         """
-        pandoc $report --pdf-engine=xelatex -o $outfile
+        pandoc $report -o $outfile
         """
 }

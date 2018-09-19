@@ -4,6 +4,7 @@ import argparse
 import pysam
 import multiprocessing
 import sys
+from functools import partial
 
 
 def get_args():
@@ -27,6 +28,12 @@ def get_args():
         default=None,
         help='Genome size in bp')
     parser.add_argument(
+        '-n',
+        dest='name',
+        default=None,
+        help='Organism name. Example: "Homo_sapiens"'
+    )
+    parser.add_argument(
         '-o',
         dest="output",
         default=None,
@@ -43,10 +50,11 @@ def get_args():
     bam = args.bam
     genome = args.genome
     size = args.size
+    organame = args.name
     outfile = args.output
-    processes = args.processes
+    processes = int(args.processes)
 
-    return(bam, genome, size, outfile, processes)
+    return(bam, genome, size, organame, outfile, processes)
 
 
 def getBasename(file_name):
@@ -75,56 +83,57 @@ def getNumberMappedReads(bam):
     for read in bamfile:
         identity = read.query_alignment_length / read.query_length
         if identity >= min_identity:
-            nb_mapped_reads += 1
+            nb_mapped_reads += read.query_length
     return(nb_mapped_reads)
+
+
+def perChromosome(bamfile, chr):
+    nb_mapped_reads_chr = 0
+    min_identity = 0.99
+    reads = bamfile.fetch(chr, multiple_iterators=True)
+    for read in reads:
+        identity = read.query_alignment_length / read.query_length
+        if identity >= min_identity:
+            nb_mapped_reads_chr += read.query_length
+    # return(nb_mapped_reads_chr)
+    print(nb_mapped_reads_chr)
 
 
 def getNumberMappedReadsMultiprocess(bam, processes):
     nb_mapped_reads = 0
     bamfile = pysam.AlignmentFile(bam, "rb")
     chrs = bamfile.references
+    print(bamfile.references)
 
-    def _perChromosome(chr):
-        nb_mapped_reads_chr = 0
-        min_identity = 0.99
-        reads = bam.fetch(chr, multiple_iterators=True)
-        for read in bamfile:
-            identity = read.query_alignment_length / read.query_length
-            if identity >= min_identity:
-                nb_mapped_reads_chr += 1
-        return(nb_mapped_reads_chr)
+    # result = perChromosome(chrs[0])
+    # print(result)
 
+    perChromosomePartial = partial(perChromosome, bamfile=bamfile)
     p = multiprocessing.Pool(processes)
-    result = p.map(_perChromosome, chrs)
+    p.map(perChromosomePartial, chrs)
     p.close()
     p.join()
-    nb_mapped_reads = sum(result)
+    print(result)
     return(nb_mapped_reads)
 
 
 if __name__ == "__main__":
-    BAM, GENOME, SIZE, OUTFILE, PROCESSES = get_args()
+    BAM, GENOME, SIZE, ORGANAME, OUTFILE, PROCESSES = get_args()
 
-    if BAM is None and GENOME is None:
-        print("Missing BAM and genome fasta file")
-        sys.exit(1)
-    elif BAM is None:
+    if BAM is None:
         print("Missing BAM file")
-        sys.exit(1)
-    elif GENOME is None:
-        print("Missing genome fastas file")
         sys.exit(1)
 
     bam_basename = getBasename(BAM)
-    organism = getBasename(GENOME)
 
     if not OUTFILE:
-        OUTFILE = bam_basename + "_" + organism + ".out"
+        OUTFILE = bam_basename + "_" + ORGANAME + ".out"
 
     if SIZE is None:
         gs = computeGenomeSize(GENOME)
     else:
         gs = int(SIZE)
-    nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
+    # nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
+    nb = getNumberMappedReads(BAM)
     with open(OUTFILE, 'w') as w:
-        w.write(organism, str(round((nb_mapped_reads / gs), 6)))
+        w.write(ORGANAME + "," + str(round((nb / gs), 6)))
