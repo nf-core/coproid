@@ -87,33 +87,29 @@ def getNumberMappedReads(bam):
     return(nb_mapped_reads)
 
 
-def perChromosome(bamfile, chr):
+def perChromosome(chr, bam):
     nb_mapped_reads_chr = 0
     min_identity = 0.99
+    bamfile = pysam.AlignmentFile(bam, "rb")
     reads = bamfile.fetch(chr, multiple_iterators=True)
     for read in reads:
         identity = read.query_alignment_length / read.query_length
         if identity >= min_identity:
             nb_mapped_reads_chr += read.query_length
-    # return(nb_mapped_reads_chr)
-    print(nb_mapped_reads_chr)
+    return(nb_mapped_reads_chr)
 
 
 def getNumberMappedReadsMultiprocess(bam, processes):
     nb_mapped_reads = 0
     bamfile = pysam.AlignmentFile(bam, "rb")
     chrs = bamfile.references
-    print(bamfile.references)
 
-    # result = perChromosome(chrs[0])
-    # print(result)
-
-    perChromosomePartial = partial(perChromosome, bamfile=bamfile)
+    perChromosomePartial = partial(perChromosome, bam=bam)
     p = multiprocessing.Pool(processes)
-    p.map(perChromosomePartial, chrs)
+    result = p.map(perChromosomePartial, chrs)
     p.close()
     p.join()
-    print(result)
+    nb_mapped_reads = sum(list(result))
     return(nb_mapped_reads)
 
 
@@ -133,7 +129,7 @@ if __name__ == "__main__":
         gs = computeGenomeSize(GENOME)
     else:
         gs = int(SIZE)
-    # nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
-    nb = getNumberMappedReads(BAM)
+    nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
+    # nb = getNumberMappedReads(BAM)
     with open(OUTFILE, 'w') as w:
         w.write(ORGANAME + "," + str(round((nb / gs), 6)))
