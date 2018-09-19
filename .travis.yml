@@ -26,5 +26,5 @@ install:
   - source activate test-environment
 
 script:
-  - nextflow run maxibor/coproid -profile test_index
-  - nextflow run maxibor/coproid -profile test_genome
+  - nextflow run main.nf -profile test_index
+  - nextflow run main.nf -profile test_genome
