@@ -5,11 +5,12 @@ import sys
 import numpy as np
 import datetime
 import matplotlib.pyplot as plt
-plt.switch_backend('agg'
+plt.switch_backend('agg')
+
 
 def get_args():
     '''This function parses and return arguments passed in'''
-    parser=argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         prog='computeRatio',
         description='Compute read count ratio between target genome1 and target genome2')
     parser.add_argument(
@@ -52,37 +53,37 @@ def get_args():
         default="coproID_result.md",
         help="Output file basename. Default = coproID_result.pdf")
 
-    args=parser.parse_args()
+    args = parser.parse_args()
 
-    countFile1=args.countFile1
-    countFile2=args.countFile2
-    reads1=args.reads1
-    reads2=args.reads2
-    genome1=args.genome1
-    genome2=args.genome2
-    outfile=args.output
+    countFile1 = args.countFile1
+    countFile2 = args.countFile2
+    reads1 = args.reads1
+    reads2 = args.reads2
+    genome1 = args.genome1
+    genome2 = args.genome2
+    outfile = args.output
 
     return(countFile1, countFile2, reads1, reads2, genome1, genome2, outfile)
 
 
 def getBasename(file_name):
     if ("/") in file_name:
-        basename=file_name.split("/")[-1].split(".")[0]
+        basename = file_name.split("/")[-1].split(".")[0]
     else:
-        basename=file_name.split(".")[0]
+        basename = file_name.split(".")[0]
     return(basename)
 
 
 def getFile(path):
     if ("/") in path:
-        filename=path.split("/")[-1]
+        filename = path.split("/")[-1]
     else:
-        filename=path
+        filename = path
     return(filename)
 
 
 if __name__ == "__main__":
-    CF1, CF2, R1, R2, G1, G2, OUTFILE=get_args()
+    CF1, CF2, R1, R2, G1, G2, OUTFILE = get_args()
 
     if CF1 is None and CF2 is None:
         print("Count file 1 and Count file 2 are missing")
@@ -94,27 +95,27 @@ if __name__ == "__main__":
         print("Count file 2 is missing")
         sys.exit(1)
 
-    organisms=["", ""]
-    readCnt=[0, 0]
+    organisms = ["", ""]
+    readCnt = [0, 0]
     with open(CF1, "r") as f1:
         for line in f1:
-            line=line.rstrip().split(",")
-            organisms[0]=line[0]
-            readCnt[0]=float(line[1])
+            line = line.rstrip().split(",")
+            organisms[0] = line[0]
+            readCnt[0] = float(line[1])
 
     with open(CF2, "r") as f2:
         for line in f2:
-            line=line.rstrip().split(",")
-            organisms[1]=line[0]
-            readCnt[1]=float(line[1])
+            line = line.rstrip().split(",")
+            organisms[1] = line[0]
+            readCnt[1] = float(line[1])
 
-    ratio=round((readCnt[0] / readCnt[1]), 3)
+    ratio = round((readCnt[0] / readCnt[1]), 3)
 
     if ratio < 2:
-        ticklist=[organisms[1]] + [str(round(x, 2)) for x in list(
+        ticklist = [organisms[1]] + [str(round(x, 2)) for x in list(
             np.arange(0.1, 2.1, 0.1))] + [organisms[0]]
     else:
-        ticklist=[organisms[1]] + [str(round(x, 2)) for x in list(
+        ticklist = [organisms[1]] + [str(round(x, 2)) for x in list(
             np.arange(0.1, ratio + 0.1, 0.1))] + [organisms[0]]
 
     plt.plot(ratio, 0, "ro")
@@ -138,7 +139,7 @@ if __name__ == "__main__":
 
     plt.savefig("./ratio.png")
 
-    now=datetime.datetime.now()
+    now = datetime.datetime.now()
     with open(OUTFILE, "w") as fw:
         fw.write(
             "# coproID: Coprolite Identification\n**Homepage/Documentation**: [github.com/coproID](https://github.com/coproID)  \n**Author:** Maxime Borry [borry@shh.mpg.de](borry@shh.mpg.de)  \n")
