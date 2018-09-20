@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/maxibor/coproID.svg?branch=master)](https://travis-ci.org/maxibor/coproID)
+[![Build Status](https://travis-ci.org/maxibor/coproID.svg?branch=master)](https://travis-ci.org/maxibor/coproID)  
 
-<img src="img/logo.png" height="150">
+<img src="img/logo.png" height="150">  
+
 ## Introduction
 **CoproID** helps you to identify the *"true maker"* of a sequenced Coprolite by comparing the reads mapping to suspects genomes.
 
