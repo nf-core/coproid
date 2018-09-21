@@ -109,6 +109,11 @@ if __name__ == "__main__":
             organisms[1] = line[0]
             readCnt[1] = float(line[1])
 
+    if readCnt[0] == 0:
+        readCnt[0] = 1
+    if readCnt[1] == 0:
+        readCnt[1] == 1
+
     ratio = round((readCnt[0] / readCnt[1]), 3)
 
     if ratio < 2:
