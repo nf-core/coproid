@@ -109,7 +109,7 @@ if __name__ == "__main__":
             organisms[1] = line[0]
             readCnt[1] = float(line[1])
 
-    ratio = round((readCnt[0] / readCnt[1]), 3)
+    ratio = round((readCnt[0] + 0.000000001 / readCnt[1]) + 0.000000001, 3)
 
     if ratio < 2:
         ticklist = [organisms[1]] + [str(round(x, 2)) for x in list(
