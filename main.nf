@@ -249,6 +249,8 @@ process AlignToGenome1 {
 
     label 'intenso'
 
+    errorStrategy 'ignore'
+
     //publishDir "${params.results}/alignment", mode: 'copy'
 
     input:
@@ -271,6 +273,8 @@ process AlignToGenome2 {
     conda 'bioconda::bowtie2=2.2.6 bioconda::samtools=1.3'
 
     label 'intenso'
+
+    errorStrategy 'ignore'
 
     //publishDir "${params.results}/alignment", mode: 'copy'
 
