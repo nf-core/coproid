@@ -245,7 +245,7 @@ if (params.genome2 != ''){
 process AlignToGenome1 {
     tag "$name"
 
-    conda 'bioconda::bowtie2 bioconda::samtools'
+    conda 'bioconda::bowtie2=2.2.6 bioconda::samtools=1.3'
 
     label 'intenso'
 
@@ -268,7 +268,7 @@ process AlignToGenome1 {
 process AlignToGenome2 {
     tag "$name"
 
-    conda 'bioconda::bowtie2 bioconda::samtools'
+    conda 'bioconda::bowtie2=2.2.6 bioconda::samtools=1.3'
 
     label 'intenso'
 
