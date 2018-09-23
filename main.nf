@@ -20,7 +20,7 @@ Pipeline overview:
  - 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1
  - 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
  - 4:     Compute read proportion Nnr1/Nnr2 and write Markdown report
- - 5:     Convert Markdown report to PDF
+ - 5:     Convert Markdown report to HTML
 
  ----------------------------------------------------------------------------------------
 */
@@ -408,9 +408,9 @@ process proportionAndReport {
         """
 }
 
-// 5:     Convert Markdown report to PDF
+// 5:     Convert Markdown report to HTML
 
-process md2pdf {
+process md2html {
     tag "$name"
 
     conda 'conda-forge::pandoc'
