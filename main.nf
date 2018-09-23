@@ -92,7 +92,7 @@ if( ! nextflow.version.matches(">= 0.30") ){
 Channel
     .fromFilePairs( params.reads, size: 2 )
     .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\n" }
-	.into { reads_to_trim; reads_to_log }
+	.set { reads_to_trim }
 
 // Creating name channels
 Channel
@@ -387,7 +387,7 @@ if (params.genome2 != ""){
 
 // 4:     Compute read proportion Nnr1/Nnr2 and write PDF report
 process proportionAndReport {
-    tag "$name3"
+    tag "$name1"
 
     conda 'python=3.6 matplotlib'
 
@@ -396,16 +396,15 @@ process proportionAndReport {
     input:
         set val(name1), file(readCount1) from read_count_genome1
         set val(name2), file(readCount2) from read_count_genome2
-        set val(name3), file(reads) from reads_to_log
         val(orgaName1) from name1_log
         val(orgaName2) from name2_log
     output:
         set val(name1), file("*.md") into coproIDResult
         file("*.png") into plot
     script:
-        outfile = name3+".coproID_result.md"
+        outfile = name1+".coproID_result.md"
         """
-        computeRatio -c1 $readCount1 -c2 $readCount2 -r1 ${reads[0]} -r2 ${reads[1]} -g1 $orgaName1 -g2 $orgaName2 -o $outfile
+        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -g1 $orgaName1 -g2 $orgaName2 -o $outfile
         """
 }
 

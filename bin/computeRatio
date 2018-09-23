@@ -24,16 +24,10 @@ def get_args():
         default=None,
         help="Normalized read count aligned to genome2")
     parser.add_argument(
-        '-r1',
-        dest='reads1',
+        '-s',
+        dest='sample',
         default=None,
-        help="Path to fastq reads file 1"
-    )
-    parser.add_argument(
-        '-r2',
-        dest='reads2',
-        default=None,
-        help="Path to fastq reads file 2"
+        help='Sample name'
     )
     parser.add_argument(
         '-g1',
@@ -57,13 +51,12 @@ def get_args():
 
     countFile1 = args.countFile1
     countFile2 = args.countFile2
-    reads1 = args.reads1
-    reads2 = args.reads2
+    sName = args.sample
     genome1 = args.genome1
     genome2 = args.genome2
     outfile = args.output
 
-    return(countFile1, countFile2, reads1, reads2, genome1, genome2, outfile)
+    return(countFile1, countFile2, sName, genome1, genome2, outfile)
 
 
 def getBasename(file_name):
@@ -83,7 +76,7 @@ def getFile(path):
 
 
 if __name__ == "__main__":
-    CF1, CF2, R1, R2, G1, G2, OUTFILE = get_args()
+    CF1, CF2, SNAME, G1, G2, OUTFILE = get_args()
 
     if CF1 is None and CF2 is None:
         print("Count file 1 and Count file 2 are missing")
@@ -162,8 +155,7 @@ if __name__ == "__main__":
                  str(now.day) + "  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "  \n")
         fw.write("\n\n")
         fw.write("## Files used:\n")
-        fw.write("- Fastq files: " + getFile(R1) +
-                 " and " + getFile(R2) + "  \n")
+        fw.write("- Sample: " + SNAME + "  \n")
         fw.write("- Organisms used: " + organisms[0] + " (genome size = " + str(gs[0]) +
                  " bp ) and " + organisms[1] + " (genome size = " + str(gs[1]) + " bp)  \n")
         fw.write("\n\n")
