@@ -132,4 +132,5 @@ if __name__ == "__main__":
     nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
     # nb = getNumberMappedReads(BAM)
     with open(OUTFILE, 'w') as w:
-        w.write(ORGANAME + "," + str(nb / gs))
+        w.write("organism,number_reads,genome_size_read_ratio\n")
+        w.write(ORGANAME + "," + str(nb) + "," + str(gs) + "," + str(nb / gs))

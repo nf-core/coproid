@@ -96,18 +96,31 @@ if __name__ == "__main__":
         sys.exit(1)
 
     organisms = ["", ""]
+    nbRead = [0, 0]
+    gs = [0, 0]
     readCnt = [0, 0]
+
     with open(CF1, "r") as f1:
         for line in f1:
             line = line.rstrip().split(",")
-            organisms[0] = line[0]
-            readCnt[0] = float(line[1])
+            if line[0] == 'organism':
+                continue
+            else:
+                organisms[0] = line[0]
+                nbRead[0] = int(line[1])
+                gs[0] = int(line[2])
+                readCnt[0] = float(line[3])
 
     with open(CF2, "r") as f2:
         for line in f2:
             line = line.rstrip().split(",")
-            organisms[1] = line[0]
-            readCnt[1] = float(line[1])
+            if line[0] == 'organism':
+                continue
+            else:
+                organisms[1] = line[0]
+                nbRead[1] = int(line[1])
+                gs[1] = int(line[2])
+                readCnt[1] = float(line[3])
 
     ratio = round(((readCnt[0] + 0.0000001) / (readCnt[1] + 0.0000001)), 3)
 
@@ -151,9 +164,13 @@ if __name__ == "__main__":
         fw.write("## Files used:\n")
         fw.write("- Fastq files: " + getFile(R1) +
                  " and " + getFile(R2) + "  \n")
-        fw.write("- Genomes used: " + getFile(G1) +
-                 " and " + getFile(G2) + "  \n")
+        fw.write("- Organisms used: " + organisms[0] + " (genome size = " + str(gs[0]) +
+                 " bp ) and " + organisms[1] + " (genome size = " + str(gs[1]) + " bp)  \n")
         fw.write("\n\n")
+        fw.write("Number of reads aligned to " +
+                 organisms[0] + " at 99\% identity: " + str(nbRead[0]) + "\n\n  ")
+        fw.write("Number of reads aligned to " +
+                 organisms[1] + " at 99\% identity: " + str(nbRead[1]) + "\n\n  ")
         fw.write(
             "The formula used to compute the read ratio is the following: \n\n  $NormalizedRead_{ratio} = \\frac{\\frac{reads_{aligned genome 1}\\times{read_{length}}}{size{genome1}}}{\\frac{reads_{aligned genome 2}\\times{read_{length}}}{size{genome2}}}$\n\n  ")
         fw.write("Normalized Read ratio $\\frac{" + organisms[0] + "}{" +
