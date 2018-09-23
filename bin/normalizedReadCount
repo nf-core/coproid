@@ -132,4 +132,4 @@ if __name__ == "__main__":
     nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
     # nb = getNumberMappedReads(BAM)
     with open(OUTFILE, 'w') as w:
-        w.write(ORGANAME + "," + str(round((nb / gs), 6)))
+        w.write(ORGANAME + "," + str(nb / gs))
