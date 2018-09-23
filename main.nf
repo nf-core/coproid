@@ -393,8 +393,6 @@ process proportionAndReport {
 
     label 'ristretto'
 
-    publishDir "${params.results}", mode: 'copy'
-
     input:
         set val(name1), file(readCount1) from read_count_genome1
         set val(name2), file(readCount2) from read_count_genome2
@@ -432,6 +430,6 @@ process md2pdf {
     script:
         outfile = name+".html"
         """
-        pandoc --mathjax -s $report -o $outfile
+        pandoc --self-contained --webtex -s $report -o $outfile
         """
 }
