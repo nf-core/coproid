@@ -50,6 +50,7 @@ def helpMessage() {
       --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
       --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
+      --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
 
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
@@ -59,8 +60,8 @@ def helpMessage() {
 }
 
 
-version = "0.2"
-version_date = "September 23rd, 2018"
+version = "0.3"
+version_date = "September 24th, 2018"
 
 params.phred = 33
 
@@ -69,11 +70,12 @@ params.reads = ''
 params.genome1 = ''
 params.genome2 = ''
 params.genome1Size = ''
-params.genome2Size = 0
+params.genome2Size = ''
 params.index1 = ''
 params.index2 = ''
 params.name1 = ''
 params.name2 = ''
+params.identity = 0.85
 
 // Show help message
 params.help = false
@@ -151,6 +153,7 @@ log.info "================================================================"
 def summary = [:]
 summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
+summary['identity threshold'] = params.identity
 if (params.genome1 != ""){
     summary['Genome1'] = params.genome1
 } else {
@@ -188,7 +191,7 @@ process AdapterRemoval {
         out2 = name+".pair2.discarded.fastq"
         col_out = name+".collapsed.fastq"
         """
-        AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --collapse --output1 $out1 --output2 $out2 --outputcollapsed $col_out --threads ${task.cpus} --qualitybase ${params.phred}
+        AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --collapse --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --outputcollapsed $col_out --threads ${task.cpus} --qualitybase ${params.phred}
         """
 }
 
@@ -312,7 +315,7 @@ if (params.genome1 != ""){
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -g $fasta -n $orgaName -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -g $fasta -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 } else {
@@ -333,7 +336,7 @@ if (params.genome1 != ""){
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 }
@@ -358,7 +361,7 @@ if (params.genome2 != ""){
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -g $fasta -n $orgaName -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -g $fasta -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 } else {
@@ -379,7 +382,7 @@ if (params.genome2 != ""){
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 }
@@ -404,7 +407,7 @@ process proportionAndReport {
     script:
         outfile = name1+".coproID_result.md"
         """
-        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -g1 $orgaName1 -g2 $orgaName2 -o $outfile
+        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -g1 $orgaName1 -g2 $orgaName2 -i ${params.identity} -o $outfile
         """
 }
 

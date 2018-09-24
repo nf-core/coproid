@@ -25,14 +25,14 @@ nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --rea
 ```
 $ nextflow run maxibor/coproid --help
 N E X T F L O W  ~  version 0.31.1
-Launching `maxibor/coproid` [sick_becquerel] - revision: c4c082708c
+Launching `maxibor/coproid` [happy_woese] - revision: c93bdbe090
 
 =========================================
  coproID: Coprolite Identification
  Homepage / Documentation: https://github.com/maxibor/coproid
  Author: Maxime Borry <borry@shh.mpg.de>
- Version 0.2
- Last updated on September 23rd, 2018
+ Version 0.3
+ Last updated on September 24th, 2018
 =========================================
 Usage:
 The typical command for running the pipeline is as follows:
@@ -50,11 +50,9 @@ Options:
   --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
   --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
   --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
+  --identity                    Identity threshold to retain read alignment. Default = 0.85
 
 Other options:
   --results                     Name of result directory. Defaults to ./results
   --help  --h                   Shows this help page
-
-
-
 ```

@@ -34,6 +34,12 @@ def get_args():
         help='Organism name. Example: "Homo_sapiens"'
     )
     parser.add_argument(
+        '-i',
+        dest='identity',
+        default=0.97,
+        help='Identity threshold to retain read alignment'
+    )
+    parser.add_argument(
         '-o',
         dest="output",
         default=None,
@@ -51,10 +57,11 @@ def get_args():
     genome = args.genome
     size = args.size
     organame = args.name
+    identity = float(str(args.identity))
     outfile = args.output
     processes = int(args.processes)
 
-    return(bam, genome, size, organame, outfile, processes)
+    return(bam, genome, size, organame, identity, outfile, processes)
 
 
 def getBasename(file_name):
@@ -87,9 +94,10 @@ def getNumberMappedReads(bam):
     return(nb_mapped_reads)
 
 
-def perChromosome(chr, bam):
+def perChromosome(chr, bam, id):
     nb_mapped_reads_chr = 0
-    min_identity = 0.99
+    # min_identity = 0.99
+    min_identity = id
     bamfile = pysam.AlignmentFile(bam, "rb")
     reads = bamfile.fetch(chr, multiple_iterators=True)
     for read in reads:
@@ -99,12 +107,12 @@ def perChromosome(chr, bam):
     return(nb_mapped_reads_chr)
 
 
-def getNumberMappedReadsMultiprocess(bam, processes):
+def getNumberMappedReadsMultiprocess(bam, processes, id):
     nb_mapped_reads = 0
     bamfile = pysam.AlignmentFile(bam, "rb")
     chrs = bamfile.references
 
-    perChromosomePartial = partial(perChromosome, bam=bam)
+    perChromosomePartial = partial(perChromosome, bam=bam, id=id)
     p = multiprocessing.Pool(processes)
     result = p.map(perChromosomePartial, chrs)
     p.close()
@@ -114,7 +122,7 @@ def getNumberMappedReadsMultiprocess(bam, processes):
 
 
 if __name__ == "__main__":
-    BAM, GENOME, SIZE, ORGANAME, OUTFILE, PROCESSES = get_args()
+    BAM, GENOME, SIZE, ORGANAME, ID, OUTFILE, PROCESSES = get_args()
 
     if BAM is None:
         print("Missing BAM file")
@@ -129,7 +137,7 @@ if __name__ == "__main__":
         gs = computeGenomeSize(GENOME)
     else:
         gs = int(SIZE)
-    nb = getNumberMappedReadsMultiprocess(BAM, PROCESSES)
+    nb = getNumberMappedReadsMultiprocess(bam=BAM, processes=PROCESSES, id=ID)
     with open(OUTFILE, 'w') as w:
         w.write("organism,number_reads,genome_size_read_ratio\n")
         w.write(ORGANAME + "," + str(nb) + "," +
