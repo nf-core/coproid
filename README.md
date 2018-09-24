@@ -19,6 +19,9 @@ The mapped read count for each suspect's genome is normalized by the suspect's g
 nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --reads '*_R{1,2}.fastq.gz'
 ```
 
+## Pipeline overview
+
+![](img/dag.png)
 
 ## Get Help
 
