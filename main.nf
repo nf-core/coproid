@@ -51,6 +51,7 @@ def helpMessage() {
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
       --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
+      --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
 
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
@@ -76,6 +77,18 @@ params.index2 = ''
 params.name1 = ''
 params.name2 = ''
 params.identity = 0.85
+params.bowtie = 'very-sensitive'
+
+bowtie_setting = ''
+
+// Bowtie setting check
+if (params.bowtie == 'very-fast'){
+    bowtie_setting = '--very-fast'
+} else if (params.bowtie == 'very-sensitive'){
+    bowtie_setting = '--very-sensitive -N 1'
+} else {
+    throw GroovyException('Problem with --bowtie. Make sure to choose between very-fast and very-sensitive')
+}
 
 // Show help message
 params.help = false
@@ -154,6 +167,7 @@ def summary = [:]
 summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
+summary['bowtie setting'] = params.bowtie
 if (params.genome1 != ""){
     summary['Genome1'] = params.genome1
 } else {
@@ -265,7 +279,7 @@ process AlignToGenome1 {
         index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
         outfile = index_name+"_"+name+".sorted.bam"
         """
-        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
+        bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
         """
 }
 
@@ -290,7 +304,7 @@ process AlignToGenome2 {
         index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
         outfile = index_name+"_"+name+".sorted.bam"
         """
-        bowtie2 -x $index_name -U $reads --very-fast --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
+        bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
         """
 }
 
