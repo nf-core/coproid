@@ -78,6 +78,7 @@ params.name1 = ''
 params.name2 = ''
 params.identity = 0.85
 params.bowtie = 'very-sensitive'
+css = baseDir+'/misc/pandoc.css'
 
 bowtie_setting = ''
 
@@ -446,6 +447,6 @@ process md2html {
     script:
         outfile = name+".html"
         """
-        pandoc --self-contained --webtex -s $report -o $outfile
+        pandoc --self-contained --css $css --webtex -s $report -o $outfile
         """
 }
