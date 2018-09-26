@@ -61,8 +61,8 @@ def helpMessage() {
 }
 
 
-version = "0.3"
-version_date = "September 24th, 2018"
+version = "0.4"
+version_date = "September 26th, 2018"
 
 params.phred = 33
 
@@ -78,7 +78,7 @@ params.name1 = ''
 params.name2 = ''
 params.identity = 0.85
 params.bowtie = 'very-sensitive'
-css = baseDir+'/misc/pandoc.css'
+css = baseDir+'/res/pandoc.css'
 
 bowtie_setting = ''
 
