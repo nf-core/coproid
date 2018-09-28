@@ -12,15 +12,17 @@ https://github.com/maxibor/coproid
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
 Pipeline overview:
+ - 0  :   Fastqc
  - 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
  - 1.2:   Bowtie Indexing of Genome1
  - 1.3:   Bowtie Indexing of Genome2
  - 2.1:   Reads alignment on Genome1
  - 2.2:   Reads alignment on Genome2
- - 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1
- - 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
+ - 3.1:   Count bp aligned on Genome1 and normalise by Genome1 size -> Nnr1
+ - 3.2:   Count bp aligned on Genome2 and normalise by Genome2 size -> Nnr2
  - 4:     Compute read proportion Nnr1/Nnr2 and write Markdown report
  - 5:     Convert Markdown report to HTML
+ - 6:     MultiQC
 
  ----------------------------------------------------------------------------------------
 */
@@ -50,6 +52,7 @@ def helpMessage() {
       --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
       --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
+      --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
 
@@ -61,8 +64,8 @@ def helpMessage() {
 }
 
 
-version = "0.4"
-version_date = "September 26th, 2018"
+version = "0.5"
+version_date = "September 28th, 2018"
 
 params.phred = 33
 
@@ -76,11 +79,14 @@ params.index1 = ''
 params.index2 = ''
 params.name1 = ''
 params.name2 = ''
+params.collapse = 'yes'
 params.identity = 0.85
 params.bowtie = 'very-sensitive'
 css = baseDir+'/res/pandoc.css'
 
 bowtie_setting = ''
+collapse_setting = ''
+multiqc_conf = "$baseDir/conf/.multiqc_config.yaml"
 
 // Bowtie setting check
 if (params.bowtie == 'very-fast'){
@@ -88,7 +94,7 @@ if (params.bowtie == 'very-fast'){
 } else if (params.bowtie == 'very-sensitive'){
     bowtie_setting = '--very-sensitive -N 1'
 } else {
-    throw GroovyException('Problem with --bowtie. Make sure to choose between very-fast and very-sensitive')
+    throw GroovyException('Problem with --bowtie. Make sure to choose between "very-fast" and "very-sensitive"')
 }
 
 // Show help message
@@ -108,7 +114,7 @@ if( ! nextflow.version.matches(">= 0.30") ){
 Channel
     .fromFilePairs( params.reads, size: 2 )
     .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\n" }
-	.set { reads_to_trim }
+	.into { reads_to_trim; reads_fastqc }
 
 // Creating name channels
 Channel
@@ -168,6 +174,7 @@ def summary = [:]
 summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
+summary['collapse'] = params.collapse
 summary['bowtie setting'] = params.bowtie
 if (params.genome1 != ""){
     summary['Genome1'] = params.genome1
@@ -186,29 +193,77 @@ log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
 log.info "========================================="
 
 
-// 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
-process AdapterRemoval {
+// 0: FASTQC
+process fastqc {
     tag "$name"
 
-    conda 'bioconda::adapterremoval'
+    conda 'bioconda::fastqc'
 
-    label 'expresso'
+    label 'ristretto'
 
     input:
-        set val(name), file(reads) from reads_to_trim
+        set val(name), file(reads) from reads_fastqc
 
     output:
-        set val(name), file('*.collapsed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
-        //set val(name), file("*.settings") into adapter_removal_results
-
+        file '*_fastqc.{zip,html}' into fastqc_results
     script:
-        out1 = name+".pair1.discarded.fastq"
-        out2 = name+".pair2.discarded.fastq"
-        col_out = name+".collapsed.fastq"
         """
-        AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --collapse --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --outputcollapsed $col_out --threads ${task.cpus} --qualitybase ${params.phred}
+        fastqc -q $reads
         """
 }
+
+// 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
+if (params.collapse == 'yes'){
+    process AdapterRemovalCollapse {
+        tag "$name"
+
+        conda 'bioconda::adapterremoval'
+
+        label 'expresso'
+
+        input:
+            set val(name), file(reads) from reads_to_trim
+
+        output:
+            set val(name), file('*.collapsed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
+            file("*.settings") into adapter_removal_results
+
+        script:
+            out1 = name+".pair1.discarded.fastq"
+            out2 = name+".pair2.discarded.fastq"
+            col_out = name+".collapsed.fastq"
+            settings = name+".settings"
+            """
+            AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --collapse --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --outputcollapsed $col_out --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
+            """
+    }
+} else if (params.collapse == "no") {
+    process AdapterRemovalNoCollapse {
+        tag "$name"
+
+        conda 'bioconda::adapterremoval'
+
+        label 'expresso'
+
+        input:
+            set val(name), file(reads) from reads_to_trim
+
+        output:
+            set val(name), file('*.truncated.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
+            file("*.settings") into adapter_removal_results
+
+        script:
+            out1 = name+".pair1.truncated.fastq"
+            out2 = name+".pair2.truncated.fastq"
+            settings = name+".settings"
+            """
+            AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
+            """
+    }
+} else {
+    throw GroovyException('Problem with --collapse. Make sure you choose between "yes" and "no"')
+}
+
 
 if (params.genome1 != ''){
     // 1.2:   Bowtie Indexing of Genome1
@@ -260,54 +315,105 @@ if (params.genome2 != ''){
 
 
 // 2.1:   Reads alignment on Genome1
-process AlignToGenome1 {
-    tag "$name"
+if (params.collapse == "yes") {
+    process AlignCollapseToGenome1 {
+        tag "$name"
 
-    conda 'bioconda::bowtie2 bioconda::samtools'
+        conda 'bioconda::bowtie2 bioconda::samtools'
 
-    label 'intenso'
+        label 'intenso'
 
-    errorStrategy 'ignore'
+        errorStrategy 'ignore'
 
-    //publishDir "${params.results}/alignment", mode: 'copy'
+        input:
+            set val(name), file(reads) from trimmed_reads_genome1
+            file(index) from bt_index_genome1.collect()
+        output:
+            set val(name), file("*.sorted.bam") into alignment_genome1
+        script:
+            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
+            outfile = index_name+"_"+name+".sorted.bam"
+            """
+            bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
+            """
+    }
+} else if (params.collapse == "no") {
+    process AlignNoCollapseToGenome1 {
+        tag "$name"
 
-    input:
-        set val(name), file(reads) from trimmed_reads_genome1
-        file(index) from bt_index_genome1.collect()
-    output:
-        set val(name), file("*.sorted.bam") into alignment_genome1
-    script:
-        index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-        outfile = index_name+"_"+name+".sorted.bam"
-        """
-        bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
-        """
+        conda 'bioconda::bowtie2 bioconda::samtools'
+
+        label 'intenso'
+
+        errorStrategy 'ignore'
+
+
+        input:
+            set val(name), file(reads) from trimmed_reads_genome1
+            file(index) from bt_index_genome1.collect()
+        output:
+            set val(name), file("*.sorted.bam") into alignment_genome1
+        script:
+            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
+            outfile = index_name+"_"+name+".sorted.bam"
+            """
+            bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
+            """
+    }
 }
+
 
 // 2.2:   Reads alignment on Genome2
-process AlignToGenome2 {
-    tag "$name"
+if (params.collapse == "yes"){
+    process AlignCollapseToGenome2 {
+        tag "$name"
 
-    conda 'bioconda::bowtie2 bioconda::samtools'
+        conda 'bioconda::bowtie2 bioconda::samtools'
 
-    label 'intenso'
+        label 'intenso'
 
-    errorStrategy 'ignore'
+        errorStrategy 'ignore'
 
-    //publishDir "${params.results}/alignment", mode: 'copy'
+        //publishDir "${params.results}/alignment", mode: 'copy'
 
-    input:
-        set val(name), file(reads) from trimmed_reads_genome2
-        file(index) from bt_index_genome2.collect()
-    output:
-        set val(name), file("*.sorted.bam") into alignment_genome2
-    script:
-        index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-        outfile = index_name+"_"+name+".sorted.bam"
-        """
-        bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
-        """
+        input:
+            set val(name), file(reads) from trimmed_reads_genome2
+            file(index) from bt_index_genome2.collect()
+        output:
+            set val(name), file("*.sorted.bam") into alignment_genome2
+        script:
+            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
+            outfile = index_name+"_"+name+".sorted.bam"
+            """
+            bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
+            """
+    }
+} else if (params.collapse == "no"){
+    process AlignNoCollapseToGenome2 {
+        tag "$name"
+
+        conda 'bioconda::bowtie2 bioconda::samtools'
+
+        label 'intenso'
+
+        errorStrategy 'ignore'
+
+        //publishDir "${params.results}/alignment", mode: 'copy'
+
+        input:
+            set val(name), file(reads) from trimmed_reads_genome2
+            file(index) from bt_index_genome2.collect()
+        output:
+            set val(name), file("*.sorted.bam") into alignment_genome2
+        script:
+            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
+            outfile = index_name+"_"+name+".sorted.bam"
+            """
+            bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
+            """
+    }
 }
+
 
 
 
@@ -422,7 +528,7 @@ process proportionAndReport {
     script:
         outfile = name1+".coproID_result.md"
         """
-        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -g1 $orgaName1 -g2 $orgaName2 -i ${params.identity} -o $outfile
+        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -g1 $orgaName1 -g2 $orgaName2 -i ${params.identity} -v $version -o $outfile
         """
 }
 
@@ -448,5 +554,27 @@ process md2html {
         outfile = name+".html"
         """
         pandoc --self-contained --css $css --webtex -s $report -o $outfile
+        """
+}
+
+process multiqc {
+
+    conda 'conda-forge::networkx bioconda::multiqc=1.5'
+
+    label 'ristretto'
+
+    errorStrategy 'ignore'
+
+    publishDir "${params.results}", mode: 'copy'
+
+    input:
+        file (ar:'adapter_removal/*') from adapter_removal_results.collect()
+        file ('fastqc/*') from fastqc_results.collect()
+    output:
+        file 'multiqc_report.html' into multiqc_report
+
+    script:
+        """
+        multiqc -f -d adapter_removal fastqc -c $multiqc_conf
         """
 }
