@@ -587,7 +587,7 @@ process mapdamageGenome1 {
 
     errorStrategy 'ignore'
 
-    publishDir "${params.results}/mapdamage_$orgaName", mode: 'copy'
+    publishDir "${params.results}/mapdamage_${orgaName}_${name}", mode: 'copy'
 
     input:
         set val(name), file(align) from mapdamage_genome1
@@ -611,7 +611,7 @@ process mapdamageGenome2 {
 
     errorStrategy 'ignore'
 
-    publishDir "${params.results}/mapdamage_$orgaName", mode: 'copy'
+    publishDir "${params.results}/mapdamage__${orgaName}_${name}", mode: 'copy'
 
     input:
         set val(name), file(align) from mapdamage_genome2
