@@ -197,6 +197,7 @@ summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
 summary['collapse'] = params.collapse
+summary['mapDamage'] = params.mapdamage
 summary['bowtie setting'] = params.bowtie
 if (params.genome1 != ""){
     summary['Genome1'] = params.genome1
@@ -593,10 +594,10 @@ process mapdamageGenome1 {
         val(orgaName) from name1_mapdamage
         file(fasta) from genome1mapdamage
     output:
-        set val(name), file("*.pdf") into mapdamage_result_genome1
+        set val(name), file("res/*.pdf") into mapdamage_result_genome1
     script:
         """
-        mapDamage -i $align -r $fasta
+        mapDamage -i $align -r $fasta -d res
         """
 }
 
@@ -616,10 +617,10 @@ process mapdamageGenome2 {
         val(orgaName) from name2_mapdamage
         file(fasta) from genome2mapdamage
     output:
-        set val(name), file("*.pdf") into mapdamage_result_genome2
+        set val(name), file("res/*.pdf") into mapdamage_result_genome2
     script:
         """
-        mapDamage -i $align -r $fasta
+        mapDamage -i $align -r $fasta -d res
         """
 }
 
