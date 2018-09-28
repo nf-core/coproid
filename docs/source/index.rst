@@ -12,6 +12,7 @@ Welcome to coproID's documentation!
 
    intro
    installation
+   methods
    usage
    output
    troubleshooting

@@ -29,14 +29,14 @@ nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --nam
 ```
 $ nextflow run maxibor/coproid --help
 N E X T F L O W  ~  version 0.31.1
-Launching `maxibor/coproid` [stupefied_borg] - revision: f062739210
+Launching `maxibor/coproid` [confident_poincare] - revision: 4a14e6475d
 
 =========================================
  coproID: Coprolite Identification
  Homepage / Documentation: https://github.com/maxibor/coproid
  Author: Maxime Borry <borry@shh.mpg.de>
- Version 0.4
- Last updated on September 26th, 2018
+ Version 0.5
+ Last updated on September 28th, 2018
 =========================================
 Usage:
 The typical command for running the pipeline is as follows:
@@ -54,6 +54,7 @@ Options:
   --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
   --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
   --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
+  --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = yes
   --identity                    Identity threshold to retain read alignment. Default = 0.85
   --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = very-sensitive
 

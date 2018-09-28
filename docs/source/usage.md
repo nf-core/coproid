@@ -41,6 +41,11 @@ Example:
 nextflow run maxibor/coproid --genome1 'path/to/data/genomes/hsapiens.fa' --index2 'data/genomes/cfamiliaris/Bowtie2Index/*.bt2' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --genome2size 2327650711 --reads '*_R{1,2}.fastq.gz'
 ```
 
+## To collapse or not collapse
+
+Depending on the size of your DNA fragments, you might want to play with the `--collapse` option.
+You can start by leaving it to default (`--collapse yes`), and changing it to `--collapse no` if you find that most of your reads aren't merged/collapsed by `AdapterRemoval` (Plot in `multiqc` report)
+
 ## Using coproID on a cluster
 
 To use **coproID** on a cluster, you add the `-profile` option.
