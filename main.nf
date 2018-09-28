@@ -594,7 +594,7 @@ process mapdamageGenome1 {
         val(orgaName) from name1_mapdamage
         file(fasta) from genome1mapdamage
     output:
-        set val(name), file("res/*.pdf") into mapdamage_result_genome1
+        set val(name), file("$name/*.pdf") into mapdamage_result_genome1
     script:
 
         """
@@ -618,7 +618,7 @@ process mapdamageGenome2 {
         val(orgaName) from name2_mapdamage
         file(fasta) from genome2mapdamage
     output:
-        set val(name), file("*") into mapdamage_result_genome2
+        set val(name), file("$name/*.pdf") into mapdamage_result_genome2
     script:
         """
         mapDamage -i $align -r $fasta -d $name
