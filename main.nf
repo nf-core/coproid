@@ -587,12 +587,12 @@ process mapdamageGenome1 {
 
     errorStrategy 'ignore'
 
-    publishDir "${params.results}/mapdamage_${orgaName}_${name}", mode: 'copy'
+    publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
 
     input:
         set val(name), file(align) from mapdamage_genome1
         val(orgaName) from name1_mapdamage
-        file(fasta) from genome1mapdamage
+        file(fasta) from genome1mapdamage.first()
     output:
         set val(name), file("$name/*.pdf") into mapdamage_result_genome1
     script:
@@ -611,12 +611,12 @@ process mapdamageGenome2 {
 
     errorStrategy 'ignore'
 
-    publishDir "${params.results}/mapdamage__${orgaName}_${name}", mode: 'copy'
+    publishDir "${params.results}/mapdamage__${orgaName}", mode: 'copy'
 
     input:
         set val(name), file(align) from mapdamage_genome2
         val(orgaName) from name2_mapdamage
-        file(fasta) from genome2mapdamage
+        file(fasta) from genome2mapdamage.first()
     output:
         set val(name), file("$name/*.pdf") into mapdamage_result_genome2
     script:
