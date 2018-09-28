@@ -22,7 +22,8 @@ Pipeline overview:
  - 3.2:   Count bp aligned on Genome2 and normalise by Genome2 size -> Nnr2
  - 4:     Compute read proportion Nnr1/Nnr2 and write Markdown report
  - 5:     Convert Markdown report to HTML
- - 6:     MultiQC
+ - 6:     MapDamage
+ - 7:     MultiQC
 
  ----------------------------------------------------------------------------------------
 */
@@ -46,15 +47,16 @@ def helpMessage() {
 
     Options:
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
-      --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes) - If index1 is not set
-      --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome1 is not set
+      --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes) - Required if index1 is not set or mapdamage is activated
+      --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome1 is not set
       --genome1Size                 Size of candidate 1 Coprolite maker's genome in bp - If genome1 is not set
-      --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- If index2 is not set
-      --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - If genome2 is not set
+      --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- Required if index2 is not set or mapdamage is activated
+      --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
       --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
+      --mapdamage                   Run mapDamage for DNA damage and aDNA authentification (yes | no). Default = ${params.mapdamage}
 
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
@@ -82,20 +84,12 @@ params.name2 = ''
 params.collapse = 'yes'
 params.identity = 0.85
 params.bowtie = 'very-sensitive'
+params.mapdamage = 'yes'
 css = baseDir+'/res/pandoc.css'
 
 bowtie_setting = ''
 collapse_setting = ''
 multiqc_conf = "$baseDir/conf/.multiqc_config.yaml"
-
-// Bowtie setting check
-if (params.bowtie == 'very-fast'){
-    bowtie_setting = '--very-fast'
-} else if (params.bowtie == 'very-sensitive'){
-    bowtie_setting = '--very-sensitive -N 1'
-} else {
-    throw GroovyException('Problem with --bowtie. Make sure to choose between "very-fast" and "very-sensitive"')
-}
 
 // Show help message
 params.help = false
@@ -103,6 +97,32 @@ params.h = false
 if (params.help || params.h){
     helpMessage()
     exit 0
+}
+
+// Bowtie setting check
+if (params.bowtie == 'very-fast'){
+    bowtie_setting = '--very-fast'
+} else if (params.bowtie == 'very-sensitive'){
+    bowtie_setting = '--very-sensitive -N 1'
+} else {
+    throw GroovyException('Problem with --bowtie. Make sure to choose between "very-fast" or "very-sensitive"')
+}
+
+// mapdamage setting check
+if (params.mapdamage != 'yes' && params.mapdamage != 'no'){
+    println 'ERROR: Problem with --mapdamage. Make sure to choose between "yes" or "no"'
+    exit(1)
+}
+
+if (params.mapdamage == 'yes' && (params.h == false || params.help == false) ){
+    if (params.genome1 == ''){
+        println 'ERROR: You set --mapdamage to "yes", but did not specify --genome1'
+        exit(1)
+    }
+    if (params.genome2 == ''){
+        println 'ERROR: You set --mapdamage to "yes", but did not specify --genome2'
+        exit(1)
+    }
 }
 
 if( ! nextflow.version.matches(">= 0.30") ){
@@ -119,19 +139,20 @@ Channel
 // Creating name channels
 Channel
     .value(params.name1)
-    .into {name1_index; name1_countReads; name1_countReadsIndex; name1_log}
+    .into {name1_index; name1_countReads; name1_countReadsIndex; name1_log; name1_mapdamage}
 Channel
     .value(params.name2)
-    .into {name2_index; name2_countReads; name2_countReadsIndex; name2_log}
+    .into {name2_index; name2_countReads; name2_countReadsIndex; name2_log; name2_mapdamage}
 
 
 // Creating genome1 channels
-if (params.genome1 != ''){
+if (params.genome1 != '' || params.mapdamage == 'yes'){
     Channel
         .fromPath(params.genome1)
         .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
-        .into {genome1Fasta; genome1Size; genome1Log}
-} else {
+        .into {genome1Fasta; genome1Size; genome1Log; genome1mapdamage}
+}
+if(params.index1 != '') {
     Channel
         .fromPath(params.index1)
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.index1}\n"}
@@ -144,12 +165,13 @@ if (params.genome1 != ''){
 
 
 // Creating genome2 channels
-if (params.genome2 != ''){
+if (params.genome2 != ''|| params.mapdamage == 'yes'){
     Channel
         .fromPath(params.genome2)
         .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
-        .into {genome2Fasta; genome2Size; genome2Log}
-} else {
+        .into {genome2Fasta; genome2Size; genome2Log; genome2mapdamage}
+}
+if (params.index2 != '') {
     Channel
         .fromPath(params.index2)
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.index2}\n"}
@@ -261,11 +283,11 @@ if (params.collapse == 'yes'){
             """
     }
 } else {
-    throw GroovyException('Problem with --collapse. Make sure you choose between "yes" and "no"')
+    throw GroovyException('Problem with --collapse. Make sure you choose between "yes" or "no"')
 }
 
 
-if (params.genome1 != ''){
+if (params.index1 == ''){
     // 1.2:   Bowtie Indexing of Genome1
     process BowtieIndexGenome1 {
         tag "$name"
@@ -289,7 +311,7 @@ if (params.genome1 != ''){
     }
 }
 
-if (params.genome2 != ''){
+if (params.index2 == ''){
     // 1.3:   Bowtie Indexing of Genome2
     process BowtieIndexGenome2 {
         tag "$name"
@@ -329,7 +351,7 @@ if (params.collapse == "yes") {
             set val(name), file(reads) from trimmed_reads_genome1
             file(index) from bt_index_genome1.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome1
+            set val(name), file("*.sorted.bam") into alignment_genome1, mapdamage_genome1
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -352,7 +374,7 @@ if (params.collapse == "yes") {
             set val(name), file(reads) from trimmed_reads_genome1
             file(index) from bt_index_genome1.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome1
+            set val(name), file("*.sorted.bam") into alignment_genome1, mapdamage_genome1
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -380,7 +402,7 @@ if (params.collapse == "yes"){
             set val(name), file(reads) from trimmed_reads_genome2
             file(index) from bt_index_genome2.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome2
+            set val(name), file("*.sorted.bam") into alignment_genome2, mapdamage_genome2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -404,7 +426,7 @@ if (params.collapse == "yes"){
             set val(name), file(reads) from trimmed_reads_genome2
             file(index) from bt_index_genome2.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome2
+            set val(name), file("*.sorted.bam") into alignment_genome2, mapdamage_genome2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -520,15 +542,13 @@ process proportionAndReport {
     input:
         set val(name1), file(readCount1) from read_count_genome1
         set val(name2), file(readCount2) from read_count_genome2
-        val(orgaName1) from name1_log
-        val(orgaName2) from name2_log
     output:
         set val(name1), file("*.md") into coproIDResult
         file("*.png") into plot
     script:
         outfile = name1+".coproID_result.md"
         """
-        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -g1 $orgaName1 -g2 $orgaName2 -i ${params.identity} -v $version -o $outfile
+        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -i ${params.identity} -v $version -o $outfile
         """
 }
 
@@ -557,6 +577,53 @@ process md2html {
         """
 }
 
+process mapdamageGenome1 {
+    tag "$name"
+
+    conda 'bioconda::mapdamage2'
+
+    label 'ristretto'
+
+    errorStrategy 'ignore'
+
+    publishDir "${params.results}/mapdamage_$orgaName", mode: 'copy'
+
+    input:
+        set val(name), file(align) from mapdamage_genome1
+        val(orgaName) from name1_mapdamage
+        file(fasta) from genome1mapdamage
+    output:
+        set val(name), file("*.pdf") into mapdamage_result_genome1
+    script:
+        """
+        mapDamage -i $align -r $fasta
+        """
+}
+
+process mapdamageGenome2 {
+    tag "$name"
+
+    conda 'bioconda::mapdamage2'
+
+    label 'ristretto'
+
+    errorStrategy 'ignore'
+
+    publishDir "${params.results}/mapdamage_$orgaName", mode: 'copy'
+
+    input:
+        set val(name), file(align) from mapdamage_genome2
+        val(orgaName) from name2_mapdamage
+        file(fasta) from genome2mapdamage
+    output:
+        set val(name), file("*.pdf") into mapdamage_result_genome2
+    script:
+        """
+        mapDamage -i $align -r $fasta
+        """
+}
+
+// 7:     MultiQC
 process multiqc {
 
     conda 'conda-forge::networkx bioconda::multiqc=1.5'
