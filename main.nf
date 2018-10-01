@@ -598,7 +598,7 @@ process proportionAndReport {
         set val(name), file("*.md") into coproIDResult
         file("*.png") into plot
     script:
-        outfile = name1+".coproID_result.md"
+        outfile = name+".coproID_result.md"
         """
         computeRatio -c1 $readCount1 -c2 $readCount2 -s $name -i ${params.identity} -v $version -o $outfile
         """
