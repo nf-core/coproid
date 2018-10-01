@@ -18,11 +18,15 @@ Methods
 
  - **3.2 - normalizedReadCount:** Count bp aligned on Genome2 and normalise by Genome2 size -> Nnr2
 
- - **4 - ComputeRatio:** Compute read proportion Nnr1/Nnr2 and write Markdown report
+ - **3.3 - Filter bamfile on identity:** Only reads passing the identity threshold will be retained
 
- - **5 - Pandoc:** Convert Markdown report to HTML
+ - **4 - MapDamage:** DNA damage assessment and aDNA identification
 
- - **6 - MultiQC:** Generates QC report
+ - **5 - ComputeRatio:** Compute read proportion Nnr1/Nnr2 and write Markdown report
+
+ - **6 - Pandoc:** Convert Markdown report to HTML
+
+ - **7 - MultiQC:** Generates QC report
 
  ## Example pipeline graph
 
