@@ -530,7 +530,7 @@ if (params.index2 == ""){
 process mapdamageGenome1 {
     tag "$name"
 
-    conda 'bioconda::mapdamage2 conda-forge::ghostscript'
+    conda 'bioconda::mapdamage2 conda-forge::imagemagick'
 
     label 'ristretto'
 
@@ -551,14 +551,14 @@ process mapdamageGenome1 {
         pdfloc = name+"/Fragmisincorporation_plot.pdf"
         """
         mapDamage -i $align -r $fasta -d $name -t $plot_title
-        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname pdfloc
+        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
         """
 }
 
 process mapdamageGenome2 {
     tag "$name"
 
-    conda 'bioconda::mapdamage2 conda-forge::ghostscript'
+    conda 'bioconda::mapdamage2 conda-forge::imagemagick'
 
     label 'ristretto'
 
@@ -579,7 +579,7 @@ process mapdamageGenome2 {
         pdfloc = name+"/Fragmisincorporation_plot.pdf"
         """
         mapDamage -i $align -r $fasta -d $name -t $plot_title
-        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname pdfloc
+        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
         """
 }
 
