@@ -592,7 +592,7 @@ process proportionAndReport {
     label 'ristretto'
 
     input:
-        set val(name), file(readCount1), file(readCount2), file(mapdamge1), file(mapdamage2) from read_count_genome1.join(read_count_genome2).join(mapdamage_result_genome1).join(mapdamage_result_genome2)
+        set val(name), file(readCount1), file(readCount2) from read_count_genome1.join(read_count_genome2)
         // set val(name2), file(readCount2) from read_count_genome2
     output:
         set val(name), file("*.md") into coproIDResult
@@ -618,7 +618,7 @@ process md2html {
     publishDir "${params.results}", mode: 'copy'
 
     input:
-        set val(name), file(report) from coproIDResult
+        set val(name), file(report), file(mapdamge1), file(mapdamage2) from coproIDResult.join(mapdamage_result_genome1).join(mapdamage_result_genome2)
         file(figs) from plot
     output:
         set val(name), file("*.html") into pdfReport
