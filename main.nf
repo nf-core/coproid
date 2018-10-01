@@ -297,9 +297,6 @@ if (params.index1 == ''){
 
         label 'intenso'
 
-        when:
-            params.genome1 != ""
-
         input:
             file(fasta) from genome1Fasta
             val(name) from name1_index
@@ -320,9 +317,6 @@ if (params.index2 == ''){
         conda 'bioconda::bowtie2'
 
         label 'intenso'
-
-        when:
-            params.genome2 != ""
 
         input:
             file(fasta) from genome2Fasta
@@ -441,7 +435,7 @@ if (params.collapse == "yes"){
 
 
 // 3.1a:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1 - If no genome index provided
-if (params.genome1 != ""){
+if (params.index1 == ""){
     process countReads1{
         tag "$name"
 
@@ -487,7 +481,7 @@ if (params.genome1 != ""){
 
 
 // 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
-if (params.genome2 != ""){
+if (params.index2 == ""){
     process countReads2{
         tag "$name"
 
