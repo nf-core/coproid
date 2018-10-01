@@ -7,7 +7,7 @@ Output
 
     This file is the report of **coproID** and contains explanations on how the calculation were performed, the files used, and your result.
 
-    An example **coproID** output file file can be found [here](_static/simulated_coprolyte.html)
+    An example **coproID** output file file can be found [here](_static/simulated_coprolite.html)
 
 - `results/multiqc_report.html`
 
