@@ -172,3 +172,10 @@ if __name__ == "__main__":
                      organisms[1].replace("_", "\\;") + "} = " + str(ratio) + "$   \n\n  ")
             fw.write("![Fig 1: Normalized read ratio (*" + organisms[0].replace("_", " ") +
                      "*/*" + organisms[1].replace("_", " ") + "*), blue line is an equal proportion of both genomes](./ratio.png)")
+            try:
+                fw.write("![Fig 2: MapDamage Fragmisincorporation plot for " +
+                         organisms[0].replace("_", " ") + "](./" + SNAME + "." + organisms[0] + ".fragmisincorporation_plot.png)")
+                fw.write("![Fig 3: MapDamage Fragmisincorporation plot for " +
+                         organisms[1].replace("_", " ") + "](./" + SNAME + "." + organisms[1] + ".fragmisincorporation_plot.png)")
+            except:
+                print("No MapDamage plot found")

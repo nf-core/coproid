@@ -20,9 +20,9 @@ Pipeline overview:
  - 2.2:   Reads alignment on Genome2
  - 3.1:   Count bp aligned on Genome1 and normalise by Genome1 size -> Nnr1
  - 3.2:   Count bp aligned on Genome2 and normalise by Genome2 size -> Nnr2
- - 4:     Compute read proportion Nnr1/Nnr2 and write Markdown report
- - 5:     Convert Markdown report to HTML
- - 6:     MapDamage
+ - 4:     MapDamage
+ - 5:     Compute read proportion Nnr1/Nnr2 and write Markdown report
+ - 6:     Convert Markdown report to HTML
  - 7:     MultiQC
 
  ----------------------------------------------------------------------------------------
@@ -525,29 +525,86 @@ if (params.index2 == ""){
     }
 }
 
+// 4:     MapDamage
 
-// 4:     Compute read proportion Nnr1/Nnr2 and write PDF report
+process mapdamageGenome1 {
+    tag "$name"
+
+    conda 'bioconda::mapdamage2 conda-forge::ghostscript'
+
+    label 'ristretto'
+
+    errorStrategy 'ignore'
+
+    publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
+
+    input:
+        set val(name), file(align) from mapdamage_genome1
+        val(orgaName) from name1_mapdamage
+        file(fasta) from genome1mapdamage.first()
+    output:
+        set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome1
+        set val(name), file("*.fragmisincorporation_plot.png") into mapdamage_result_genome1
+    script:
+        plot_title = name+"_"+orgaName
+        fname = name+"."+orgaName+".fragmisincorporation_plot.png"
+        pdfloc = name+"/Fragmisincorporation_plot.pdf"
+        """
+        mapDamage -i $align -r $fasta -d $name -t $plot_title
+        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname pdfloc
+        """
+}
+
+process mapdamageGenome2 {
+    tag "$name"
+
+    conda 'bioconda::mapdamage2 conda-forge::ghostscript'
+
+    label 'ristretto'
+
+    errorStrategy 'ignore'
+
+    publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
+
+    input:
+        set val(name), file(align) from mapdamage_genome2
+        val(orgaName) from name2_mapdamage
+        file(fasta) from genome2mapdamage.first()
+    output:
+        set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome2
+        set val(name), file("*.fragmisincorporation_plot.png") into mapdamage_result_genome2
+    script:
+        plot_title = name+"_"+orgaName
+        fname = name+"."+orgaName+".fragmisincorporation_plot.png"
+        pdfloc = name+"/Fragmisincorporation_plot.pdf"
+        """
+        mapDamage -i $align -r $fasta -d $name -t $plot_title
+        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname pdfloc
+        """
+}
+
+// 5:     Compute read proportion Nnr1/Nnr2 and write PDF report
 process proportionAndReport {
-    tag "$name1"
+    tag "$name"
 
     conda 'python=3.6 matplotlib'
 
     label 'ristretto'
 
     input:
-        set val(name1), file(readCount1) from read_count_genome1
-        set val(name2), file(readCount2) from read_count_genome2
+        set val(name), file(readCount1), file(readCount2), file(mapdamge1), file(mapdamage2) from read_count_genome1.join(read_count_genome2).join(mapdamage_result_genome1).join(mapdamage_result_genome2)
+        // set val(name2), file(readCount2) from read_count_genome2
     output:
-        set val(name1), file("*.md") into coproIDResult
+        set val(name), file("*.md") into coproIDResult
         file("*.png") into plot
     script:
         outfile = name1+".coproID_result.md"
         """
-        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name1 -i ${params.identity} -v $version -o $outfile
+        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name -i ${params.identity} -v $version -o $outfile
         """
 }
 
-// 5:     Convert Markdown report to HTML
+// 6:     Convert Markdown report to HTML
 
 process md2html {
     tag "$name"
@@ -562,7 +619,7 @@ process md2html {
 
     input:
         set val(name), file(report) from coproIDResult
-        file(fig) from plot
+        file(figs) from plot
     output:
         set val(name), file("*.html") into pdfReport
     script:
@@ -572,52 +629,7 @@ process md2html {
         """
 }
 
-process mapdamageGenome1 {
-    tag "$name"
 
-    conda 'bioconda::mapdamage2'
-
-    label 'ristretto'
-
-    errorStrategy 'ignore'
-
-    publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
-
-    input:
-        set val(name), file(align) from mapdamage_genome1
-        val(orgaName) from name1_mapdamage
-        file(fasta) from genome1mapdamage.first()
-    output:
-        set val(name), file("$name/*.pdf") into mapdamage_result_genome1
-    script:
-
-        """
-        mapDamage -i $align -r $fasta -d $name
-        """
-}
-
-process mapdamageGenome2 {
-    tag "$name"
-
-    conda 'bioconda::mapdamage2'
-
-    label 'ristretto'
-
-    errorStrategy 'ignore'
-
-    publishDir "${params.results}/mapdamage__${orgaName}", mode: 'copy'
-
-    input:
-        set val(name), file(align) from mapdamage_genome2
-        val(orgaName) from name2_mapdamage
-        file(fasta) from genome2mapdamage.first()
-    output:
-        set val(name), file("$name/*.pdf") into mapdamage_result_genome2
-    script:
-        """
-        mapDamage -i $align -r $fasta -d $name
-        """
-}
 
 // 7:     MultiQC
 process multiqc {
