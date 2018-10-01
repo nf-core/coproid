@@ -20,6 +20,7 @@ Pipeline overview:
  - 2.2:   Reads alignment on Genome2
  - 3.1:   Count bp aligned on Genome1 and normalise by Genome1 size -> Nnr1
  - 3.2:   Count bp aligned on Genome2 and normalise by Genome2 size -> Nnr2
+ - 3.3:   Filter bam on identity
  - 4:     MapDamage
  - 5:     Compute read proportion Nnr1/Nnr2 and write Markdown report
  - 6:     Convert Markdown report to HTML
@@ -346,7 +347,7 @@ if (params.collapse == "yes") {
             set val(name), file(reads) from trimmed_reads_genome1
             file(index) from bt_index_genome1.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome1, mapdamage_genome1
+            set val(name), file("*.sorted.bam") into alignment_genome1, filter_bam1
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -369,7 +370,7 @@ if (params.collapse == "yes") {
             set val(name), file(reads) from trimmed_reads_genome1
             file(index) from bt_index_genome1.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome1, mapdamage_genome1
+            set val(name), file("*.sorted.bam") into alignment_genome1, filter_bam1
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -397,7 +398,7 @@ if (params.collapse == "yes"){
             set val(name), file(reads) from trimmed_reads_genome2
             file(index) from bt_index_genome2.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome2, mapdamage_genome2
+            set val(name), file("*.sorted.bam") into alignment_genome2, filter_bam2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -421,7 +422,7 @@ if (params.collapse == "yes"){
             set val(name), file(reads) from trimmed_reads_genome2
             file(index) from bt_index_genome2.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome2, mapdamage_genome2
+            set val(name), file("*.sorted.bam") into alignment_genome2, filter_bam2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = index_name+"_"+name+".sorted.bam"
@@ -431,10 +432,7 @@ if (params.collapse == "yes"){
     }
 }
 
-
-
-
-// 3.1a:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1 - If no genome index provided
+// 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1 - If no genome index provided
 if (params.index1 == ""){
     process countReads1{
         tag "$name"
@@ -525,6 +523,48 @@ if (params.index2 == ""){
     }
 }
 
+// 3.3:   Filter bam on identity
+
+process filter_bam_genome1 {
+    tag "$name"
+
+    conda 'python=3.6 bioconda::pysam'
+
+    label 'ristretto'
+
+    input:
+        set val(name), file(bam) from filter_bam1
+    output:
+        set val(name), file("*.filtered.bam") into filtered_bam1
+    script:
+        outfile = name+".filtered.bam"
+        """
+        samtools index $bam
+        bam_filter $bam -i ${params.identity} -o $outfile
+        """
+}
+
+
+process filter_bam_genome2 {
+    tag "$name"
+
+    conda 'python=3.6 bioconda::pysam'
+
+    label 'ristretto'
+
+    input:
+        set val(name), file(bam) from filter_bam2
+    output:
+        set val(name), file("*.filtered.bam") into filtered_bam2
+    script:
+        outfile = name+".filtered.bam"
+        """
+        samtools index $bam
+        bam_filter $bam -i ${params.identity} -o $outfile
+        """
+}
+
+
 // 4:     MapDamage
 
 process mapdamageGenome1 {
@@ -539,7 +579,7 @@ process mapdamageGenome1 {
     publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
 
     input:
-        set val(name), file(align) from mapdamage_genome1
+        set val(name), file(align) from filtered_bam1
         val(orgaName) from name1_mapdamage
         file(fasta) from genome1mapdamage.first()
     output:
@@ -567,7 +607,7 @@ process mapdamageGenome2 {
     publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
 
     input:
-        set val(name), file(align) from mapdamage_genome2
+        set val(name), file(align) from filtered_bam2
         val(orgaName) from name2_mapdamage
         file(fasta) from genome2mapdamage.first()
     output:
