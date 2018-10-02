@@ -554,7 +554,7 @@ process filter_bam_genome2 {
 
     label 'ristretto'
 
-    publishDir "${params.results}/bam/${params.name1}", mode: 'copy'
+    publishDir "${params.results}/bam/${params.name2}", mode: 'copy'
 
     input:
         set val(name), file(bam) from filter_bam2
