@@ -532,6 +532,8 @@ process filter_bam_genome1 {
 
     label 'ristretto'
 
+    publishDir "${params.results}/bam", mode: 'copy'
+
     input:
         set val(name), file(bam) from filter_bam1
     output:
@@ -551,6 +553,8 @@ process filter_bam_genome2 {
     conda 'python=3.6 bioconda::pysam'
 
     label 'ristretto'
+
+    publishDir "${params.results}/bam", mode: 'copy'
 
     input:
         set val(name), file(bam) from filter_bam2

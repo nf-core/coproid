@@ -49,8 +49,7 @@ def filter_and_write(bam, id, outfile):
     min_identity = id
 
     bamfile = pysam.AlignmentFile(bam, "rb")
-    bamwrite = pysam.AlignmentFile(
-        outfile + ".filtered.bam", "wb", template=bamfile)
+    bamwrite = pysam.AlignmentFile(outfile, "wb", template=bamfile)
 
     for read in bamfile.fetch():
         mismatch = read.get_tag("NM")
@@ -66,6 +65,6 @@ if __name__ == "__main__":
     BAM, ID, OUTFILE,  = get_args()
 
     if OUTFILE is None:
-        OUTFILE = getBasename(BAM)
+        OUTFILE = getBasename(BAM) + ".filtered.bam"
 
     filter_and_write(bam=BAM, id=ID, outfile=OUTFILE)
