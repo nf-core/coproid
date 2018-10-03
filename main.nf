@@ -67,8 +67,8 @@ def helpMessage() {
 }
 
 
-version = "0.5"
-version_date = "October 1st, 2018"
+version = "0.6"
+version_date = "October 3rd, 2018"
 
 params.phred = 33
 
@@ -446,12 +446,12 @@ if (params.index1 == ""){
             file(fasta) from genome1Size
             val(orgaName) from name1_countReads
         output:
-            set val(name), file("*.out") into read_count_genome1
+            file("*.out") into read_count_genome1
         script:
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -g $fasta -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -g $fasta -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 } else {
@@ -467,12 +467,12 @@ if (params.index1 == ""){
             val(genomeSize) from genome1Size
             val(orgaName) from name1_countReadsIndex
         output:
-            set val(name), file("*.out") into read_count_genome1
+            file("*.out") into read_count_genome1
         script:
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -s $genomeSize -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 }
@@ -492,12 +492,12 @@ if (params.index2 == ""){
             file(fasta) from genome2Size
             val(orgaName) from name2_countReads
         output:
-            set val(name), file("*.out") into read_count_genome2
+            file("*.out") into read_count_genome2
         script:
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -g $fasta -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -g $fasta -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 } else {
@@ -513,12 +513,12 @@ if (params.index2 == ""){
             val(genomeSize) from genome2Size
             val(orgaName) from name2_countReadsIndex
         output:
-            set val(name), file("*.out") into read_count_genome2
+            file("*.out") into read_count_genome2
         script:
             outfile = name+"_"+orgaName+".out"
             """
             samtools index $bam
-            normalizedReadCount -b $bam -s $genomeSize -n $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
+            normalizedReadCount -b $bam -s $genomeSize -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
             """
     }
 }
@@ -588,7 +588,7 @@ process mapdamageGenome1 {
         file(fasta) from genome1mapdamage.first()
     output:
         set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome1
-        set val(name), file("*.fragmisincorporation_plot.png") into mapdamage_result_genome1
+        file("*.fragmisincorporation_plot.png") into mapdamage_result_genome1
     script:
         plot_title = name+"_"+orgaName
         fname = name+"."+orgaName+".fragmisincorporation_plot.png"
@@ -616,7 +616,7 @@ process mapdamageGenome2 {
         file(fasta) from genome2mapdamage.first()
     output:
         set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome2
-        set val(name), file("*.fragmisincorporation_plot.png") into mapdamage_result_genome2
+        file("*.fragmisincorporation_plot.png") into mapdamage_result_genome2
     script:
         plot_title = name+"_"+orgaName
         fname = name+"."+orgaName+".fragmisincorporation_plot.png"
@@ -627,31 +627,46 @@ process mapdamageGenome2 {
         """
 }
 
+// concatenate read ratios
+
+process concatenateRatios {
+    conda "python=3.6"
+
+    label 'ristretto'
+
+    input:
+        file(g1) from read_count_genome1.collect()
+        file(g2) from read_count_genome2.collect()
+    output:
+        file("coproid_result.out") into coproid_count
+    script:
+        """
+        cat *.out > coproid_result.out
+        """
+}
+
 // 5:     Compute read proportion Nnr1/Nnr2 and write PDF report
 process proportionAndReport {
-    tag "$name"
 
     conda 'python=3.6 matplotlib'
 
     label 'ristretto'
 
     input:
-        set val(name), file(readCount1), file(readCount2) from read_count_genome1.join(read_count_genome2)
-        // set val(name2), file(readCount2) from read_count_genome2
+        file(count) from coproid_count
     output:
-        set val(name), file("*.md") into coproIDResult
+        file("*.md") into coproidmd
         file("*.png") into plot
     script:
-        outfile = name+".coproID_result.md"
+        outfile = "coproID_result.md"
         """
-        computeRatio -c1 $readCount1 -c2 $readCount2 -s $name -i ${params.identity} -v $version -o $outfile
+        computeRatio2 -c $count -i ${params.identity} -v $version -o $outfile
         """
 }
 
 // 6:     Convert Markdown report to HTML
 
 process md2html {
-    tag "$name"
 
     conda 'conda-forge::pandoc'
 
@@ -662,12 +677,14 @@ process md2html {
     publishDir "${params.results}", mode: 'copy'
 
     input:
-        set val(name), file(report), file(mapdamge1), file(mapdamage2) from coproIDResult.join(mapdamage_result_genome1).join(mapdamage_result_genome2)
-        file(figs) from plot
+        file(mdplot1) from mapdamage_result_genome1.collect()
+        file(mdplot1) from mapdamage_result_genome2.collect()
+        file(report) from coproidmd
+        file(fig) from plot
     output:
-        set val(name), file("*.html") into pdfReport
+        file("*.html") into htmlReport
     script:
-        outfile = name+".html"
+        outfile = "coproID_result.html"
         """
         pandoc --self-contained --css $css --webtex -s $report -o $outfile
         """
