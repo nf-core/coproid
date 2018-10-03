@@ -21,4 +21,3 @@ install:
 
 script:
   - nextflow run main.nf -profile test_index
-  - nextflow run main.nf -profile test_genome
