@@ -1,3 +1,0 @@
-Organism,taxonomy_id,percentage of metagenome,mean_insert_length,target_coverage,deamination
-Bacillus_subtilis,1423,0.78,100,2.0,True
-Escherichia_coli,562,0.22,100,0.5,False
