@@ -55,6 +55,8 @@ def helpMessage() {
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
+      --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
+      --library                     DNA preparation library type ( classic | UDGhalf). Default = ${params.library}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
@@ -79,8 +81,9 @@ params.name1 = ''
 params.name2 = ''
 params.collapse = 'yes'
 params.identity = 0.95
+params.pmdscore = 3
+params.library = 'classic'
 params.bowtie = 'very-sensitive'
-params.mapdamage = 'yes'
 css = baseDir+'/res/pandoc.css'
 
 bowtie_setting = ''
@@ -104,21 +107,16 @@ if (params.bowtie == 'very-fast'){
     throw GroovyException('Problem with --bowtie. Make sure to choose between "very-fast" or "very-sensitive"')
 }
 
-// mapdamage setting check
-if (params.mapdamage != 'yes' && params.mapdamage != 'no'){
-    println 'ERROR: Problem with --mapdamage. Make sure to choose between "yes" or "no"'
+//Library setting check
+
+if ((params.library != 'classic' && params.library != 'UDGhalf' ) && (params.h == false || params.help == false) ){
+    println 'ERROR: You did not specify --blabla'
     exit(1)
 }
-
-if (params.mapdamage == 'yes' && (params.h == false || params.help == false) ){
-    if (params.genome1 == ''){
-        println 'ERROR: You set --mapdamage to "yes", but did not specify --genome1'
-        exit(1)
-    }
-    if (params.genome2 == ''){
-        println 'ERROR: You set --mapdamage to "yes", but did not specify --genome2'
-        exit(1)
-    }
+if (params.library == 'classic'){
+    library = ''
+} else {
+    library = '--UDGhalf'
 }
 
 if( ! nextflow.version.matches(">= 0.30") ){
@@ -432,6 +430,41 @@ if (params.collapse == "yes"){
     }
 }
 
+process pmdtoolsgenome1 {
+    tag "$name"
+
+    conda 'bioconda::pmdtools'
+
+    label 'ristretto'
+
+    input:
+        set val(name), file(bam1) from alignment_genome1
+    output:
+        set val(name), file("*.pmd_filtered.bam") into pmd_aligned1
+    script:
+        outfile = name+"_"+params.name1+".pmd_filtered.bam"
+        """
+        samtools view -h -F 4 $bam1 | pmdtools -t ${params.pmdscore} --header $library | samtools view -Sb - > $outfile
+        """
+}
+
+process pmdtoolsgenome2 {
+    tag "$name"
+
+    conda 'bioconda::pmdtools'
+
+    label 'ristretto'
+
+    input:
+        set val(name), file(bam2) from alignment_genome2
+    output:
+        set val(name), file("*.pmd_filtered.bam") into pmd_aligned2
+    script:
+        outfile = name+"_"+params.name2+".pmd_filtered.bam"
+        """
+        samtools view -h -F 4 $bam2 | pmdtools -t ${params.pmdscore} --header $library | samtools view -Sb - > $outfile
+        """
+}
 
 // 3:   Count aligned bp on each genome and compute ratio
 
@@ -443,7 +476,7 @@ process countBp{
     label 'expresso'
 
     input:
-        set val(name), file(bam1), file(bam2) from alignment_genome1.join(alignment_genome2)
+        set val(name), file(bam1), file(bam2) from pmd_aligned1.join(pmd_aligned2)
         file(genome1) from genome1Size.first()
         file(genome2) from genome2Size.first()
     output:
