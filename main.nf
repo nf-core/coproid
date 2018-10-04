@@ -33,7 +33,8 @@ def helpMessage() {
     log.info"""
     =========================================
      coproID: Coprolite Identification
-     Homepage / Documentation: https://github.com/maxibor/coproid
+     Homepage: https://github.com/maxibor/coproid
+     Documentation: https://coproid.readthedocs.io
      Author: Maxime Borry <borry@shh.mpg.de>
      Version ${version}
      Last updated on ${version_date}
@@ -64,7 +65,7 @@ def helpMessage() {
 
 
 version = "0.6"
-version_date = "October 3rd, 2018"
+version_date = "October 4th, 2018"
 
 params.phred = 33
 
@@ -77,7 +78,7 @@ params.index2 = ''
 params.name1 = ''
 params.name2 = ''
 params.collapse = 'yes'
-params.identity = 0.85
+params.identity = 0.95
 params.bowtie = 'very-sensitive'
 params.mapdamage = 'yes'
 css = baseDir+'/res/pandoc.css'

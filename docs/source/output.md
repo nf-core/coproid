@@ -5,9 +5,9 @@ Output
 
  - `results/{fastq_file_basename}.html`  
 
-    This file is the report of **coproID** and contains explanations on how the calculation were performed, the files used, and your result.
+    This file is the report of **coproID** and contains explanations on how the calculation were performed, the files used, and your results.
 
-    An example **coproID** output file file can be found [here](_static/simulated_coprolite.html)
+    An example **coproID** output file file can be found [here](_static/coproID_result.html)
 
 - `results/multiqc_report.html`
 
@@ -18,6 +18,10 @@ Output
 - `results/mapdamage_{target_organism}/*`
 
     [MapDamage ](https://ginolhac.github.io/mapDamage/) plots. These plots are included in the **coproID** reports.
+
+- `results/bam/{target_organism}/*bam`
+
+    The filtered alignment `bam` files on each target genome
 
 ## coproID logs
 
