@@ -71,6 +71,9 @@ if __name__ == "__main__":
         print("Count file is missing")
         sys.exit(1)
 
+    # Template output file structure
+    # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
+
     d = {}
     d2 = {}
     all_orga = []
@@ -78,47 +81,48 @@ if __name__ == "__main__":
         for line in f:
             line = line.rstrip().split(",")
             sample = line[0]
-            organism = line[1]
-            nbp = int(line[2])
-            gs = int(line[3])
-            bpcor = float(line[4])
+            organism1 = line[1]
+            organism2 = line[2]
+            gs1 = int(line[3])
+            gs2 = int(line[4])
+            nbp1 = int(line[5])
+            nbp2 = int(line[6])
+            nrr = float(line[7])
             if sample not in d.keys():
                 d[sample] = {}
-            d[sample][organism] = [nbp, gs, bpcor]
-            all_orga.append(organism)
-    all_orga = list(set(all_orga))
-    orga1 = all_orga[0]
-    orga2 = all_orga[1]
-    gs1 = d[sample][orga1][1]
-    gs2 = d[sample][orga2][1]
+            d[sample]["orga1"] = organism1
+            d[sample]["orga2"] = organism2
+            d[sample]["gs1"] = gs1
+            d[sample]["gs2"] = gs2
+            d[sample]["nbp1"] = nbp1
+            d[sample]["nbp2"] = nbp2
+            d[sample]["nrr"] = nrr
 
-    for akey in d.keys():
-        d2[akey] = round(d[akey][orga1][2] / d[akey][orga2][2], 5)
+    orga1_clean = organism1.replace("_", " ")
+    orga2_clean = organism2.replace("_", " ")
 
-    orga1_clean = orga1.replace("_", " ")
-    orga2_clean = orga2.replace("_", " ")
+    x = [d[i]["nrr"] for i in d.keys()]
+    y = list(d.keys())
 
-    ratio = max(list(d2.values()))
+    maxratio = max(x)
 
-    x = list(d2.values())
-    y = list(d2.keys())
-
-    if ratio < 2:
+    if maxratio < 2:
         ticklist = [orga2_clean] + [str(round(x, 2)) for x in list(
             np.arange(0.2, 2, 0.2))] + [orga1_clean]
     else:
-        step = round(ratio / 20, 1)
+        step = round(maxratio / 20, 1)
         ticklist = [orga2_clean] + [str(round(x, 2)) for x in list(
-            np.arange(step, ratio, step))] + [orga1_clean]
+            np.arange(step, maxratio, step))] + [orga1_clean]
 
     plt.plot(x, y, "ro")
+    plt.grid(True)
 
     plt.axvline(x=1)
-    if ratio < 2:
+    if maxratio < 2:
         plt.xticks((np.arange(0, 2.2, 0.2)),
                    (ticklist), rotation="vertical")
     else:
-        plt.xticks((np.arange(0, ratio + step, step)),
+        plt.xticks((np.arange(0, maxratio + step, step)),
                    (ticklist), rotation="vertical")
     plt.yticks(rotation='45')
     plt.subplots_adjust(bottom=0.4, left=0.15)
@@ -141,21 +145,24 @@ if __name__ == "__main__":
         fw.write(
             "- **The formula used to compute the read ratio is the following:** \n\n  $NormalizedRead_{ratio} = \\frac{\\frac{bp_{aligned genome 1} + 1}{size{genome1}}}{\\frac{bp_{aligned genome 2} + 1}{size{genome2}}}$\n\n  ")
         fw.write("***\n")
-        for asample in d2.keys():
-            fw.write("### **Sample:** " + asample + "  \n")
-            fw.write("- **Number of base pairs (bp) in reads aligned to *" +
-                     orga1_clean + "* (genome 1) at " + str(identity) + "\% identity:** " + str(d[asample][orga1][0]) + "  \n")
-            fw.write("- **Number of base pairs (bp) in reads aligned to *" +
-                     orga2_clean + "* (genome 2) at " + str(identity) + "\% identity:** " + str(d[asample][orga2][0]) + "  \n\n")
-            fw.write("- Normalized Read ratio $\\frac{" + orga1.replace("_", "\\;") + "}{" +
-                     orga2.replace("_", "\\;") + "} = " + str(d2[asample]) + "$   \n\n")
-            fw.write("- **MapDamage plots**\n\n")
-            fw.write("![MapDamage Fragmisincorporation plot for " +
-                     orga1_clean + "](./" + asample + "." + orga1 + ".fragmisincorporation_plot.png)\n\n")
-            fw.write("![MapDamage Fragmisincorporation plot for " +
-                     orga2_clean + "](./" + asample + "." + orga2 + ".fragmisincorporation_plot.png)\n\n")
-            fw.write("\n\n***\n")
-        fw.write("***\n")
         fw.write("## coproID read ratio plot\n\n")
         fw.write("![Normalized read ratio (*" + orga1_clean +
                  "*/*" + orga2_clean + "*), blue line is an equal proportion of both genomes](./ratio.png)\n")
+        fw.write("\n\n***\n\n")
+        fw.write("***\n\n")
+        for asample in d.keys():
+            orga1_clean = d[asample]["orga1"].replace("_", " ")
+            orga2_clean = d[asample]["orga2"].replace("_", " ")
+            fw.write("### **Sample:** " + asample + "  \n")
+            fw.write("- **Number of base pairs (bp) in reads aligned to *" +
+                     orga1_clean + "* (genome 1) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp1"]) + "  \n")
+            fw.write("- **Number of base pairs (bp) in reads aligned to *" +
+                     orga2_clean + "* (genome 2) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp2"]) + "  \n\n")
+            fw.write("- Normalized Read ratio $\\frac{" + d[asample]["orga1"].replace("_", "\\;") + "}{" +
+                     d[asample]["orga2"].replace("_", "\\;") + "} = " + str(round(d[asample]["nrr"], 3)) + "$   \n\n")
+            fw.write("- **MapDamage plots**\n\n")
+            fw.write("![MapDamage Fragmisincorporation plot for " +
+                     orga1_clean + "](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
+            fw.write("![MapDamage Fragmisincorporation plot for " +
+                     orga2_clean + "](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
+            fw.write("\n\n***\n")

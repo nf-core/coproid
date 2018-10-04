@@ -12,19 +12,19 @@ https://github.com/maxibor/coproid
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
 Pipeline overview:
- - 0  :   Fastqc
+ - 0.0    Fastqc
+ - 0.1    Rename reference genome fasta files
  - 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
  - 1.2:   Bowtie Indexing of Genome1
  - 1.3:   Bowtie Indexing of Genome2
  - 2.1:   Reads alignment on Genome1
  - 2.2:   Reads alignment on Genome2
- - 3.1:   Count bp aligned on Genome1 and normalise by Genome1 size -> Nnr1
- - 3.2:   Count bp aligned on Genome2 and normalise by Genome2 size -> Nnr2
- - 3.3:   Filter bam on identity
+ - 3:     Count aligned bp on each genome and compute ratio
  - 4:     MapDamage
- - 5:     Compute read proportion Nnr1/Nnr2 and write Markdown report
- - 6:     Convert Markdown report to HTML
- - 7:     MultiQC
+ - 5:     Concatenate read ratios
+ - 6:     Write Markdown report
+ - 7:     Convert Markdown report to HTML
+ - 8:     MultiQC
 
  ----------------------------------------------------------------------------------------
 */
@@ -45,20 +45,16 @@ def helpMessage() {
       --reads                       Path to input data (must be surrounded with quotes)
       --name1                       Name of candidate 1. Example: "Homo sapiens"
       --name2                       Name of candidate 2. Example: "Canis familiaris"
+      --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes)
+      --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)
 
     Options:
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
-      --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes) - Required if index1 is not set or mapdamage is activated
       --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome1 is not set
-      --genome1Size                 Size of candidate 1 Coprolite maker's genome in bp - If genome1 is not set
-      --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)- Required if index2 is not set or mapdamage is activated
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
-      --genome2Size                 Size of candidate 2 Coprolite maker's genome in bp - If genome2 is not set
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
-      --mapdamage                   Run mapDamage for DNA damage and aDNA authentification (yes | no). Default = ${params.mapdamage}
-
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
       --help  --h                   Shows this help page
@@ -76,8 +72,6 @@ params.results = "./results"
 params.reads = ''
 params.genome1 = ''
 params.genome2 = ''
-params.genome1Size = ''
-params.genome2Size = ''
 params.index1 = ''
 params.index2 = ''
 params.name1 = ''
@@ -137,50 +131,31 @@ Channel
     .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\n" }
 	.into { reads_to_trim; reads_fastqc }
 
-// Creating name channels
-Channel
-    .value(params.name1)
-    .into {name1_index; name1_countReads; name1_countReadsIndex; name1_log; name1_mapdamage}
-Channel
-    .value(params.name2)
-    .into {name2_index; name2_countReads; name2_countReadsIndex; name2_log; name2_mapdamage}
-
-
 // Creating genome1 channels
-if (params.genome1 != '' || params.mapdamage == 'yes'){
-    Channel
-        .fromPath(params.genome1)
-        .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
-        .into {genome1Fasta; genome1Size; genome1Log; genome1mapdamage}
-}
+Channel
+    .fromPath(params.genome1)
+    .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
+    .set {genome1rename}
+
 if(params.index1 != '') {
     Channel
         .fromPath(params.index1)
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.index1}\n"}
-        .into {bt_index_genome1; genome1Log}
-
-    Channel
-        .value(params.genome1Size)
-        .set{genome1Size}
+        .into {bt_index_genome1}
 }
 
 
 // Creating genome2 channels
-if (params.genome2 != ''|| params.mapdamage == 'yes'){
-    Channel
-        .fromPath(params.genome2)
-        .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
-        .into {genome2Fasta; genome2Size; genome2Log; genome2mapdamage}
-}
+Channel
+    .fromPath(params.genome2)
+    .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
+    .set {genome2rename}
+
 if (params.index2 != '') {
     Channel
         .fromPath(params.index2)
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.index2}\n"}
-        .into {bt_index_genome2; genome2Log}
-
-    Channel
-        .value(params.genome2Size)
-        .set{genome2Size}
+        .into {bt_index_genome2}
 }
 
 
@@ -198,19 +173,14 @@ summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
 summary['collapse'] = params.collapse
-summary['mapDamage'] = params.mapdamage
 summary['bowtie setting'] = params.bowtie
-if (params.genome1 != ""){
-    summary['Genome1'] = params.genome1
-} else {
+summary['Genome1'] = params.genome1
+if (params.index1 != '') {
     summary["Genome1 BT2 index"] = params.index1
-    summary["Genome 1 size (bp)"] = params.genome1Size
 }
-if (params.genome2 != ""){
-    summary['Genome2'] = params.genome2
-} else {
+summary['Genome2'] = params.genome2
+if (params.index2 != '') {
     summary["Genome2 BT2 index"] = params.index2
-    summary["Genome 2 size (bp)"] = params.genome2Size
 }
 summary["Result directory"] = params.results
 log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
@@ -235,6 +205,37 @@ process fastqc {
         fastqc -q $reads
         """
 }
+
+
+// 0.1    Rename reference genome fasta files
+process renameGenome1 {
+    label 'ristretto'
+
+    input:
+        file (genome) from genome1rename
+    output:
+        file ("*.fa") into (genome1Fasta, genome1Size, genome1Log, genome1mapdamage)
+    script:
+        outname = params.name1+".fa"
+        """
+        mv $genome $outname
+        """
+}
+
+process renameGenome2 {
+    label 'ristretto'
+
+    input:
+        file (genome) from genome2rename
+    output:
+        file ("*.fa") into (genome2Fasta, genome2Size, genome2Log, genome2mapdamage)
+    script:
+        outname = params.name2+".fa"
+        """
+        mv $genome $outname
+        """
+}
+
 
 // 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
 if (params.collapse == 'yes'){
@@ -292,7 +293,7 @@ if (params.collapse == 'yes'){
 if (params.index1 == ''){
     // 1.2:   Bowtie Indexing of Genome1
     process BowtieIndexGenome1 {
-        tag "$name"
+        tag "${params.name1}"
 
         conda 'bioconda::bowtie2'
 
@@ -300,12 +301,11 @@ if (params.index1 == ''){
 
         input:
             file(fasta) from genome1Fasta
-            val(name) from name1_index
         output:
             file("*.bt2") into bt_index_genome1
         script:
             """
-            bowtie2-build --threads ${task.cpus} $fasta $name
+            bowtie2-build --threads ${task.cpus} $fasta ${params.name1}
             """
     }
 }
@@ -313,7 +313,7 @@ if (params.index1 == ''){
 if (params.index2 == ''){
     // 1.3:   Bowtie Indexing of Genome2
     process BowtieIndexGenome2 {
-        tag "$name"
+        tag "${params.name2}"
 
         conda 'bioconda::bowtie2'
 
@@ -321,12 +321,11 @@ if (params.index2 == ''){
 
         input:
             file(fasta) from genome2Fasta
-            val(name) from name2_index
         output:
             file("*.bt2") into bt_index_genome2
         script:
             """
-            bowtie2-build --threads ${task.cpus} $fasta $name
+            bowtie2-build --threads ${task.cpus} $fasta ${params.name2}
             """
     }
 }
@@ -350,7 +349,7 @@ if (params.collapse == "yes") {
             set val(name), file("*.sorted.bam") into alignment_genome1, filter_bam1
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = index_name+"_"+name+".sorted.bam"
+            outfile = name+"_"+params.name1+".sorted.bam"
             """
             bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
             """
@@ -373,7 +372,7 @@ if (params.collapse == "yes") {
             set val(name), file("*.sorted.bam") into alignment_genome1, filter_bam1
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = index_name+"_"+name+".sorted.bam"
+            outfile = name+"_"+params.name1+".sorted.bam"
             """
             bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
             """
@@ -401,7 +400,7 @@ if (params.collapse == "yes"){
             set val(name), file("*.sorted.bam") into alignment_genome2, filter_bam2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = index_name+"_"+name+".sorted.bam"
+            outfile = name+"_"+params.name2+".sorted.bam"
             """
             bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
             """
@@ -425,149 +424,41 @@ if (params.collapse == "yes"){
             set val(name), file("*.sorted.bam") into alignment_genome2, filter_bam2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = index_name+"_"+name+".sorted.bam"
+            outfile = name+"_"+params.name2+".sorted.bam"
             """
             bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
             """
     }
 }
 
-// 3.1:   Count aligned reads on Genome1 and divide by normalize by Genome1 size -> Nnr1 - If no genome index provided
-if (params.index1 == ""){
-    process countReads1{
-        tag "$name"
 
-        conda 'python=3.6 bioconda::pysam'
+// 3:   Count aligned bp on each genome and compute ratio
 
-        label 'expresso'
-
-        input:
-            set val(name), file(bam) from alignment_genome1
-            file(fasta) from genome1Size
-            val(orgaName) from name1_countReads
-        output:
-            file("*.out") into read_count_genome1
-        script:
-            outfile = name+"_"+orgaName+".out"
-            """
-            samtools index $bam
-            normalizedReadCount -b $bam -g $fasta -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
-            """
-    }
-} else {
-    process countReads1WithIndex{
-        tag "$name"
-
-        conda 'python=3.6 bioconda::pysam'
-
-        label 'expresso'
-
-        input:
-            set val(name), file(bam) from alignment_genome1
-            val(genomeSize) from genome1Size
-            val(orgaName) from name1_countReadsIndex
-        output:
-            file("*.out") into read_count_genome1
-        script:
-            outfile = name+"_"+orgaName+".out"
-            """
-            samtools index $bam
-            normalizedReadCount -b $bam -s $genomeSize -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
-            """
-    }
-}
-
-
-// 3.2:   Count aligned reads on Genome2 and divide by normalize by Genome2 size -> Nnr2
-if (params.index2 == ""){
-    process countReads2{
-        tag "$name"
-
-        conda 'python=3.6 bioconda::pysam'
-
-        label 'expresso'
-
-        input:
-            set val(name), file(bam) from alignment_genome2
-            file(fasta) from genome2Size
-            val(orgaName) from name2_countReads
-        output:
-            file("*.out") into read_count_genome2
-        script:
-            outfile = name+"_"+orgaName+".out"
-            """
-            samtools index $bam
-            normalizedReadCount -b $bam -g $fasta -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
-            """
-    }
-} else {
-    process countReads2WithIndex{
-        tag "$name"
-
-        conda 'python=3.6 bioconda::pysam'
-
-        label 'expresso'
-
-        input:
-            set val(name), file(bam) from alignment_genome2
-            val(genomeSize) from genome2Size
-            val(orgaName) from name2_countReadsIndex
-        output:
-            file("*.out") into read_count_genome2
-        script:
-            outfile = name+"_"+orgaName+".out"
-            """
-            samtools index $bam
-            normalizedReadCount -b $bam -s $genomeSize -n $name -r $orgaName -i ${params.identity} -o $outfile -p ${task.cpus}
-            """
-    }
-}
-
-// 3.3:   Filter bam on identity
-
-process filter_bam_genome1 {
+process countBp{
     tag "$name"
 
     conda 'python=3.6 bioconda::pysam'
 
-    label 'ristretto'
-
-    publishDir "${params.results}/bam/${params.name1}", mode: 'copy'
+    label 'expresso'
 
     input:
-        set val(name), file(bam) from filter_bam1
+        set val(name), file(bam1), file(bam2) from alignment_genome1.join(alignment_genome2)
+        file(genome1) from genome1Size.first()
+        file(genome2) from genome2Size.first()
     output:
-        set val(name), file("*.filtered.bam") into filtered_bam1
+        set val(name), file("*.out") into bp_count
+        set val(name), file("*"+params.name1+".filtered.bam") into filtered_bam1
+        set val(name), file("*"+params.name2+".filtered.bam") into filtered_bam2
     script:
-        outfile = name+".filtered.bam"
+        outfile = name+".out"
+        organame1 = params.name1
+        organame2 = params.name2
         """
-        samtools index $bam
-        bam_filter $bam -i ${params.identity} -o $outfile
+        samtools index $bam1
+        samtools index $bam2
+        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -g1 $genome1 -g2 $genome2 -r1 $organame1 -r2 $organame2 -i ${params.identity} -o $outfile -p ${task.cpus}
         """
 }
-
-
-process filter_bam_genome2 {
-    tag "$name"
-
-    conda 'python=3.6 bioconda::pysam'
-
-    label 'ristretto'
-
-    publishDir "${params.results}/bam/${params.name2}", mode: 'copy'
-
-    input:
-        set val(name), file(bam) from filter_bam2
-    output:
-        set val(name), file("*.filtered.bam") into filtered_bam2
-    script:
-        outfile = name+".filtered.bam"
-        """
-        samtools index $bam
-        bam_filter $bam -i ${params.identity} -o $outfile
-        """
-}
-
 
 // 4:     MapDamage
 
@@ -584,12 +475,12 @@ process mapdamageGenome1 {
 
     input:
         set val(name), file(align) from filtered_bam1
-        val(orgaName) from name1_mapdamage
         file(fasta) from genome1mapdamage.first()
     output:
         set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome1
         file("*.fragmisincorporation_plot.png") into mapdamage_result_genome1
     script:
+        orgaName = params.name1
         plot_title = name+"_"+orgaName
         fname = name+"."+orgaName+".fragmisincorporation_plot.png"
         pdfloc = name+"/Fragmisincorporation_plot.pdf"
@@ -612,12 +503,12 @@ process mapdamageGenome2 {
 
     input:
         set val(name), file(align) from filtered_bam2
-        val(orgaName) from name2_mapdamage
         file(fasta) from genome2mapdamage.first()
     output:
         set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome2
         file("*.fragmisincorporation_plot.png") into mapdamage_result_genome2
     script:
+        orgaName = params.name2
         plot_title = name+"_"+orgaName
         fname = name+"."+orgaName+".fragmisincorporation_plot.png"
         pdfloc = name+"/Fragmisincorporation_plot.pdf"
@@ -627,7 +518,7 @@ process mapdamageGenome2 {
         """
 }
 
-// concatenate read ratios
+// 5: concatenate read ratios
 
 process concatenateRatios {
     conda "python=3.6"
@@ -635,8 +526,7 @@ process concatenateRatios {
     label 'ristretto'
 
     input:
-        file(g1) from read_count_genome1.collect()
-        file(g2) from read_count_genome2.collect()
+        file(count) from bp_count.collect()
     output:
         file("coproid_result.out") into coproid_count
     script:
@@ -645,7 +535,7 @@ process concatenateRatios {
         """
 }
 
-// 5:     Compute read proportion Nnr1/Nnr2 and write PDF report
+// 6:     Write Markdown report
 process proportionAndReport {
 
     conda 'python=3.6 matplotlib'
