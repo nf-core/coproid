@@ -141,7 +141,7 @@ if(params.index1 != '') {
     Channel
         .fromPath(params.index1)
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.index1}\n"}
-        .into {bt_index_genome1}
+        .set {bt_index_genome1}
 }
 
 
@@ -155,7 +155,7 @@ if (params.index2 != '') {
     Channel
         .fromPath(params.index2)
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.index2}\n"}
-        .into {bt_index_genome2}
+        .set {bt_index_genome2}
 }
 
 
