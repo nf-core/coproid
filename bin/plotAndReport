@@ -11,8 +11,8 @@ plt.switch_backend('agg')
 def get_args():
     '''This function parses and return arguments passed in'''
     parser = argparse.ArgumentParser(
-        prog='computeRatio',
-        description='Compute read count ratio between target genome1 and target genome2')
+        prog='plotAndReport',
+        description='plotAndReport')
     parser.add_argument(
         '-c',
         dest='countFile',
@@ -105,25 +105,19 @@ if __name__ == "__main__":
     y = list(d.keys())
 
     maxratio = max(x)
+    minratio = min(x)
 
-    if maxratio < 2:
-        ticklist = [orga2_clean] + [str(round(x, 2)) for x in list(
-            np.arange(0.2, 2, 0.2))] + [orga1_clean]
-    else:
-        step = round(maxratio / 20, 1)
-        ticklist = [orga2_clean] + [str(round(x, 2)) for x in list(
-            np.arange(step, maxratio, step))] + [orga1_clean]
+    step = round((maxratio - minratio) / 10, 1)
+    ticklist = [orga2_clean] + [str(round(x, 2))
+                                for x in list(np.arange(minratio, maxratio + step, step))] + [orga1_clean]
 
     plt.plot(x, y, "ro")
     plt.grid(True)
 
-    plt.axvline(x=1)
-    if maxratio < 2:
-        plt.xticks((np.arange(0, 2.2, 0.2)),
-                   (ticklist), rotation="vertical")
-    else:
-        plt.xticks((np.arange(0, maxratio + step, step)),
-                   (ticklist), rotation="vertical")
+    plt.axvline(x=0)
+
+    plt.xticks((np.arange(minratio - step, maxratio + 2 * step, step)),
+               (ticklist), rotation="vertical")
     plt.yticks(rotation='45')
     plt.subplots_adjust(bottom=0.4, left=0.15)
 
@@ -143,7 +137,7 @@ if __name__ == "__main__":
         fw.write("- **Organisms:**   \n\n    - *" + orga1_clean + "* (genome size = " + str(gs1) +
                  " bp )  \n\n    - *" + orga2_clean + "* (genome size = " + str(gs2) + " bp)  \n")
         fw.write(
-            "- **The formula used to compute the read ratio is the following:** \n\n  $NormalizedRead_{ratio} = \\frac{\\frac{bp_{aligned genome 1} + 1}{size{genome1}}}{\\frac{bp_{aligned genome 2} + 1}{size{genome2}}}$\n\n  ")
+            "- **The formula used to compute the read ratio is the following:** \n\n  $NormalizedRead_{ratio} = \\log_2\\left(\\frac{\\frac{bp_{aligned genome 1} + 1}{size{genome1}}}{\\frac{bp_{aligned genome 2} + 1}{size{genome2}}}\\right)$\n\n  ")
         fw.write("***\n")
         fw.write("## coproID read ratio plot\n\n")
         fw.write("![Normalized read ratio (*" + orga1_clean +
@@ -153,13 +147,26 @@ if __name__ == "__main__":
         for asample in d.keys():
             orga1_clean = d[asample]["orga1"].replace("_", " ")
             orga2_clean = d[asample]["orga2"].replace("_", " ")
+            if d[asample]["nrr"] > 1:
+                conclusion = 'There are more *' + orga1_clean + '* aDNA reads than *' + orga2_clean + \
+                    '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
+                    orga1_clean + '*'
+            elif d[asample]["nrr"] < -1:
+                conclusion = '*There are more *' + orga2_clean + '* aDNA reads than *' + orga1_clean + \
+                    '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
+                    orga2_clean + '*'
+            else:
+                conclusion = 'There is a similar amount of aDNA reads originating from *' + \
+                    orga1_clean + '* and *' + orga2_clean + \
+                    '. coproID can not reliably estimate which of these two organisms this coprolite is coming from.'
             fw.write("### **Sample:** " + asample + "  \n")
             fw.write("- **Number of base pairs (bp) in reads aligned to *" +
                      orga1_clean + "* (genome 1) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp1"]) + "  \n")
             fw.write("- **Number of base pairs (bp) in reads aligned to *" +
                      orga2_clean + "* (genome 2) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp2"]) + "  \n\n")
-            fw.write("- Normalized Read ratio $\\frac{" + d[asample]["orga1"].replace("_", "\\;") + "}{" +
-                     d[asample]["orga2"].replace("_", "\\;") + "} = " + str(round(d[asample]["nrr"], 3)) + "$   \n\n")
+            fw.write("- $NormalizedRead_{ratio} = \\log2\\left(\\frac{" + d[asample]["orga1"].replace("_", "\\;") + "}{" +
+                     d[asample]["orga2"].replace("_", "\\;") + "}\\right) = " + str(round(d[asample]["nrr"], 3)) + "$   \n\n")
+            fw.write(conclusion + '\n\n')
             fw.write("- **MapDamage plots**\n\n")
             fw.write("![MapDamage Fragmisincorporation plot for " +
                      orga1_clean + "](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")

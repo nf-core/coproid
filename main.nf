@@ -584,7 +584,7 @@ process proportionAndReport {
     script:
         outfile = "coproID_result.md"
         """
-        computeRatio2 -c $count -i ${params.identity} -v $version -o $outfile
+        plotAndReport -c $count -i ${params.identity} -v $version -o $outfile
         """
 }
 

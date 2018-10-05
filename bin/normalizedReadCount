@@ -4,6 +4,7 @@ import argparse
 import multiprocessing
 import sys
 from functools import partial
+from math import log2
 import pysam
 
 
@@ -245,7 +246,7 @@ if __name__ == "__main__":
     print("gs1", gs1)
     print("gs2", gs2)
 
-    NormalizedReadRatio = (nb1 / gs1) / (nb2 / gs2)
+    NormalizedReadRatio = log2((nb1 / gs1) / (nb2 / gs2))
 
     # Template output file structure
     # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
