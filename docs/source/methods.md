@@ -14,19 +14,18 @@ Methods
 
  - **2.2 - Bowtie2:** Reads alignment on Genome2
 
- - **3.1 - normalizedReadCount:** Count bp aligned on Genome1 and normalise by Genome1 size -> Nnr1
+ - **3 - PMDtools:** Filtering out reads without Post Mortem Damage (PMD).
 
- - **3.2 - normalizedReadCount:** Count bp aligned on Genome2 and normalise by Genome2 size -> Nnr2
+ - **4 - normalizedReadCount:** Count aligned bp in each read passing an identity threshold, on each genome, and compute ratio
 
- - **3.3 - Filter bamfile on identity:** Only reads passing the identity threshold will be retained
+ - **5 - MapDamage:** DNA damage assessment and aDNA identification
 
- - **4 - MapDamage:** DNA damage assessment and aDNA identification
+ - **6 - plotAndReport:** Make plots and write Markdown report
 
- - **5 - ComputeRatio:** Compute read proportion Nnr1/Nnr2 and write Markdown report
+ - **7 - Pandoc:** Convert Markdown report to HTML
 
- - **6 - Pandoc:** Convert Markdown report to HTML
+ - **8 - MultiQC:** Generates QC report
 
- - **7 - MultiQC:** Generates QC report
 
  ## Example pipeline graph
 

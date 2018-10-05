@@ -19,12 +19,13 @@ Pipeline overview:
  - 1.3:   Bowtie Indexing of Genome2
  - 2.1:   Reads alignment on Genome1
  - 2.2:   Reads alignment on Genome2
- - 3:     Count aligned bp on each genome and compute ratio
- - 4:     MapDamage
- - 5:     Concatenate read ratios
- - 6:     Write Markdown report
- - 7:     Convert Markdown report to HTML
- - 8:     MultiQC
+ - 3:     Checking for read PMD with PMDtools
+ - 4:     Count aligned bp on each genome and compute ratio
+ - 5:     MapDamage
+ - 6:     Concatenate read ratios
+ - 7:     Write Markdown report
+ - 8:     Convert Markdown report to HTML
+ - 9:     MultiQC
 
  ----------------------------------------------------------------------------------------
 */
@@ -430,6 +431,8 @@ if (params.collapse == "yes"){
     }
 }
 
+// 3:     Checking for read PMD with PMDtools
+
 process pmdtoolsgenome1 {
     tag "$name"
 
@@ -466,7 +469,7 @@ process pmdtoolsgenome2 {
         """
 }
 
-// 3:   Count aligned bp on each genome and compute ratio
+// 4:   Count aligned bp on each genome and compute ratio
 
 process countBp{
     tag "$name"
@@ -494,7 +497,7 @@ process countBp{
         """
 }
 
-// 4:     MapDamage
+// 5:     MapDamage
 
 process mapdamageGenome1 {
     tag "$name"
@@ -552,7 +555,7 @@ process mapdamageGenome2 {
         """
 }
 
-// 5: concatenate read ratios
+// 6: concatenate read ratios
 
 process concatenateRatios {
     conda "python=3.6"
@@ -569,7 +572,7 @@ process concatenateRatios {
         """
 }
 
-// 6:     Write Markdown report
+// 7:     Write Markdown report
 process proportionAndReport {
 
     conda 'python=3.6 matplotlib'
@@ -588,7 +591,7 @@ process proportionAndReport {
         """
 }
 
-// 6:     Convert Markdown report to HTML
+// 8:     Convert Markdown report to HTML
 
 process md2html {
 
@@ -616,7 +619,7 @@ process md2html {
 
 
 
-// 7:     MultiQC
+// 9:     MultiQC
 process multiqc {
 
     conda 'conda-forge::networkx bioconda::multiqc=1.5'
