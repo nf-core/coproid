@@ -122,7 +122,7 @@ if __name__ == "__main__":
             fac = -1
         else:
             fac = 0.05
-        plt.text(a, b + fac, str(round(b, 3)), color="red")
+        plt.text(a, b + fac, str(round(b, 3)), color="red", ha="center")
 
     # plt.grid(True)
 
@@ -132,11 +132,11 @@ if __name__ == "__main__":
 
     if minratio < 0:
         plt.yticks((np.arange(minratio - step, maxratio + 2 * step, step)),
-                   (ticklist), rotation="vertical")
+                   (ticklist))
     else:
         plt.yticks((np.arange(-(2 * step), maxratio + 2 * step, step)),
-                   (ticklist), rotation="vertical")
-    plt.xticks(rotation='45')
+                   (ticklist))
+    plt.xticks(rotation='45', ha="right", rotation_mode="anchor")
     plt.yticks(rotation='45')
     plt.subplots_adjust(bottom=0.4, left=0.19)
 
