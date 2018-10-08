@@ -32,6 +32,11 @@ The following equation is used to compute the read ratio
 
 $$NormalizedRead_{Ratio} = \log2\left(\frac{\frac{N_{\ aDNA\ bp \ aligned \ genome1}}{size_{genome2} }}{\frac{N_{ \ aDNA \ bp \ aligned \ genome2}}{size_{genome2}}}\right)$$
 
+
+**A read is considered as an aDNA read when `PMDscore > --pmdscore`**
+
+
+
 An increase of the NormalizedReadRatio by 1 is equivalent to a two fold increase of the number of base pairs.
 
 Note that only basepairs originating from PMD carrying reads (as identified by PMDtools) and aligned to a reference genome with an identity greater than the predefined threshold, are taken into account for the calculation of the NormalizedReadRatio.
