@@ -24,11 +24,6 @@ def get_args():
         default=None,
         help="Fasta file of genome. Default = None")
     parser.add_argument(
-        '-s1',
-        dest='size1',
-        default=None,
-        help='Genome size in bp. Default = None')
-    parser.add_argument(
         '-r1',
         dest='organism1',
         default=None,
@@ -44,11 +39,6 @@ def get_args():
         dest="genome2",
         default=None,
         help="Fasta file of genome. Default = None")
-    parser.add_argument(
-        '-s2',
-        dest='size2',
-        default=None,
-        help='Genome size in bp. Default = None')
     parser.add_argument(
         '-r2',
         dest='organism2',
@@ -96,11 +86,9 @@ def get_args():
 
     bam1 = args.bam1
     genome1 = args.genome1
-    size1 = args.size1
     organame1 = args.organism1
     bam2 = args.bam2
     genome2 = args.genome2
-    size2 = args.size2
     organame2 = args.organism2
     sname = args.name
     identity = float(str(args.identity))
@@ -109,7 +97,7 @@ def get_args():
     obam2 = args.output_bam2
     processes = int(args.processes)
 
-    return(bam1, genome1, size1, organame1, bam2, genome2, size2, organame2, sname, identity, processes, outfile, obam1, obam2)
+    return(bam1, genome1, organame1, bam2, genome2, organame2, sname, identity, processes, outfile, obam1, obam2)
 
 
 def getBasename(file_name):
@@ -208,8 +196,8 @@ def getCommonReads(readsBam1, readsBam2):
 
 
 if __name__ == "__main__":
-    # bam1, genome1, size1, organame1, outfile1, bam2, genome2, size2, organame2, outfile2, sname, identity, processes
-    BAM1, GENOME1, SIZE1, ORGANAME1, BAM2, GENOME2, SIZE2, ORGANAME2, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2 = get_args()
+    # bam1, genome1, organame1, bam2, genome2, organame2, sname, identity, processes, outfile, obam1, obam2
+    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2 = get_args()
 
     if BAM1 is None:
         print("Missing BAM file")
@@ -224,14 +212,8 @@ if __name__ == "__main__":
     if not OUTFILE:
         OUTFILE = SNAME + ".out"
 
-    if SIZE1 is None:
-        gs1 = computeGenomeSize(GENOME1)
-    else:
-        gs1 = int(SIZE1)
-    if SIZE2 is None:
-        gs2 = computeGenomeSize(GENOME2)
-    else:
-        gs2 = int(SIZE2)
+    gs1 = computeGenomeSize(GENOME1)
+    gs2 = computeGenomeSize(GENOME2)
 
     bam1_res = getNumberMappedReadsMultiprocess(
         bam=BAM1, processes=PROCESSES, id=ID)
