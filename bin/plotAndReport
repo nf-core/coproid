@@ -101,25 +101,44 @@ if __name__ == "__main__":
     orga1_clean = organism1.replace("_", " ")
     orga2_clean = organism2.replace("_", " ")
 
-    x = [d[i]["nrr"] for i in d.keys()]
-    y = list(d.keys())
+    y = [d[i]["nrr"] for i in d.keys()]
+    x = list(d.keys())
 
-    maxratio = max(x)
-    minratio = min(x)
+    maxratio = max(y)
+    minratio = min(y)
 
     step = round((maxratio - minratio) / 10, 1)
-    ticklist = [orga2_clean] + [str(round(x, 2))
-                                for x in list(np.arange(minratio, maxratio + step, step))] + [orga1_clean]
+    if minratio < 0:
+        ticklist = [orga2_clean] + [str(round(x, 1)) for x in list(
+            np.arange(minratio, maxratio + step, step))] + [orga1_clean]
+    else:
+        ticklist = [orga2_clean] + [str(round(x, 1)) for x in list(
+            np.arange(-step, maxratio + step, step))] + [orga1_clean]
 
-    plt.plot(x, y, "ro")
-    plt.grid(True)
+    # plt.plot(x, y, "ro")
+    plt.bar(x, y)
+    for a, b in zip(x, y):
+        if (b < 0):
+            fac = -1
+        else:
+            fac = 0.05
+        plt.text(a, b + fac, str(round(b, 3)), color="red")
 
-    plt.axvline(x=0)
+    # plt.grid(True)
 
-    plt.xticks((np.arange(minratio - step, maxratio + 2 * step, step)),
-               (ticklist), rotation="vertical")
+    plt.axhline(y=0, color="black")
+    plt.axhline(y=1, color="orange")
+    plt.axhline(y=-1, color="orange")
+
+    if minratio < 0:
+        plt.yticks((np.arange(minratio - step, maxratio + 2 * step, step)),
+                   (ticklist), rotation="vertical")
+    else:
+        plt.yticks((np.arange(-(2 * step), maxratio + 2 * step, step)),
+                   (ticklist), rotation="vertical")
+    plt.xticks(rotation='45')
     plt.yticks(rotation='45')
-    plt.subplots_adjust(bottom=0.4, left=0.15)
+    plt.subplots_adjust(bottom=0.4, left=0.19)
 
     plt.savefig("./ratio.png")
 
@@ -137,11 +156,11 @@ if __name__ == "__main__":
         fw.write("- **Organisms:**   \n\n    - *" + orga1_clean + "* (genome size = " + str(gs1) +
                  " bp )  \n\n    - *" + orga2_clean + "* (genome size = " + str(gs2) + " bp)  \n")
         fw.write(
-            "- **The formula used to compute the read ratio is the following:** \n\n  $NormalizedRead_{ratio} = \\log_2\\left(\\frac{\\frac{bp_{aligned genome 1} + 1}{size{genome1}}}{\\frac{bp_{aligned genome 2} + 1}{size{genome2}}}\\right)$\n\n  ")
+            "- **The formula used to compute the read ratio is the following:** \n\n  $NormalizedRead_{Ratio} = \\log2\\left(\\frac{\\frac{N_{\\ aDNA\\ bp \\ aligned \\ genome1}}{size_{genome2} }}{\\frac{N_{ \\ aDNA \\ bp \\ aligned \\ genome2}}{size_{genome2}}}\\right)$\n\n  ")
         fw.write("***\n")
         fw.write("## coproID read ratio plot\n\n")
         fw.write("![Normalized read ratio (*" + orga1_clean +
-                 "*/*" + orga2_clean + "*), blue line is an equal proportion of both genomes](./ratio.png)\n")
+                 "*/*" + orga2_clean + "*). The black line at 0 is an equal proportion of both genomes, while orange lines at |1| represent the uncertainty zone.](./ratio.png)\n")
         fw.write("\n\n***\n\n")
         fw.write("***\n\n")
         for asample in d.keys():
@@ -152,13 +171,13 @@ if __name__ == "__main__":
                     '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
                     orga1_clean + '*'
             elif d[asample]["nrr"] < -1:
-                conclusion = '*There are more *' + orga2_clean + '* aDNA reads than *' + orga1_clean + \
+                conclusion = 'There are more *' + orga2_clean + '* aDNA reads than *' + orga1_clean + \
                     '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
                     orga2_clean + '*'
             else:
                 conclusion = 'There is a similar amount of aDNA reads originating from *' + \
                     orga1_clean + '* and *' + orga2_clean + \
-                    '. coproID can not reliably estimate which of these two organisms this coprolite is coming from.'
+                    '*. coproID can not reliably estimate which of these two organisms this coprolite is coming from.'
             fw.write("### **Sample:** " + asample + "  \n")
             fw.write("- **Number of base pairs (bp) in reads aligned to *" +
                      orga1_clean + "* (genome 1) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp1"]) + "  \n")
@@ -169,7 +188,7 @@ if __name__ == "__main__":
             fw.write(conclusion + '\n\n')
             fw.write("- **MapDamage plots**\n\n")
             fw.write("![MapDamage Fragmisincorporation plot for " +
-                     orga1_clean + "](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
+                     orga1_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads.](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
             fw.write("![MapDamage Fragmisincorporation plot for " +
-                     orga2_clean + "](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
+                     orga2_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads.](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
             fw.write("\n\n***\n")
