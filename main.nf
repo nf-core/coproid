@@ -490,10 +490,12 @@ process countBp{
         outfile = name+".out"
         organame1 = params.name1
         organame2 = params.name2
+        obam1 = name+"_"+organame1+".filtered.bam"
+        obam2 = name+"_"+organame2+".filtered.bam"
         """
         samtools index $bam1
         samtools index $bam2
-        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -g1 $genome1 -g2 $genome2 -r1 $organame1 -r2 $organame2 -i ${params.identity} -o $outfile -p ${task.cpus}
+        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -g1 $genome1 -g2 $genome2 -r1 $organame1 -r2 $organame2 -i ${params.identity} -o $outfile -ob1 $obam1 -ob2 $obam2 -p ${task.cpus}
         """
 }
 

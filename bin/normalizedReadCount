@@ -74,6 +74,18 @@ def get_args():
         help="Output file basename. Default = {BAM_GENOME}.out"
     )
     parser.add_argument(
+        '-ob1',
+        dest="output_bam1",
+        default=None,
+        help="Output bam 1 filename. Default = {BAM1_INPUT}.filtered.bam"
+    )
+    parser.add_argument(
+        '-ob2',
+        dest="output_bam2",
+        default=None,
+        help="Output bam 2 filename. Default = {BAM2_INPUT}.filtered.bam"
+    )
+    parser.add_argument(
         '-p',
         dest="processes",
         default=4,
@@ -93,9 +105,11 @@ def get_args():
     sname = args.name
     identity = float(str(args.identity))
     outfile = args.output
+    obam1 = args.output_bam1
+    obam2 = args.output_bam2
     processes = int(args.processes)
 
-    return(bam1, genome1, size1, organame1, bam2, genome2, size2, organame2, sname, identity, processes, outfile)
+    return(bam1, genome1, size1, organame1, bam2, genome2, size2, organame2, sname, identity, processes, outfile, obam1, obam2)
 
 
 def getBasename(file_name):
@@ -195,7 +209,7 @@ def getCommonReads(readsBam1, readsBam2):
 
 if __name__ == "__main__":
     # bam1, genome1, size1, organame1, outfile1, bam2, genome2, size2, organame2, outfile2, sname, identity, processes
-    BAM1, GENOME1, SIZE1, ORGANAME1, BAM2, GENOME2, SIZE2, ORGANAME2, SNAME, ID, PROCESSES, OUTFILE = get_args()
+    BAM1, GENOME1, SIZE1, ORGANAME1, BAM2, GENOME2, SIZE2, ORGANAME2, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2 = get_args()
 
     if BAM1 is None:
         print("Missing BAM file")
@@ -236,8 +250,15 @@ if __name__ == "__main__":
     nb2 = getNumberMappedReadsMultiprocess(
         bam=BAM2, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
 
-    outbam1 = bam_basename1 + ".filtered.bam"
-    outbam2 = bam_basename2 + ".filtered.bam"
+    if OBAM1 is None:
+        outbam1 = bam_basename1 + ".filtered.bam"
+    else:
+        outbam1 = OBAM1
+    if OBAM2 is None:
+        outbam2 = bam_basename2 + ".filtered.bam"
+    else:
+        outbam2 = OBAM2
+
     writeBam(inbam=BAM1, outbam=outbam1, commonReads=commonReads)
     writeBam(inbam=BAM2, outbam=outbam2, commonReads=commonReads)
 
