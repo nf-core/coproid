@@ -31,6 +31,12 @@ def get_args():
         help='coproID version'
     )
     parser.add_argument(
+        "-csv",
+        dest="csv",
+        default=None,
+        help="csv filename output. Default = coproid.csv"
+    )
+    parser.add_argument(
         '-o',
         dest="output",
         default="coproID_result.md",
@@ -42,8 +48,9 @@ def get_args():
     identity = float(str(args.identity))
     version = str(args.version)
     outfile = args.output
+    csv = args.csv
 
-    return(countFile, identity, version, outfile)
+    return(countFile, identity, version, outfile, csv)
 
 
 def getBasename(file_name):
@@ -62,8 +69,16 @@ def getFile(path):
     return(filename)
 
 
+def write_csv(adict, CSV):
+    with open(CSV, "w") as f:
+        f.write("Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_aDNA_bp_aligned_genome1,nb_aDNA_bp_aligned_genome2,NormalizedReadRatio\n")
+        for akey in adict:
+            f.write(akey + "," + adict[akey]["orga1"] + "," + adict[akey]
+                    ["orga2"] + "," + str(adict[akey]["gs1"]) + "," + str(adict[akey]["gs2"]) + str(adict[akey]["nbp1"]) + "," + str(adict[akey]["nbp2"]) + "," + str(adict[akey]["nrr"]) + "\n")
+
+
 if __name__ == "__main__":
-    CF, ID, VERSION, OUTFILE = get_args()
+    CF, ID, VERSION, OUTFILE, CSV = get_args()
 
     identity = ID * 100
 
@@ -97,6 +112,8 @@ if __name__ == "__main__":
             d[sample]["nbp1"] = nbp1
             d[sample]["nbp2"] = nbp2
             d[sample]["nrr"] = nrr
+
+    write_csv(d, CSV)
 
     orga1_clean = organism1.replace("_", " ")
     orga2_clean = organism2.replace("_", " ")

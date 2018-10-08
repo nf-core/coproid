@@ -581,15 +581,19 @@ process proportionAndReport {
 
     label 'ristretto'
 
+    publishDir "${params.results}", mode: 'copy', pattern: '*.csv'
+
     input:
         file(count) from coproid_count
     output:
         file("*.md") into coproidmd
         file("*.png") into plot
+        file("*.csv") into csv_out
     script:
         outfile = "coproID_result.md"
+        csvout = "coproid_result.csv"
         """
-        plotAndReport -c $count -i ${params.identity} -v $version -o $outfile
+        plotAndReport -c $count -i ${params.identity} -v $version -csv $csvout -o $outfile
         """
 }
 
