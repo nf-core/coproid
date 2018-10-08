@@ -214,7 +214,7 @@ process renameGenome1 {
     input:
         file (genome) from genome1rename
     output:
-        file ("*.fa") into (genome1Fasta, genome1Size, genome1Log, genome1mapdamage)
+        file (params.name1+".fa") into (genome1Fasta, genome1Size, genome1Log, genome1mapdamage)
     script:
         outname = params.name1+".fa"
         """
@@ -228,7 +228,7 @@ process renameGenome2 {
     input:
         file (genome) from genome2rename
     output:
-        file ("*.fa") into (genome2Fasta, genome2Size, genome2Log, genome2mapdamage)
+        file (params.name2+".fa") into (genome2Fasta, genome2Size, genome2Log, genome2mapdamage)
     script:
         outname = params.name2+".fa"
         """

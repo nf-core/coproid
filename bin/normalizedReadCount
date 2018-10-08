@@ -244,24 +244,10 @@ if __name__ == "__main__":
     writeBam(inbam=BAM1, outbam=outbam1, commonReads=commonReads)
     writeBam(inbam=BAM2, outbam=outbam2, commonReads=commonReads)
 
-    print("nb1", nb1)
-    print("nb2", nb2)
-    print("gs1", gs1)
-    print("gs2", gs2)
-
     NormalizedReadRatio = log2((nb1 / gs1) / (nb2 / gs2))
 
     # Template output file structure
     # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
-
-    print(SNAME)
-    print(ORGANAME1)
-    print(ORGANAME2)
-    print(gs1)
-    print(gs2)
-    print(nb1)
-    print(nb2)
-    print(NormalizedReadRatio)
     with open(OUTFILE, 'w') as w:
         w.write(SNAME + "," + ORGANAME1 + "," + ORGANAME2 + "," + str(gs1) + "," +
                 str(gs2) + "," + str(nb1) + "," + str(nb2) + "," + str(NormalizedReadRatio) + "\n")

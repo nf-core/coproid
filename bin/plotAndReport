@@ -74,7 +74,7 @@ def write_csv(adict, CSV):
         f.write("Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_aDNA_bp_aligned_genome1,nb_aDNA_bp_aligned_genome2,NormalizedReadRatio\n")
         for akey in adict:
             f.write(akey + "," + adict[akey]["orga1"] + "," + adict[akey]
-                    ["orga2"] + "," + str(adict[akey]["gs1"]) + "," + str(adict[akey]["gs2"]) + str(adict[akey]["nbp1"]) + "," + str(adict[akey]["nbp2"]) + "," + str(adict[akey]["nrr"]) + "\n")
+                    ["orga2"] + "," + str(adict[akey]["gs1"]) + "," + str(adict[akey]["gs2"]) + "," + str(adict[akey]["nbp1"]) + "," + str(adict[akey]["nbp2"]) + "," + str(adict[akey]["nrr"]) + "\n")
 
 
 if __name__ == "__main__":
