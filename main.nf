@@ -68,7 +68,7 @@ def helpMessage() {
 
 
 version = "0.6"
-version_date = "October 4th, 2018"
+version_date = "October 11th, 2018"
 
 params.phred = 33
 

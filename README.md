@@ -36,7 +36,7 @@ Launching `maxibor/coproid` [special_laplace] - revision: b579d0002f
  Documentation: https://coproid.readthedocs.io
  Author: Maxime Borry <borry@shh.mpg.de>
  Version 0.6
- Last updated on October 4th, 2018
+ Last updated on October 11th, 2018
 =========================================
 Usage:
 The typical command for running the pipeline is as follows:
