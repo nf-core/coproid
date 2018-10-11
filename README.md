@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/maxibor/coproID.svg?branch=master)](https://travis-ci.org/maxibor/coproID)   [![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Build Status](https://travis-ci.org/maxibor/coproID.svg?branch=master)](https://travis-ci.org/maxibor/coproID)   [![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![DOI](https://zenodo.org/badge/148763195.svg)](https://zenodo.org/badge/latestdoi/148763195)
+
 
 <img src="img/logo.png" height="150">  
 
@@ -22,6 +23,14 @@ nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --nam
 ## Pipeline overview
 
 ![](img/dag.png)
+
+## How to cite coproID
+
+You can cite **coproID** like this:
+
+```
+Maxime Borry (2018). CoproID: Coprolite Identification. DOI: 10.5281/zenodo.1458163
+```
 
 ## Get Help
 

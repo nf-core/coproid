@@ -64,3 +64,11 @@ Other options:
 ## coproID example workFlow
 
 ![](_static/_img/dag.png)
+
+## How to cite coproID
+
+You can cite **coproID** like this:
+
+```
+Maxime Borry (2018). CoproID: Coprolite Identification. DOI: 10.5281/zenodo.1458163
+```
