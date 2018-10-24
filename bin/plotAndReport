@@ -124,19 +124,20 @@ if __name__ == "__main__":
     maxratio = max(y)
     minratio = min(y)
     if minratio == maxratio and minratio > 0:
-        minratio = -1
+        minratio = -1.2
         maxratio = maxratio
     elif minratio == maxratio and minratio < 0:
         minratio = minratio
-        maxratio = 1
+        maxratio = 1.2
+    elif maxratio < 0 and minratio < 0:
+        maxratio = 1.2
+    elif minratio > 0 and maxratio > 0:
+        minratio = -1.2
 
     step = round((maxratio - minratio) / 10, 1)
-    if minratio < 0:
-        ticklist = [orga2_clean] + [str(round(x, 1)) for x in list(
-            np.arange(minratio, maxratio + step, step))] + [orga1_clean]
-    else:
-        ticklist = [orga2_clean] + [str(round(x, 1)) for x in list(
-            np.arange(-step, maxratio + step, step))] + [orga1_clean]
+
+    ticklist = [orga2_clean] + [str(round(x, 1)) for x in list(
+        np.arange(minratio, maxratio + step, step))] + [orga1_clean]
 
     # plt.plot(x, y, "ro")
     plt.bar(x, y)

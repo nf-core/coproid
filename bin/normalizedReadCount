@@ -165,7 +165,10 @@ def getNumberMappedReadsMultiprocess(bam, processes, id, commonReads=[]):
     resdic = {}
     resdic["bpCnt"] = 0
     resdic["mappedReads"] = []
-    bamfile = pysam.AlignmentFile(bam, "rb")
+    try:
+        bamfile = pysam.AlignmentFile(bam, "rb")
+    except ValueError:
+        return(resdic)
     chrs = bamfile.references
 
     perChromosomePartial = partial(
