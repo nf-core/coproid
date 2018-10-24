@@ -244,6 +244,8 @@ if __name__ == "__main__":
     writeBam(inbam=BAM1, outbam=outbam1, commonReads=commonReads)
     writeBam(inbam=BAM2, outbam=outbam2, commonReads=commonReads)
 
+    nb1 += 1
+    nb2 += 1
     NormalizedReadRatio = log2((nb1 / gs1) / (nb2 / gs2))
 
     # Template output file structure
