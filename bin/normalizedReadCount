@@ -251,9 +251,7 @@ if __name__ == "__main__":
     writeBam(inbam=BAM1, outbam=outbam1, commonReads=commonReads)
     writeBam(inbam=BAM2, outbam=outbam2, commonReads=commonReads)
 
-    nb1 += 1
-    nb2 += 1
-    NormalizedReadRatio = log2((nb1 / gs1) / (nb2 / gs2))
+    NormalizedReadRatio = log2((nb1 + 1 / gs1) / (nb2 + 1 / gs2))
 
     # Template output file structure
     # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
