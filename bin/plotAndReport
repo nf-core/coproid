@@ -211,8 +211,16 @@ if __name__ == "__main__":
                      d[asample]["orga2"].replace("_", "\\;") + "}\\right) = " + str(round(d[asample]["nrr"], 3)) + "$   \n\n")
             fw.write(conclusion + '\n\n')
             fw.write("- **MapDamage plots**\n\n")
-            fw.write("![MapDamage Fragmisincorporation plot for " +
-                     orga1_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. If there is not plot displayed, the aligned read count was too low for mapDamage](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
-            fw.write("![MapDamage Fragmisincorporation plot for " +
-                     orga2_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. If there is not plot displayed, the aligned read count was too low for mapDamage](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
+            if d[asample]["nbp1"] > 20:
+                fw.write("![MapDamage Fragmisincorporation plot for " +
+                         orga1_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. ](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
+            else:
+                fw.write(
+                    "No plot is displayed because the number of bases aligned is too low for mapDamage\n\n")
+            if d[asample]["nbp2"] > 20:
+                fw.write("![MapDamage Fragmisincorporation plot for " +
+                         orga2_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. If there is not plot displayed, the aligned read count was too low for mapDamage](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
+            else:
+                fw.write(
+                    "No plot is displayed because the number of bases aligned is too low for mapDamage\n\n")
             fw.write("\n\n***\n")
