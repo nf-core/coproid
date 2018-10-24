@@ -184,11 +184,15 @@ def getNumberMappedReadsMultiprocess(bam, processes, id, commonReads=[]):
 
 
 def writeBam(inbam, outbam, commonReads):
-    bamin = pysam.AlignmentFile(inbam, "rb")
-    bamout = pysam.AlignmentFile(outbam, 'w', template=bamin)
-    for s in bamin:
-        if s.query_name not in commonReads:
-            bamout.write(s)
+    try:
+        bamin = pysam.AlignmentFile(inbam, "rb")
+        bamout = pysam.AlignmentFile(outbam, 'w', template=bamin)
+        for s in bamin:
+            if s.query_name not in commonReads:
+                bamout.write(s)
+    except ValueError:
+        with open("error_readme_"+outbam, "w") as o:
+            o.write("Error writing this BAM file, input bam file was erroneous")
 
 
 def getCommonReads(readsBam1, readsBam2):
