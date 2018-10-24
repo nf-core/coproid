@@ -123,6 +123,12 @@ if __name__ == "__main__":
 
     maxratio = max(y)
     minratio = min(y)
+    if minratio == maxratio and minratio > 0:
+        minratio = -1
+        maxratio = maxratio
+    elif minratio == maxratio and minratio < 0:
+        minratio = minratio
+        maxratio = 1
 
     step = round((maxratio - minratio) / 10, 1)
     if minratio < 0:

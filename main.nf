@@ -111,7 +111,7 @@ if (params.bowtie == 'very-fast'){
 //Library setting check
 
 if ((params.library != 'classic' && params.library != 'UDGhalf' ) && (params.h == false || params.help == false) ){
-    println 'ERROR: You did not specify --blabla'
+    println 'ERROR: You did not specify --library'
     exit(1)
 }
 if (params.library == 'classic'){
