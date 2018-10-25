@@ -51,6 +51,7 @@ def helpMessage() {
       --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)
 
     Options:
+      --adna                        Specified if data is modern (false) or ancient DNA (true). Default = ${params.adna}
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
       --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome1 is not set
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
@@ -67,11 +68,12 @@ def helpMessage() {
 }
 
 
-version = "0.6"
-version_date = "October 11th, 2018"
+version = "0.6.1"
+version_date = "October 25th, 2018"
 
 params.phred = 33
 
+params.adna = true
 params.results = "./results"
 params.reads = ''
 params.genome1 = ''
@@ -433,7 +435,8 @@ if (params.collapse == "yes"){
 
 // 3:     Checking for read PMD with PMDtools
 
-process pmdtoolsgenome1 {
+if (params.adna){
+    process pmdtoolsgenome1 {
     tag "$name"
 
     conda 'bioconda::pmdtools'
@@ -449,24 +452,25 @@ process pmdtoolsgenome1 {
         """
         samtools view -h -F 4 $bam1 | pmdtools -t ${params.pmdscore} --header $library | samtools view -Sb - > $outfile
         """
-}
+    }
 
-process pmdtoolsgenome2 {
-    tag "$name"
+    process pmdtoolsgenome2 {
+        tag "$name"
 
-    conda 'bioconda::pmdtools'
+        conda 'bioconda::pmdtools'
 
-    label 'ristretto'
+        label 'ristretto'
 
-    input:
-        set val(name), file(bam2) from alignment_genome2
-    output:
-        set val(name), file("*.pmd_filtered.bam") into pmd_aligned2
-    script:
-        outfile = name+"_"+params.name2+".pmd_filtered.bam"
-        """
-        samtools view -h -F 4 $bam2 | pmdtools -t ${params.pmdscore} --header $library | samtools view -Sb - > $outfile
-        """
+        input:
+            set val(name), file(bam2) from alignment_genome2
+        output:
+            set val(name), file("*.pmd_filtered.bam") into pmd_aligned2
+        script:
+            outfile = name+"_"+params.name2+".pmd_filtered.bam"
+            """
+            samtools view -h -F 4 $bam2 | pmdtools -t ${params.pmdscore} --header $library | samtools view -Sb - > $outfile
+            """
+    }
 }
 
 // 4:   Count aligned bp on each genome and compute ratio
@@ -479,7 +483,9 @@ process countBp{
     label 'expresso'
 
     input:
-        set val(name), file(bam1), file(bam2) from pmd_aligned1.join(pmd_aligned2)
+
+        set val(name), file(bam1), file(bam2) from ( params.adna ? pmd_aligned1.join(pmd_aligned2) : alignment_genome1.join(alignment_genome2))
+        // set val(name), file(bam1), file(bam2) from pmd_aligned1.join(pmd_aligned2)
         file(genome1) from genome1Size.first()
         file(genome2) from genome2Size.first()
     output:
@@ -501,7 +507,8 @@ process countBp{
 
 // 5:     MapDamage
 
-process mapdamageGenome1 {
+if (params.adna){
+    process mapdamageGenome1 {
     tag "$name"
 
     conda 'bioconda::mapdamage2 conda-forge::imagemagick'
@@ -527,35 +534,37 @@ process mapdamageGenome1 {
         mapDamage -i $align -r $fasta -d $name -t $plot_title
         gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
         """
+    }
+
+    process mapdamageGenome2 {
+        tag "$name"
+
+        conda 'bioconda::mapdamage2 conda-forge::imagemagick'
+
+        label 'ristretto'
+
+        errorStrategy 'ignore'
+
+        publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
+
+        input:
+            set val(name), file(align) from filtered_bam2
+            file(fasta) from genome2mapdamage.first()
+        output:
+            set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome2
+            file("*.fragmisincorporation_plot.png") into mapdamage_result_genome2
+        script:
+            orgaName = params.name2
+            plot_title = name+"_"+orgaName
+            fname = name+"."+orgaName+".fragmisincorporation_plot.png"
+            pdfloc = name+"/Fragmisincorporation_plot.pdf"
+            """
+            mapDamage -i $align -r $fasta -d $name -t $plot_title
+            gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
+            """
+    }
 }
 
-process mapdamageGenome2 {
-    tag "$name"
-
-    conda 'bioconda::mapdamage2 conda-forge::imagemagick'
-
-    label 'ristretto'
-
-    errorStrategy 'ignore'
-
-    publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
-
-    input:
-        set val(name), file(align) from filtered_bam2
-        file(fasta) from genome2mapdamage.first()
-    output:
-        set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome2
-        file("*.fragmisincorporation_plot.png") into mapdamage_result_genome2
-    script:
-        orgaName = params.name2
-        plot_title = name+"_"+orgaName
-        fname = name+"."+orgaName+".fragmisincorporation_plot.png"
-        pdfloc = name+"/Fragmisincorporation_plot.pdf"
-        """
-        mapDamage -i $align -r $fasta -d $name -t $plot_title
-        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
-        """
-}
 
 // 6: concatenate read ratios
 
@@ -593,13 +602,13 @@ process proportionAndReport {
         outfile = "coproID_result.md"
         csvout = "coproid_result.csv"
         """
-        plotAndReport -c $count -i ${params.identity} -v $version -csv $csvout -o $outfile
+        plotAndReport -c $count -i ${params.identity} -v $version -csv $csvout -o $outfile -adna ${params.adna}
         """
 }
 
 // 8:     Convert Markdown report to HTML
-
-process md2html {
+if (params.adna){
+    process md2html_adna {
 
     conda 'conda-forge::pandoc'
 
@@ -610,8 +619,8 @@ process md2html {
     publishDir "${params.results}", mode: 'copy'
 
     input:
-        file(mdplot1) from mapdamage_result_genome1.collect()
-        file(mdplot1) from mapdamage_result_genome2.collect()
+        file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
+        file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
         file(report) from coproidmd
         file(fig) from plot
     output:
@@ -621,7 +630,31 @@ process md2html {
         """
         pandoc --self-contained --css $css --webtex -s $report -o $outfile
         """
+    }
+} else {
+    process md2html_modern {
+
+    conda 'conda-forge::pandoc'
+
+    label 'ristretto'
+
+    errorStrategy 'ignore'
+
+    publishDir "${params.results}", mode: 'copy'
+
+    input:
+        file(report) from coproidmd
+        file(fig) from plot
+    output:
+        file("*.html") into htmlReport
+    script:
+        outfile = "coproID_result.html"
+        """
+        pandoc --self-contained --css $css --webtex -s $report -o $outfile
+        """
+    }
 }
+
 
 
 

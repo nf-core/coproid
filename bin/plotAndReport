@@ -37,6 +37,12 @@ def get_args():
         help="csv filename output. Default = coproid.csv"
     )
     parser.add_argument(
+        "-adna",
+        dest="adna",
+        default='true',
+        help="adna (true | false)"
+    )
+    parser.add_argument(
         '-o',
         dest="output",
         default="coproID_result.md",
@@ -47,10 +53,11 @@ def get_args():
     countFile = args.countFile
     identity = float(str(args.identity))
     version = str(args.version)
+    adna = str(args.adna)
     outfile = args.output
     csv = args.csv
 
-    return(countFile, identity, version, outfile, csv)
+    return(countFile, identity, version, adna, outfile, csv)
 
 
 def getBasename(file_name):
@@ -78,7 +85,12 @@ def write_csv(adict, CSV):
 
 
 if __name__ == "__main__":
-    CF, ID, VERSION, OUTFILE, CSV = get_args()
+    CF, ID, VERSION, ADNA, OUTFILE, CSV = get_args()
+
+    if ADNA == 'true':
+        ADNA = True
+    elif ADNA == 'false':
+        ADNA = False
 
     identity = ID * 100
 
@@ -211,16 +223,16 @@ if __name__ == "__main__":
                      d[asample]["orga2"].replace("_", "\\;") + "}\\right) = " + str(round(d[asample]["nrr"], 3)) + "$   \n\n")
             fw.write(conclusion + '\n\n')
             fw.write("- **MapDamage plots**\n\n")
-            if d[asample]["nbp1"] > 20:
+            if d[asample]["nbp1"] > 20 and ADNA == True:
                 fw.write("![MapDamage Fragmisincorporation plot for " +
                          orga1_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. ](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
             else:
                 fw.write(
-                    "No plot is displayed because the number of bases aligned is too low for mapDamage\n\n")
-            if d[asample]["nbp2"] > 20:
+                    "\n\nNo plot is displayed because the number of bases aligned is too low for mapDamage, or it is Modern DNA\n\n")
+            if d[asample]["nbp2"] > 20 and ADNA == True:
                 fw.write("![MapDamage Fragmisincorporation plot for " +
                          orga2_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. If there is not plot displayed, the aligned read count was too low for mapDamage](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
             else:
                 fw.write(
-                    "No plot is displayed because the number of bases aligned is too low for mapDamage\n\n")
+                    "\n\nNo plot is displayed because the number of bases aligned is too low for mapDamage, or it is Modern DNA\n\n")
             fw.write("\n\n***\n")
