@@ -53,9 +53,10 @@ def helpMessage() {
     Options:
       --adna                        Specified if data is modern (false) or ancient DNA (true). Default = ${params.adna}
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
+      --singleEnd                   Specified if reads are single-end (true | false). Default = ${params.singleEnd}
       --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome1 is not set
       --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
-      --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = ${params.collapse}
+      --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
       --library                     DNA preparation library type ( classic | UDGhalf). Default = ${params.library}
@@ -68,21 +69,22 @@ def helpMessage() {
 }
 
 
-version = "0.6.1"
-version_date = "October 25th, 2018"
+version = "0.6.2"
+version_date = "November 23rd, 2018"
 
 params.phred = 33
 
 params.adna = true
 params.results = "./results"
 params.reads = ''
+params.singleEnd = false
 params.genome1 = ''
 params.genome2 = ''
 params.index1 = ''
 params.index2 = ''
 params.name1 = ''
 params.name2 = ''
-params.collapse = 'yes'
+params.collapse = true
 params.identity = 0.95
 params.pmdscore = 3
 params.library = 'classic'
@@ -129,7 +131,7 @@ if( ! nextflow.version.matches(">= 0.30") ){
 
 // Creating reads channel
 Channel
-    .fromFilePairs( params.reads, size: 2 )
+    .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
     .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\n" }
 	.into { reads_to_trim; reads_fastqc }
 
@@ -175,6 +177,7 @@ summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
 summary['collapse'] = params.collapse
+summary['singleEnd'] = params.singleEnd
 summary['bowtie setting'] = params.bowtie
 summary['Genome1'] = params.genome1
 if (params.index1 != '') {
@@ -184,6 +187,10 @@ summary['Genome2'] = params.genome2
 if (params.index2 != '') {
     summary["Genome2 BT2 index"] = params.index2
 }
+summary['Organism 1'] = params.name1
+summary['Organism 2'] = params.name2
+summary['PMD Score'] = params.pmdscore
+summary['Library type'] = params.library
 summary["Result directory"] = params.results
 log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
 log.info "========================================="
@@ -240,7 +247,7 @@ process renameGenome2 {
 
 
 // 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
-if (params.collapse == 'yes'){
+if (params.collapse == true && params.singleEnd == false){
     process AdapterRemovalCollapse {
         tag "$name"
 
@@ -252,19 +259,19 @@ if (params.collapse == 'yes'){
             set val(name), file(reads) from reads_to_trim
 
         output:
-            set val(name), file('*.collapsed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
+            set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
             file("*.settings") into adapter_removal_results
 
         script:
             out1 = name+".pair1.discarded.fastq"
             out2 = name+".pair2.discarded.fastq"
-            col_out = name+".collapsed.fastq"
+            col_out = name+".trimmed.fastq"
             settings = name+".settings"
             """
             AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --collapse --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --outputcollapsed $col_out --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
             """
     }
-} else if (params.collapse == "no") {
+} else if (params.collapse == false || params.singleEnd == true) {
     process AdapterRemovalNoCollapse {
         tag "$name"
 
@@ -276,19 +283,27 @@ if (params.collapse == 'yes'){
             set val(name), file(reads) from reads_to_trim
 
         output:
-            set val(name), file('*.truncated.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
+            set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2
             file("*.settings") into adapter_removal_results
 
         script:
-            out1 = name+".pair1.truncated.fastq"
-            out2 = name+".pair2.truncated.fastq"
+            out1 = name+".pair1.trimmed.fastq"
+            out2 = name+".pair2.trimmed.fastq"
+            se_out = name+".trimmed.fastq"
             settings = name+".settings"
-            """
-            AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
-            """
+            if (params.singleEnd == false) {
+                """
+                AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
+                """
+            } else {
+                """
+                AdapterRemoval --basename $name --file1 ${reads[0]} --trimns --trimqualities --minquality 20 --minlength 30 --output1 $se_out --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
+                """
+            }
+            
     }
 } else {
-    throw GroovyException('Problem with --collapse. Make sure you choose between "yes" or "no"')
+    throw GroovyException('Problem with --collapse. If --singleEnd is set to true, you have to set --collapse to false')
 }
 
 
@@ -334,7 +349,7 @@ if (params.index2 == ''){
 
 
 // 2.1:   Reads alignment on Genome1
-if (params.collapse == "yes") {
+if (params.collapse == true || params.singleEnd == true) {
     process AlignCollapseToGenome1 {
         tag "$name"
 
@@ -356,7 +371,7 @@ if (params.collapse == "yes") {
             bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
             """
     }
-} else if (params.collapse == "no") {
+} else if (params.collapse == false) {
     process AlignNoCollapseToGenome1 {
         tag "$name"
 
@@ -383,7 +398,7 @@ if (params.collapse == "yes") {
 
 
 // 2.2:   Reads alignment on Genome2
-if (params.collapse == "yes"){
+if (params.collapse == true || params.singleEnd == true){
     process AlignCollapseToGenome2 {
         tag "$name"
 
@@ -407,7 +422,7 @@ if (params.collapse == "yes"){
             bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
             """
     }
-} else if (params.collapse == "no"){
+} else if (params.collapse == false){
     process AlignNoCollapseToGenome2 {
         tag "$name"
 
