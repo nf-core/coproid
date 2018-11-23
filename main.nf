@@ -109,7 +109,8 @@ if (params.bowtie == 'very-fast'){
 } else if (params.bowtie == 'very-sensitive'){
     bowtie_setting = '--very-sensitive -N 1'
 } else {
-    throw GroovyException('Problem with --bowtie. Make sure to choose between "very-fast" or "very-sensitive"')
+    println "Problem with --bowtie. Make sure to choose between 'very-fast' or 'very-sensitive'"
+    exit(1)
 }
 
 //Library setting check
@@ -125,8 +126,8 @@ if (params.library == 'classic'){
 }
 
 if( ! nextflow.version.matches(">= 0.30") ){
-    throw GroovyException('Your version of Nextflow is too old, please update to Nextflow >= 0.30')
-    exit 0
+    println "Your version of Nextflow is too old, please update to Nextflow >= 0.30"
+    exit(1)
 }
 
 // Creating reads channel
@@ -303,7 +304,8 @@ if (params.collapse == true && params.singleEnd == false){
             
     }
 } else {
-    throw GroovyException('Problem with --collapse. If --singleEnd is set to true, you have to set --collapse to false')
+    println "Problem with --collapse. If --singleEnd is set to true, you have to set --collapse to false"
+    exit(1)
 }
 
 
