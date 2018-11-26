@@ -19,7 +19,6 @@ You need to specify:
 -   the path the paired-end `fastq` sequencing files
 -   the path to the two reference genomes `bowtie2` index files
 -   the names of the two reference species
--   the genome size of the two reference species
 
 Example:
 
@@ -33,7 +32,6 @@ You need to specify:
 -   the path the reference genomes `fasta` files
 -   the path to other reference genomes `bowtie2` index files
 -   the names of the two reference species
--   the genome size of the `bowtie2` indexed reference species
 
 Example:
 
@@ -42,7 +40,7 @@ Example:
 ## To collapse or not collapse
 
 Depending on the size of your DNA fragments, you might want to play with the `--collapse` option.
-You can start by leaving it to default (`--collapse yes`), and changing it to `--collapse no` if you find that most of your reads aren't merged/collapsed by `AdapterRemoval` (Plot in `multiqc` report)
+You can start by leaving it to default (`--collapse true`), and changing it to `--collapse false` if you find that most of your reads aren't merged/collapsed by `AdapterRemoval` (Plot in `multiqc` report)
 
 ## Using coproID on a cluster
 

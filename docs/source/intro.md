@@ -29,15 +29,15 @@ nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --nam
 ```
 $ nextflow run maxibor/coproid --help
 N E X T F L O W  ~  version 0.31.1
-Launching `maxibor/coproid` [special_laplace] - revision: b579d0002f
+Launching `maxibor/coproid` [evil_dubinsky] - revision: 8c90de4974 [master]
 
 =========================================
  coproID: Coprolite Identification
  Homepage: https://github.com/maxibor/coproid
  Documentation: https://coproid.readthedocs.io
  Author: Maxime Borry <borry@shh.mpg.de>
- Version 0.6
- Last updated on October 11th, 2018
+ Version 0.6.2
+ Last updated on November 23rd, 2018
 =========================================
 Usage:
 The typical command for running the pipeline is as follows:
@@ -50,11 +50,15 @@ Mandatory arguments:
   --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)
 
 Options:
+  --adna                        Specified if data is modern (false) or ancient DNA (true). Default = true
   --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to 33
+  --singleEnd                   Specified if reads are single-end (true | false). Default = false
   --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome1 is not set
   --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
-  --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = yes
+  --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = true
   --identity                    Identity threshold to retain read alignment. Default = 0.95
+  --pmdscore                    Minimum PMDscore to retain read alignment. Default = 3
+  --library                     DNA preparation library type ( classic | UDGhalf). Default = classic
   --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = very-sensitive
 Other options:
   --results                     Name of result directory. Defaults to ./results
