@@ -158,7 +158,8 @@ if __name__ == "__main__":
             fac = -1
         else:
             fac = 0.05
-        plt.text(a, b + fac, str(round(b, 3)), color="red", ha="center")
+        plt.text(a, b + fac, str(round(b, 1)),
+                 color="red", ha="center", rotation=45)
 
     # plt.grid(True)
 
