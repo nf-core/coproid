@@ -1,3 +1,3 @@
 Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_aDNA_bp_aligned_genome1,nb_aDNA_bp_aligned_genome2,NormalizedReadRatio
-metagenome,Bacillus_subtilis,Escherichia_coli,4215606,4686137,1453802,9104,7.471773618852114
-metagenomebis,Bacillus_subtilis,Escherichia_coli,4215606,4686137,4855,3598032,-9.380861910144272
+metagenome,Bacillus_subtilis,Escherichia_coli,4215606,4686137,1455364,9180,7.3086701606305455
+metagenomebis,Bacillus_subtilis,Escherichia_coli,4215606,4686137,4934,3598254,-9.51032359868104
