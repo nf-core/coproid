@@ -4,7 +4,7 @@
 <img src="img/logo.png" height="150">  
 
 ## Introduction
-**CoproID** helps you to identify the *"true maker"* of a sequenced Coprolite by comparing the reads mapping to each suspect genome.
+**CoproID** helps you to identify the *"true maker"* of a short-read NGS sequenced Coprolite by comparing the reads mapping to each suspect genome.
 
 ## Documentation
 
