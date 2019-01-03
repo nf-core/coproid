@@ -248,41 +248,41 @@ if __name__ == "__main__":
         fw.write("![Normalized read ratio (*" + orga1_clean +
                  "*/*" + orga2_clean + "*). The black line at 0 is an equal proportion of both genomes, while orange lines at |1| represent the uncertainty zone.](./ratio.png)\n")
         fw.write("\n\n***\n\n")
-        # fw.write("***\n\n")
-        # for asample in d.keys():
-        #     orga1_clean = d[asample]["orga1"].replace("_", " ")
-        #     orga2_clean = d[asample]["orga2"].replace("_", " ")
-        #     if d[asample]["nrr"] > 1:
-        #         conclusion = 'There are more *' + orga1_clean + '* aDNA reads than *' + orga2_clean + \
-        #             '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
-        #             orga1_clean + '*'
-        #     elif d[asample]["nrr"] < -1:
-        #         conclusion = 'There are more *' + orga2_clean + '* aDNA reads than *' + orga1_clean + \
-        #             '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
-        #             orga2_clean + '*'
-        #     else:
-        #         conclusion = 'There is a similar amount of aDNA reads originating from *' + \
-        #             orga1_clean + '* and *' + orga2_clean + \
-        #             '*. coproID can not reliably estimate which of these two organisms this coprolite is coming from.'
-        #     fw.write("### **Sample:** " + asample + "  \n")
-        #     fw.write("- **Number of base pairs (bp) in reads aligned to *" +
-        #              orga1_clean + "* (genome 1) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp1"]) + "  \n")
-        #     fw.write("- **Number of base pairs (bp) in reads aligned to *" +
-        #              orga2_clean + "* (genome 2) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp2"]) + "  \n\n")
-        #     fw.write("- $NormalizedRead_{ratio} = \\log2\\left(\\frac{" + d[asample]["orga1"].replace("_", "\\;") + "}{" +
-        #              d[asample]["orga2"].replace("_", "\\;") + "}\\right) = " + str(round(d[asample]["nrr"], 3)) + "$   \n\n")
-        #     fw.write(conclusion + '\n\n')
-        #     fw.write("- **MapDamage plots**\n\n")
-        #     if d[asample]["nbp1"] > 20 and ADNA == True:
-        #         fw.write("![MapDamage Fragmisincorporation plot for " +
-        #                  orga1_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. ](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
-        #     else:
-        #         fw.write(
-        #             "\n\nNo plot is displayed because the number of bases aligned is too low for mapDamage, or it is Modern DNA\n\n")
-        #     if d[asample]["nbp2"] > 20 and ADNA == True:
-        #         fw.write("![MapDamage Fragmisincorporation plot for " +
-        #                  orga2_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. If there is not plot displayed, the aligned read count was too low for mapDamage](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
-        #     else:
-        #         fw.write(
-        #             "\n\nNo plot is displayed because the number of bases aligned is too low for mapDamage, or it is Modern DNA\n\n")
-        #     fw.write("\n\n***\n")
+        fw.write("***\n\n")
+        for asample in d.keys():
+            orga1_clean = d[asample]["orga1"].replace("_", " ")
+            orga2_clean = d[asample]["orga2"].replace("_", " ")
+            if d[asample]["nrr"] > 1:
+                conclusion = 'There are more *' + orga1_clean + '* aDNA reads than *' + orga2_clean + \
+                    '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
+                    orga1_clean + '*'
+            elif d[asample]["nrr"] < -1:
+                conclusion = 'There are more *' + orga2_clean + '* aDNA reads than *' + orga1_clean + \
+                    '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
+                    orga2_clean + '*'
+            else:
+                conclusion = 'There is a similar amount of aDNA reads originating from *' + \
+                    orga1_clean + '* and *' + orga2_clean + \
+                    '*. coproID can not reliably estimate which of these two organisms this coprolite is coming from.'
+            fw.write("### **Sample:** " + asample + "  \n")
+            fw.write("- **Number of base pairs (bp) in reads aligned to *" +
+                     orga1_clean + "* (genome 1) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp1"]) + "  \n")
+            fw.write("- **Number of base pairs (bp) in reads aligned to *" +
+                     orga2_clean + "* (genome 2) at " + str(identity) + "\% identity:** " + str(d[asample]["nbp2"]) + "  \n\n")
+            fw.write("- $NormalizedRead_{ratio} = \\log2\\left(\\frac{" + d[asample]["orga1"].replace("_", "\\;") + "}{" +
+                     d[asample]["orga2"].replace("_", "\\;") + "}\\right) = " + str(round(d[asample]["nrr"], 3)) + "$   \n\n")
+            fw.write(conclusion + '\n\n')
+            fw.write("- **MapDamage plots**\n\n")
+            if d[asample]["nbp1"] > 20 and ADNA == True:
+                fw.write("![MapDamage Fragmisincorporation plot for " +
+                         orga1_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. ](./" + asample + "." + d[asample]["orga1"] + ".fragmisincorporation_plot.png)\n\n")
+            else:
+                fw.write(
+                    "\n\nNo plot is displayed because the number of bases aligned is too low for mapDamage, or it is Modern DNA\n\n")
+            if d[asample]["nbp2"] > 20 and ADNA == True:
+                fw.write("![MapDamage Fragmisincorporation plot for " +
+                         orga2_clean + ". Very jagged and irregular substitutions are likely indicating spurious damages caused by a lack of reads. If there is not plot displayed, the aligned read count was too low for mapDamage](./" + asample + "." + d[asample]["orga2"] + ".fragmisincorporation_plot.png)\n\n")
+            else:
+                fw.write(
+                    "\n\nNo plot is displayed because the number of bases aligned is too low for mapDamage, or it is Modern DNA\n\n")
+            fw.write("\n\n***\n")

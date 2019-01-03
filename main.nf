@@ -384,7 +384,7 @@ if (params.index2 == ''){
             """
     }
 }
-if (params.index3 == ''){
+if (params.name3 != '' && params.index3 == ''){
     // 1.3:   Bowtie Indexing of Genome2
     process BowtieIndexGenome3 {
         tag "${params.name2}"
