@@ -49,6 +49,7 @@ def helpMessage() {
       --name2                       Name of candidate 2. Example: "Canis_familiaris"
       --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes)
       --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)
+      --krakendb                    Path to DustMasked MiniKraken DB 4GB
 
     Options:
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
@@ -95,6 +96,7 @@ params.identity = 0.95
 params.pmdscore = 3
 params.library = 'classic'
 params.bowtie = 'very-sensitive'
+params.krakendb =''
 css = baseDir+'/res/pandoc.css'
 
 bowtie_setting = ''
@@ -296,7 +298,7 @@ if (params.collapse == true && params.singleEnd == false){
             set val(name), file(reads) from reads_to_trim
 
         output:
-            set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3
+            set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3, trimmed_reads_kraken
             file("*.settings") into adapter_removal_results
 
         script:
@@ -320,7 +322,7 @@ if (params.collapse == true && params.singleEnd == false){
             set val(name), file(reads) from reads_to_trim
 
         output:
-            set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3
+            set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3, trimmed_reads_kraken
             file("*.settings") into adapter_removal_results
 
         script:
@@ -342,6 +344,92 @@ if (params.collapse == true && params.singleEnd == false){
 } else {
     println "Problem with --collapse. If --singleEnd is set to true, you have to set --collapse to false"
     exit(1)
+}
+
+process kraken {
+    tag "$name"
+
+    conda 'bioconda::kraken'
+
+    // label 'intenso'
+
+    cpus 4
+
+    input:
+        set val(name), file(reads) from trimmed_reads_kraken
+    output:
+        set val(name), file('*.kraken.out') into kraken_out
+    script:
+        out = name+".kraken.out"
+        if (params.singleEnd == false){
+            """
+            kraken --db ${params.krakendb} --threads ${task.cpus} --preload --fastq-input --paired --output $out  ${reads[0]} ${reads[1]}
+            """    
+        } else {
+            """
+            kraken --db ${params.krakendb} --threads ${task.cpus} --preload --fastq-input --output $out  ${reads[0]}
+            """
+        }
+}
+
+process kraken_report {
+    tag "$name"
+
+    conda 'bioconda::kraken'
+
+    label 'ristretto'
+
+    publishDir "${params.results}/kraken", mode: 'copy'
+
+    input:
+        set val(name), file(kraken_o) from kraken_out
+
+    output:
+        set val(name), file('*.kraken_report.out') into kraken_report
+
+    script:
+        report = name+".kraken_report.out"
+        """
+        kraken-report --db ${params.krakendb} $kraken_o > $report
+        """    
+}
+
+process kraken_parse {
+    tag "$name"
+
+    conda 'python=3.6'
+
+    label 'ristretto'
+
+    input:
+        set val(name), file(kraken_r) from kraken_report
+
+    output:
+        set val(name), file('*.kraken_parsed.csv') into kraken_parsed
+
+    script:
+        out = name+".kraken_parsed.csv"
+        """
+        kraken_parse.py $kraken_r
+        """    
+}
+
+process sourcepredict {
+    tag "$name"
+
+    conda 'python=3.6 pandas numpy sklearn'
+
+    label 'expresso'
+
+    echo true
+
+    input:
+        set val(name), file(otu_table) from kraken_parsed
+
+    script:
+        """
+        sourcepredict -s $baseDir/data/sourcepredict_data/dog_human_pig_sources_new.csv -r ${params.name1} -t ${task.cpus}
+        """
 }
 
 
