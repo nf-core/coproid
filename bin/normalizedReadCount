@@ -98,6 +98,12 @@ def get_args():
         help="Output bam 3 filename. Default = {BAM2_INPUT}.filtered.bam"
     )
     parser.add_argument(
+        '-sp',
+        dest='sourcepredict',
+        default=None,
+        help='sourcepredict log ratio (orga1 vs others)'
+    )
+    parser.add_argument(
         '-p',
         dest="processes",
         default=4,
@@ -115,15 +121,17 @@ def get_args():
     bam3 = args.bam3
     genome3 = args.genome3
     organame3 = args.organism3
+    sourcepredict = args.sourcepredict
     sname = args.name
     identity = float(str(args.identity))
     outfile = args.output
     obam1 = args.output_bam1
     obam2 = args.output_bam2
     obam3 = args.output_bam3
+
     processes = int(args.processes)
 
-    return(bam1, genome1, organame1, bam2, genome2, organame2, bam3, genome3, organame3, sname, identity, processes, outfile, obam1, obam2, obam3)
+    return(bam1, genome1, organame1, bam2, genome2, organame2, bam3, genome3, organame3, sourcepredict, sname, identity, processes, outfile, obam1, obam2, obam3)
 
 
 def getBasename(file_name):
@@ -233,8 +241,7 @@ def getCommonReads(readsBam1, readsBam2, readsBam3=None):
 
 
 if __name__ == "__main__":
-    # bam1, genome1, organame1, bam2, genome2, organame2, bam3, genome3, organame3, sname, identity, processes, outfile, obam1, obam2, obam3
-    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3 = get_args()
+    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SOURCEPREDICT, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3 = get_args()
 
     if BAM1 is None:
         print("Missing BAM file")
@@ -313,14 +320,20 @@ if __name__ == "__main__":
         # genome2 vs genome3
         NormalizedReadRatio_2vs3 = log2((nb2 + 1 / gs2) / (nb3 + 1 / gs3))
 
+    # sourcepredict
+
+    with open(SOURCEPREDICT, 'r') as spred:
+        for line in spred:
+            sp = float(line)
+
     if not BAM3:
         # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
+        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
         with open(OUTFILE, 'w') as w:
             w.write(
-                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{nb1},{nb2},{NormalizedReadRatio_1vs2}\n")
+                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{sp},{nb1},{nb2},{NormalizedReadRatio_1vs2}\n")
     else:
         # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3
+        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3
         with open(OUTFILE, 'w') as w:
-            w.write(f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{nb1},{nb2},{nb3},{NormalizedReadRatio_1vs2},{NormalizedReadRatio_1vs3},{NormalizedReadRatio_2vs3}\n")
+            w.write(f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{sp},{nb1},{nb2},{nb3},{NormalizedReadRatio_1vs2},{NormalizedReadRatio_1vs3},{NormalizedReadRatio_2vs3}\n")

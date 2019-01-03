@@ -66,6 +66,6 @@ class sourceforest():
         y_pred = self._forest.predict(test_features)
         print("Training Accuracy:", metrics.accuracy_score(test_labels, y_pred))
         self.sink_pred = self._forest.predict_proba(self.sink)
-        utils.print_class(classes=self._forest.classes_, pred=self.sink_pred)
-        utils.print_ratio(classes=self._forest.classes_,
-                          pred=self.sink_pred, ratio_orga=ratio)
+        # utils.print_class(classes=self._forest.classes_, pred=self.sink_pred)
+        self.comp_ratio = utils.print_ratio(classes=self._forest.classes_,
+                                            pred=self.sink_pred, ratio_orga=ratio)

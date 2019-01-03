@@ -410,14 +410,14 @@ process kraken_parse {
     script:
         out = name+".kraken_parsed.csv"
         """
-        kraken_parse.py $kraken_r
+        kraken_parse $kraken_r
         """    
 }
 
 process sourcepredict {
     tag "$name"
 
-    conda 'python=3.6 pandas numpy sklearn'
+    conda 'python=3.6 pandas numpy scikit-learn'
 
     label 'expresso'
 
@@ -425,12 +425,19 @@ process sourcepredict {
 
     input:
         set val(name), file(otu_table) from kraken_parsed
+    output:
+        set val(name), file('*_sourcepredict.out') into sourcepredict_out
 
     script:
+        outfile = name+"_sourcepredict.out"
+        // """
+        // sourcepredict -s $baseDir/data/sourcepredict_data/dog_human_pig_sources_new.csv -r ${params.name1} -t ${task.cpus}  -o $outfile $otu_table
+        // """
         """
-        sourcepredict -s $baseDir/data/sourcepredict_data/dog_human_pig_sources_new.csv -r ${params.name1} -t ${task.cpus}
+        sourcepredict -s $baseDir/data/sourcepredict_data/dog_human_pig_sources_new.csv -r Homo_sapiens -t ${task.cpus} -o $outfile $otu_table
         """
-}
+
+}   
 
 
 if (params.index1 == ''){
@@ -716,7 +723,7 @@ if (params.name3 == ''){
 
     input:
 
-        set val(name), file(bam1), file(bam2) from ( params.adna ? pmd_aligned1.join(pmd_aligned2) : alignment_genome1.join(alignment_genome2))
+        set val(name), file(bam1), file(bam2), file(sourcepred) from ( params.adna ? pmd_aligned1.join(pmd_aligned2).join(sourcepredict_out) : alignment_genome1.join(alignment_genome2).join(sourcepredict_out))
         // set val(name), file(bam1), file(bam2) from pmd_aligned1.join(pmd_aligned2)
         file(genome1) from genome1Size.first()
         file(genome2) from genome2Size.first()
@@ -733,7 +740,7 @@ if (params.name3 == ''){
         """
         samtools index $bam1
         samtools index $bam2
-        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -g1 $genome1 -g2 $genome2 -r1 $organame1 -r2 $organame2 -i ${params.identity} -o $outfile -ob1 $obam1 -ob2 $obam2 -p ${task.cpus}
+        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -g1 $genome1 -g2 $genome2 -r1 $organame1 -r2 $organame2 -sp $sourcepred -i ${params.identity} -o $outfile -ob1 $obam1 -ob2 $obam2 -p ${task.cpus}
         """
     }
 } else {
@@ -746,7 +753,7 @@ if (params.name3 == ''){
 
     input:
 
-        set val(name), file(bam1), file(bam2), file(bam3) from ( params.adna ? pmd_aligned1.join(pmd_aligned2).join(pmd_aligned3) : alignment_genome1.join(alignment_genome2).join(alignment_genome3))
+        set val(name), file(bam1), file(bam2), file(bam3), file(sourcepred) from ( params.adna ? pmd_aligned1.join(pmd_aligned2).join(pmd_aligned3).join(sourcepredict_out) : alignment_genome1.join(alignment_genome2).join(alignment_genome3).join(sourcepredict_out))
         // set val(name), file(bam1), file(bam2) from pmd_aligned1.join(pmd_aligned2)
         file(genome1) from genome1Size.first()
         file(genome2) from genome2Size.first()
@@ -768,7 +775,7 @@ if (params.name3 == ''){
         samtools index $bam1
         samtools index $bam2
         samtools index $bam3
-        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -b3 $bam3 -g1 $genome1 -g2 $genome2 -g3 $genome3 -r1 $organame1 -r2 $organame2 -r3 $organame3 -i ${params.identity} -o $outfile -ob1 $obam1 -ob2 $obam2 -ob3 $obam3 -p ${task.cpus}
+        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -b3 $bam3 -g1 $genome1 -g2 $genome2 -g3 $genome3 -r1 $organame1 -r2 $organame2 -r3 $organame3 -sp $sourcepred -i ${params.identity} -o $outfile -ob1 $obam1 -ob2 $obam2 -ob3 $obam3 -p ${task.cpus}
         """
     }
 }

@@ -1,4 +1,4 @@
-#!/usr/bin/env python -W ignore::DeprecationWarning
+#!/usr/bin/env python
 
 import argparse
 from sourcepredictlib.forest import sourceforest
@@ -44,7 +44,7 @@ Homepage & Documentation: github.com/maxibor/sourcepredict
         '-o',
         dest="output",
         default=None,
-        help="Output file basename. Default = <sample_basename>.sourcepredict.csv*")
+        help="Output file basename. Default = sourcepredict_output.csv")
     parser.add_argument(
         '-se',
         dest="seed",
@@ -64,17 +64,20 @@ Homepage & Documentation: github.com/maxibor/sourcepredict
     ratio = args.ratio
     sources = args.sources
     seed = args.seed
+    output = args.output
     threads = int(args.threads)
 
-    return(sink, alpha, normalization, sources, ratio, seed, threads)
+    return(sink, alpha, normalization, sources, ratio, seed, output, threads)
 
 
 if __name__ == "__main__":
     version = "0.1"
-    SINK, ALPHA, NORMALIZATION, SOURCES, RATIO, SEED, THREADS = _get_args()
+    SINK, ALPHA, NORMALIZATION, SOURCES, RATIO, SEED, OUTPUT, THREADS = _get_args()
     SEED = utils.check_gen_seed(SEED)
     NORMALIZATION = utils.check_norm(NORMALIZATION)
     a = sourceforest(source=SOURCES, sink=SINK)
     a.add_unknown(alpha=ALPHA)
     a.normalize(method=NORMALIZATION)
     a.rndForest(seed=SEED, threads=THREADS, ratio=RATIO)
+    with open(OUTPUT, 'w') as o:
+        o.write(str(a.comp_ratio))

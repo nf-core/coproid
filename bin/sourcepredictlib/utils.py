@@ -8,13 +8,14 @@ def print_class(classes, pred):
 
 
 def print_ratio(classes, pred, ratio_orga):
-    pred_class = {i: j for i, j in zip(list(classes), list(pred[0, :]))}
-    num = pred_class[ratio_orga]
+    pred_class = {i.upper(): j for i, j in zip(
+        list(classes), list(pred[0, :]))}
+    num = pred_class[ratio_orga.upper()]
     denom = 0
     for i in pred_class.keys():
-        if i != ratio_orga:
+        if i != ratio_orga.upper():
             denom += pred_class[i]
-    print(np.log(num/denom))
+    return(np.log(num/denom))
 
 
 def check_norm(method):
