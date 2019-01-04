@@ -240,6 +240,14 @@ def getCommonReads(readsBam1, readsBam2, readsBam3=None):
     return(res)
 
 
+def parse_sourpredict(sp_file):
+    with open(sp_file, 'r') as f:
+        for line in f:
+            if "LogRatio" in line:
+                ratio = float(line.rstrip().split("=")[1])
+    return(ratio)
+
+
 if __name__ == "__main__":
     BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SOURCEPREDICT, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3 = get_args()
 
@@ -322,9 +330,7 @@ if __name__ == "__main__":
 
     # sourcepredict
 
-    with open(SOURCEPREDICT, 'r') as spred:
-        for line in spred:
-            sp = float(line)
+    sp = parse_sourpredict(SOURCEPREDICT)
 
     if not BAM3:
         # Template output file structure

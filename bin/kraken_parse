@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 
 import argparse
@@ -26,7 +26,7 @@ def _get_args():
     args = parser.parse_args()
 
     infile = args.krakenReport
-    countlim = args.count
+    countlim = int(args.count)
     outfile = args.output
 
     return(infile, countlim, outfile)
@@ -65,7 +65,7 @@ def parse_kraken(infile, countlim):
 def write_output(resdict, infile, outfile):
     with open(outfile, 'w') as f:
         basename = _get_basename(infile)
-        f.write(f"TAXID,{basename}\n")
+        f.write(f"TAXID,{basename}_sink\n")
         for akey in resdict.keys():
             f.write(f"{akey},{resdict[akey]}\n")
 

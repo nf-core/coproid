@@ -65,6 +65,7 @@ def helpMessage() {
       --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
       --library                     DNA preparation library type ( classic | UDGhalf). Default = ${params.library}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
+      --minKraken                   Minimum number of Kraken hits per Taxonomy ID to report. Default = ${params.minKraken}
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
       --help  --h                   Shows this help page
@@ -97,6 +98,7 @@ params.pmdscore = 3
 params.library = 'classic'
 params.bowtie = 'very-sensitive'
 params.krakendb =''
+params.minKraken = 50
 css = baseDir+'/res/pandoc.css'
 
 bowtie_setting = ''
@@ -210,6 +212,8 @@ summary['Genome2'] = params.genome2
 if (params.index2 != '') {
     summary["Genome2 BT2 index"] = params.index2
 }
+summary['Kraken DB'] = params.krakendb
+summary['Min Kraken Hits to report Clade'] = params.minKraken
 summary['Organism 1'] = params.name1
 summary['Organism 2'] = params.name2
 summary['PMD Score'] = params.pmdscore
@@ -351,9 +355,7 @@ process kraken {
 
     conda 'bioconda::kraken'
 
-    // label 'intenso'
-
-    cpus 4
+     label 'intenso'
 
     input:
         set val(name), file(reads) from trimmed_reads_kraken
@@ -410,14 +412,14 @@ process kraken_parse {
     script:
         out = name+".kraken_parsed.csv"
         """
-        kraken_parse $kraken_r
+        kraken_parse -c ${params.minKraken} $kraken_r
         """    
 }
 
 process sourcepredict {
     tag "$name"
 
-    conda 'python=3.6 pandas numpy scikit-learn'
+    conda 'maxibor::sourcepredict'
 
     label 'expresso'
 
@@ -431,10 +433,10 @@ process sourcepredict {
     script:
         outfile = name+"_sourcepredict.out"
         // """
-        // sourcepredict -s $baseDir/data/sourcepredict_data/dog_human_pig_sources_new.csv -r ${params.name1} -t ${task.cpus}  -o $outfile $otu_table
+        // sourcepredict -r ${params.name1} -t ${task.cpus} $otu_table > $outfile
         // """
         """
-        sourcepredict -s $baseDir/data/sourcepredict_data/dog_human_pig_sources_new.csv -r Homo_sapiens -t ${task.cpus} -o $outfile $otu_table
+        sourcepredict -r Homo_sapiens -t ${task.cpus} $otu_table > $outfile
         """
 
 }   
@@ -531,7 +533,7 @@ if (params.collapse == true || params.singleEnd == true) {
 
         label 'intenso'
 
-        errorStrategy 'ignore'
+        // errorStrategy 'ignore'
 
 
         input:
@@ -558,7 +560,7 @@ if (params.collapse == true || params.singleEnd == true){
 
         label 'intenso'
 
-        errorStrategy 'ignore'
+        // errorStrategy 'ignore'
 
         //publishDir "${params.results}/alignment", mode: 'copy'
 
@@ -582,7 +584,7 @@ if (params.collapse == true || params.singleEnd == true){
 
         label 'intenso'
 
-        errorStrategy 'ignore'
+        // errorStrategy 'ignore'
 
         //publishDir "${params.results}/alignment", mode: 'copy'
 
