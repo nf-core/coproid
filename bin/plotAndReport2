@@ -80,14 +80,13 @@ def getFile(path):
 def write_csv(adict, CSV, n_samp):
     with open(CSV, "w") as f:
         if n_samp == 2:
-            f.write("Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict,nb_aDNA_bp_aligned_genome1,nb_aDNA_bp_aligned_genome2,NormalizedReadRatio\n")
+            f.write("Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio\n")
             for akey in adict:
-                f.write(akey + "," + adict[akey]["orga1"] + "," + adict[akey]
-                        ["orga2"] + "," + str(adict[akey]["gs1"]) + "," + str(adict[akey]["gs2"]) + "," + str(adict[akey]["sourcepredict"]) + "," + str(adict[akey]["nbp1"]) + "," + str(adict[akey]["nbp2"]) + "," + str(adict[akey]["nrr"]) + "\n")
+                f.write(f"{akey},{adict[akey]['orga1']}, {adict[akey]['orga2']}, {adict[akey]['gs1']}, {dict[akey]['gs2']}, {adict[akey]['sourcepredict_g1']},{adict[akey]['sourcepredict_g2']}, {adict[akey]['nbp1']}, {adict[akey]['nbp2']}, {adict[akey]['nrr']}\n")
         else:
-            f.write("Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3\n")
+            f.write("Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3\n")
             for akey in adict:
-                f.write(f"{akey},{adict[akey]['orga1']},{adict[akey]['orga2']},{adict[akey]['orga3']},{adict[akey]['gs1']},{adict[akey]['gs2']},{adict[akey]['gs3']},{adict[akey]['sourcepredict']},{adict[akey]['nbp1']},{adict[akey]['nbp2']},{adict[akey]['nbp3']},{adict[akey]['nrr_1vs2']},{adict[akey]['nrr_1vs3']},{adict[akey]['nrr_2vs3']}\n")
+                f.write(f"{akey},{adict[akey]['orga1']},{adict[akey]['orga2']},{adict[akey]['orga3']},{adict[akey]['gs1']},{adict[akey]['gs2']},{adict[akey]['gs3']},{adict[akey]['sourcepredict_g1']},{adict[akey]['sourcepredict_g2']},{adict[akey]['sourcepredict_g3']},{adict[akey]['nbp1']},{adict[akey]['nbp2']},{adict[akey]['nbp3']},{adict[akey]['nnbp1']},{adict[akey]['nnbp2']},{adict[akey]['nnbp3']},{adict[akey]['nrr_1vs2']},{adict[akey]['nrr_1vs3']},{adict[akey]['nrr_2vs3']}\n")
 
 
 if __name__ == "__main__":
@@ -105,7 +104,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Template output file structure
-    # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
+    # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio
 
     d = {}
     d2 = {}
@@ -113,29 +112,35 @@ if __name__ == "__main__":
     with open(CF, "r") as f:
         for line in f:
             line = line.rstrip().split(",")
-            if len(line) <= 9:
+            if len(line) <= 12:
                 nsamp = 2
                 sample = line[0]
                 organism1 = line[1]
                 organism2 = line[2]
                 gs1 = int(line[3])
                 gs2 = int(line[4])
-                sourcepredict = float(line[5])
-                nbp1 = int(line[6])
-                nbp2 = int(line[7])
-                nrr = float(line[8])
+                sourcepredict_g1 = float(line[5])
+                sourcepredict_g2 = float(line[6])
+                nbp1 = int(line[7])
+                nbp2 = int(line[8])
+                nnbp1 = float(line[9])
+                nnbp2 = float(line[10])
+                nrr = float(line[11])
                 if sample not in d.keys():
                     d[sample] = {}
                 d[sample]["orga1"] = organism1
                 d[sample]["orga2"] = organism2
                 d[sample]["gs1"] = gs1
                 d[sample]["gs2"] = gs2
-                d[sample]["sourcepredict"] = sourcepredict
+                d[sample]["sourcepredict_g1"] = sourcepredict_g1
+                d[sample]["sourcepredict_g2"] = sourcepredict_g2
                 d[sample]["nbp1"] = nbp1
                 d[sample]["nbp2"] = nbp2
+                d[sample]["nnbp1"] = nnbp1
+                d[sample]["nnbp2"] = nnbp2
                 d[sample]["nrr"] = nrr
             else:
-                # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3
+                # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3
                 nsamp = 3
                 sample = line[0]
                 organism1 = line[1]
@@ -144,13 +149,18 @@ if __name__ == "__main__":
                 gs1 = int(line[4])
                 gs2 = int(line[5])
                 gs3 = int(line[6])
-                sourcepredict = float(line[7])
-                nbp1 = int(line[8])
-                nbp2 = int(line[9])
-                nbp3 = int(line[10])
-                nrr_1vs2 = float(line[11])
-                nrr_1vs3 = float(line[12])
-                nrr_2vs3 = float(line[13])
+                sourcepredict_g1 = float(line[7])
+                sourcepredict_g2 = float(line[8])
+                sourcepredict_g3 = float(line[9])
+                nbp1 = int(line[10])
+                nbp2 = int(line[11])
+                nbp3 = int(line[12])
+                nnbp1 = float(line[13])
+                nnbp2 = float(line[14])
+                nnbp3 = float(line[15])
+                nrr_1vs2 = float(line[16])
+                nrr_1vs3 = float(line[17])
+                nrr_2vs3 = float(line[18])
                 if sample not in d.keys():
                     d[sample] = {}
                     d[sample]["orga1"] = organism1
@@ -159,10 +169,15 @@ if __name__ == "__main__":
                     d[sample]["gs1"] = gs1
                     d[sample]["gs2"] = gs2
                     d[sample]["gs3"] = gs3
-                    d[sample]["sourcepredict"] = sourcepredict
+                    d[sample]["sourcepredict_g1"] = sourcepredict_g1
+                    d[sample]["sourcepredict_g2"] = sourcepredict_g2
+                    d[sample]["sourcepredict_g3"] = sourcepredict_g3
                     d[sample]["nbp1"] = nbp1
                     d[sample]["nbp2"] = nbp2
                     d[sample]["nbp3"] = nbp3
+                    d[sample]["nnbp1"] = nnbp1
+                    d[sample]["nnbp2"] = nnbp2
+                    d[sample]["nnbp3"] = nnbp3
                     d[sample]["nrr_1vs2"] = nrr_1vs2
                     d[sample]["nrr_1vs3"] = nrr_1vs3
                     d[sample]["nrr_2vs3"] = nrr_2vs3
@@ -177,10 +192,10 @@ if __name__ == "__main__":
     raw_data = {}
     barWidth = 0.85
     if nsamp == 2:
-        raw_data['greenBars'] = [i/j for i, j in zip([d[sample]['nbp1'] for sample in list(
+        raw_data['greenBars'] = [i/j for i, j in zip([d[sample]['nnbp1'] for sample in list(
             d.keys())], [d[sample]['gs1'] for sample in list(d.keys())])]
         print(raw_data['greenBars'])
-        raw_data['orangeBars'] = [i/j for i, j in zip([d[sample]['nbp2'] for sample in list(
+        raw_data['orangeBars'] = [i/j for i, j in zip([d[sample]['nnbp2'] for sample in list(
             d.keys())], [d[sample]['gs2'] for sample in list(d.keys())])]
         print(raw_data['orangeBars'])
         df = pd.DataFrame(raw_data)
@@ -200,11 +215,11 @@ if __name__ == "__main__":
                 edgecolor='white', width=barWidth, label=orga2_clean)
 
     elif nsamp == 3:
-        raw_data['greenBars'] = [i/j for i, j in zip([d[sample]['nbp1'] for sample in list(
+        raw_data['greenBars'] = [i/j for i, j in zip([d[sample]['nnbp1'] for sample in list(
             d.keys())], [d[sample]['gs1'] for sample in list(d.keys())])]
-        raw_data['orangeBars'] = [i/j for i, j in zip([d[sample]['nbp2'] for sample in list(
+        raw_data['orangeBars'] = [i/j for i, j in zip([d[sample]['nnbp2'] for sample in list(
             d.keys())], [d[sample]['gs2'] for sample in list(d.keys())])]
-        raw_data['blueBars'] = [i/j for i, j in zip([d[sample]['nbp3'] for sample in list(
+        raw_data['blueBars'] = [i/j for i, j in zip([d[sample]['nnbp3'] for sample in list(
             d.keys())], [d[sample]['gs3'] for sample in list(d.keys())])]
         df = pd.DataFrame(raw_data)
 

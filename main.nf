@@ -59,7 +59,7 @@ def helpMessage() {
       --singleEnd                   Specified if reads are single-end (true | false). Default = ${params.singleEnd}
       --index1                      Path to Bowtie2 index genome candidate 1 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome1 is not set
       --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
-      --index2                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if name 3 is set and genome3 is not set
+      --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of /path/to/*.bt2 - Required if name 3 is set and genome3 is not set
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
@@ -140,6 +140,8 @@ if( ! nextflow.version.matches(">= 0.30") ){
     exit(1)
 }
 
+println(params.singleEnd)
+println(params.singleEnd.getClass())
 // Creating reads channel
 Channel
     .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
@@ -202,6 +204,7 @@ summary['Reads'] = params.reads
 summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
 summary['collapse'] = params.collapse
+summary['Ancient DNA'] = params.adna
 summary['singleEnd'] = params.singleEnd
 summary['bowtie setting'] = params.bowtie
 summary['Genome1'] = params.genome1
@@ -212,10 +215,19 @@ summary['Genome2'] = params.genome2
 if (params.index2 != '') {
     summary["Genome2 BT2 index"] = params.index2
 }
+if (params.index3 != ''){
+    summary['Genome3'] = params.genome3
+}
+if (params.index3 != '') {
+    summary["Genome3 BT3 index"] = params.index3
+}
 summary['Kraken DB'] = params.krakendb
 summary['Min Kraken Hits to report Clade'] = params.minKraken
 summary['Organism 1'] = params.name1
 summary['Organism 2'] = params.name2
+if (params.name3 != ''){
+    summary['Organism 3'] = params.name3
+}
 summary['PMD Score'] = params.pmdscore
 summary['Library type'] = params.library
 summary["Result directory"] = params.results
@@ -419,7 +431,7 @@ process kraken_parse {
 process sourcepredict {
     tag "$name"
 
-    conda 'maxibor::sourcepredict'
+    conda 'maxibor::sourcepredict=0.1.1'
 
     label 'expresso'
 
@@ -436,7 +448,7 @@ process sourcepredict {
         // sourcepredict -r ${params.name1} -t ${task.cpus} $otu_table > $outfile
         // """
         """
-        sourcepredict -r Homo_sapiens -t ${task.cpus} $otu_table > $outfile
+        sourcepredict -r Homo_sapiens -t ${task.cpus} $otu_table -o $outfile
         """
 
 }   
