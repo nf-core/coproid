@@ -244,6 +244,7 @@ def parse_sourpredict(sp_file):
     with open(sp_file, 'r') as f:
         d = {}
         for line in f:
+            line = line.rstrip()
             s = line.split(',')
             if "UNKNOWN" in line:
                 for o in s:
@@ -265,6 +266,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     sp = parse_sourpredict(SOURCEPREDICT)
+
+    print(sp)
 
     bam_basename1 = getBasename(BAM1)
     bam_basename2 = getBasename(BAM2)
@@ -334,25 +337,26 @@ if __name__ == "__main__":
     if OBAM3:
         writeBam(inbam=BAM3, outbam=outbam3, commonReads=commonReads)
 
-    # genome1 vs genome2
-    NormalizedReadRatio_1vs2 = log2(nnbp1 / nnbp2)
+    # Two genomes
+    NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2))
+    NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2))
     if BAM3:
-        # genome1 vs genome3
-        NormalizedReadRatio_1vs3 = log2(nnbp1 / nnbp3)
-        # genome2 vs genome3
-        NormalizedReadRatio_2vs3 = log2(nnbp2 / nnbp3)
+        # Three genomes
+        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3))
+        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3))
+        NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3))
 
     # sourcepredict
 
     if not BAM3:
         # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio
+        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2
         with open(OUTFILE, 'w') as w:
             w.write(
-                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{sp[ORGANAME1]},{sp[ORGANAME2]},{nb1},{nb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1vs2}\n")
+                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{sp[ORGANAME1]},{sp[ORGANAME2]},{sp['UNKNOWN']},{nb1},{nb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1},{NormalizedReadRatio_2}\n")
     else:
         # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3
+        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3
         with open(OUTFILE, 'w') as w:
             w.write(
-                f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{sp[ORGANAME1]},{sp[ORGANAME2]},{sp[ORGANAME3]},{nb1},{nb2},{nb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1vs2},{NormalizedReadRatio_1vs3},{NormalizedReadRatio_2vs3}\n")
+                f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{sp[ORGANAME1]},{sp[ORGANAME2]},{sp[ORGANAME3]},{sp['UNKNOWN']},{nb1},{nb2},{nb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1},{NormalizedReadRatio_2},{NormalizedReadRatio_3}\n")

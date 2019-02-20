@@ -49,7 +49,7 @@ def helpMessage() {
       --name2                       Name of candidate 2. Example: "Canis_familiaris"
       --genome1                     Path to candidate 1 Coprolite maker's genome fasta file (must be surrounded with quotes)
       --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)
-      --krakendb                    Path to DustMasked MiniKraken DB 4GB
+      --krakendb                    Path to MiniKraken2_v2_8GB Database
 
     Options:
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
@@ -66,6 +66,7 @@ def helpMessage() {
       --library                     DNA preparation library type ( classic | UDGhalf). Default = ${params.library}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
       --minKraken                   Minimum number of Kraken hits per Taxonomy ID to report. Default = ${params.minKraken}
+      --removeHuman                 Remove human reads for metagenomic taxonomic classification. Default = ${params.removeHuman}
     Other options:
       --results                     Name of result directory. Defaults to ${params.results}
       --help  --h                   Shows this help page
@@ -99,7 +100,11 @@ params.library = 'classic'
 params.bowtie = 'very-sensitive'
 params.krakendb =''
 params.minKraken = 50
+params.removeHuman = false
 css = baseDir+'/res/pandoc.css'
+
+sp_sources = "$baseDir/data/sourcepredict/ modern_gut_microbiomes_sources.csv"
+sp_labels = '$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv'
 
 bowtie_setting = ''
 collapse_setting = ''
@@ -362,50 +367,35 @@ if (params.collapse == true && params.singleEnd == false){
     exit(1)
 }
 
-process kraken {
+process kraken2 {
     tag "$name"
 
-    conda 'bioconda::kraken'
+    conda 'bioconda::kraken2'
 
-     label 'intenso'
+    label 'intenso'
+
+    errorStrategy 'ignore'
 
     input:
         set val(name), file(reads) from trimmed_reads_kraken
+
     output:
         set val(name), file('*.kraken.out') into kraken_out
+        set val(name), file('*.kreport') into kraken_report
+
     script:
         out = name+".kraken.out"
-        if (params.singleEnd == false){
+        kreport = name+".kreport"
+        if (params.pairedEnd && params.collapse == false){
             """
-            kraken --db ${params.krakendb} --threads ${task.cpus} --preload --fastq-input --paired --output $out  ${reads[0]} ${reads[1]}
+            kraken2 --db ${params.krakendb} --threads ${task.cpus} --output $out --report $kreport --paired ${reads[0]} ${reads[1]}
             """    
         } else {
             """
-            kraken --db ${params.krakendb} --threads ${task.cpus} --preload --fastq-input --output $out  ${reads[0]}
+            kraken2 --db ${params.krakendb} --threads ${task.cpus} --output $out --report $kreport ${reads[0]}
             """
         }
-}
-
-process kraken_report {
-    tag "$name"
-
-    conda 'bioconda::kraken'
-
-    label 'ristretto'
-
-    publishDir "${params.results}/kraken", mode: 'copy'
-
-    input:
-        set val(name), file(kraken_o) from kraken_out
-
-    output:
-        set val(name), file('*.kraken_report.out') into kraken_report
-
-    script:
-        report = name+".kraken_report.out"
-        """
-        kraken-report --db ${params.krakendb} $kraken_o > $report
-        """    
+        
 }
 
 process kraken_parse {
@@ -414,6 +404,8 @@ process kraken_parse {
     conda 'python=3.6'
 
     label 'ristretto'
+
+    errorStrategy 'ignore'
 
     input:
         set val(name), file(kraken_r) from kraken_report
@@ -424,7 +416,7 @@ process kraken_parse {
     script:
         out = name+".kraken_parsed.csv"
         """
-        kraken_parse -c ${params.minKraken} $kraken_r
+        kraken_parse.py -c ${params.minKraken} $kraken_r
         """    
 }
 
@@ -440,17 +432,13 @@ process sourcepredict {
     input:
         set val(name), file(otu_table) from kraken_parsed
     output:
-        set val(name), file('*_sourcepredict.out') into sourcepredict_out
+        set val(name), file('*_sourcepredict.csv') into sourcepredict_out
 
     script:
-        outfile = name+"_sourcepredict.out"
-        // """
-        // sourcepredict -r ${params.name1} -t ${task.cpus} $otu_table > $outfile
-        // """
+        outfile = name+"_sourcepredict.csv"
         """
-        sourcepredict -r Homo_sapiens -t ${task.cpus} $otu_table -o $outfile
+        sourcepredict -l $sp_labels -s $sp_sources -t ${task.cpus} -o $outfile $otu_table 
         """
-
 }   
 
 
@@ -764,6 +752,8 @@ if (params.name3 == ''){
     conda 'python=3.6 bioconda::pysam'
 
     label 'expresso'
+
+    echo true
 
     input:
 
