@@ -127,6 +127,10 @@ if (params.bowtie == 'very-fast'){
     exit(1)
 }
 
+if (params.singleEnd == false) {
+    pairedEnd = true
+}
+
 //Library setting check
 
 if ((params.library != 'classic' && params.library != 'UDGhalf' ) && (params.h == false || params.help == false) ){
@@ -371,7 +375,7 @@ if (params.hgindex == ''){
     process BowtieIndexGenome1 {
         tag "${params.name1}"
 
-        conda 'bioconda::bowtie2'
+        conda 'anaconda::ncurses=5.9 bioconda::bowtie2'
 
         label 'intenso'
 
@@ -381,7 +385,7 @@ if (params.hgindex == ''){
             file("*.bt2") into bt_index_genome1
         script:
             """
-            bowtie2-build --threads ${task.cpus} $fasta ${params.name1}
+            bowtie2-build $fasta ${params.name1}
             """
     }
 }
@@ -390,7 +394,7 @@ if (params.hgindex == ''){
 process AlignCollapseToGenome1 {
     tag "$name"
 
-    conda 'bioconda::bowtie2 bioconda::samtools'
+    conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
 
     label 'intenso'
 
@@ -435,7 +439,7 @@ process bam2fq {
     output:
         set val(name), file("*.fastq") into unmapped_humans_reads
     script:
-        if (params.pairedEnd && params.collapse == false){
+        if (pairedEnd && params.collapse == false){
             out1 = name+"_"+params.name1+".unaligned_R1.fastq"
             out2 = name+"_"+params.name1+".unaligned_R2.fastq"
             """
@@ -454,7 +458,7 @@ if (params.index2 == ''){
     process BowtieIndexGenome2 {
         tag "${params.name2}"
 
-        conda 'bioconda::bowtie2'
+        conda 'anaconda::ncurses=5.9 bioconda::bowtie2'
 
         label 'intenso'
 
@@ -464,7 +468,7 @@ if (params.index2 == ''){
             file("*.bt2") into bt_index_genome2
         script:
             """
-            bowtie2-build --threads ${task.cpus} $fasta ${params.name2}
+            bowtie2-build $fasta ${params.name2}
             """
     }
 }
@@ -473,7 +477,7 @@ if (params.name3 != '' && params.index3 == ''){
     process BowtieIndexGenome3 {
         tag "${params.name2}"
 
-        conda 'bioconda::bowtie2'
+        conda 'anaconda::ncurses=5.9 bioconda::bowtie2'
 
         label 'intenso'
 
@@ -483,7 +487,7 @@ if (params.name3 != '' && params.index3 == ''){
             file("*.bt2") into bt_index_genome3
         script:
             """
-            bowtie2-build --threads ${task.cpus} $fasta ${params.name3}
+            bowtie2-build $fasta ${params.name3}
             """
     }
 }
@@ -494,7 +498,7 @@ if (params.collapse == true || params.singleEnd == true){
     process AlignCollapseToGenome2 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -518,7 +522,7 @@ if (params.collapse == true || params.singleEnd == true){
     process AlignNoCollapseToGenome2 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -545,7 +549,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
     process AlignCollapseToGenome3 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -569,7 +573,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
     process AlignNoCollapseToGenome3 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -597,7 +601,7 @@ if (params.adna){
     process pmdtoolsgenome1 {
     tag "$name"
 
-    conda 'bioconda::pmdtools'
+    conda 'anaconda::ncurses=5.9 bioconda::pmdtools anaconda::openssl=1.0.*'
 
     label 'ristretto'
 
@@ -615,7 +619,7 @@ if (params.adna){
     process pmdtoolsgenome2 {
         tag "$name"
 
-        conda 'bioconda::pmdtools'
+        conda 'anaconda::ncurses=5.9 bioconda::pmdtools anaconda::openssl=1.0.*'
 
         label 'ristretto'
 
@@ -634,7 +638,7 @@ if (params.adna){
         process pmdtoolsgenome3 {
         tag "$name"
 
-        conda 'bioconda::pmdtools'
+        conda 'anaconda::ncurses=5.9 bioconda::pmdtools anaconda::openssl=1.0.*'
 
         label 'ristretto'
 
@@ -654,11 +658,9 @@ if (params.adna){
 process kraken2 {
     tag "$name"
 
-    conda 'bioconda::kraken2'
+    conda 'anaconda::ncurses=5.9 bioconda::kraken2 intel::openmp'
 
     label 'intenso'
-
-    errorStrategy 'ignore'
 
     input:
         set val(name), file(reads) from unmapped_humans_reads
@@ -670,7 +672,7 @@ process kraken2 {
     script:
         out = name+".kraken.out"
         kreport = name+".kreport"
-        if (params.pairedEnd && params.collapse == false){
+        if (pairedEnd && params.collapse == false){
             """
             kraken2 --db ${params.krakendb} --threads ${task.cpus} --output $out --report $kreport --paired ${reads[0]} ${reads[1]}
             """    
@@ -688,8 +690,6 @@ process kraken_parse {
     conda 'python=3.6'
 
     label 'ristretto'
-
-    errorStrategy 'ignore'
 
     input:
         set val(name), file(kraken_r) from kraken_report
@@ -753,7 +753,7 @@ if (params.name3 == ''){
     process countBp2genomes{
     tag "$name"
 
-    conda 'python=3.6 bioconda::pysam'
+    conda 'anaconda::ncurses=5.9 python=3.6 bioconda::pysam anaconda::openssl=1.0.*'
 
     label 'expresso'
 
@@ -783,7 +783,7 @@ if (params.name3 == ''){
     process countBp3genomes{
     tag "$name"
 
-    conda 'python=3.6 bioconda::pysam'
+    conda 'anaconda::ncurses=5.9 python=3.6 bioconda::pysam anaconda::openssl=1.0.*'
 
     label 'expresso'
 
@@ -932,56 +932,56 @@ process concatenateRatios {
         """
 }
 
-// Make report
-if (params.adna) {
-    if (params.name3) {
-        process generate_report {
-            conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
+// // Make report
+// if (params.adna) {
+//     if (params.name3) {
+//         process generate_report_adna_3_genomes {
+//             conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
 
-            label 'ristretto'
+//             label 'ristretto'
 
-            publishDir "${params.results}", mode: 'copy', pattern: '*.html'
+//             publishDir "${params.results}", mode: 'copy', pattern: '*.html'
 
-            input:
-                file(copro_csv) from coproid_res
-                file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
-                file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
-                file(mdplot3) from mapdamage_result_genome3.collect().ifEmpty([])
-            output:
-                file("*.html") into coproid_report
-        }
-    } else {
-        process generate_report {
-            conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
+//             input:
+//                 file(copro_csv) from coproid_res
+//                 file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
+//                 file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
+//                 file(mdplot3) from mapdamage_result_genome3.collect().ifEmpty([])
+//             output:
+//                 file("*.html") into coproid_report
+//         }
+//     } else {
+//         process generate_report_adna_2_genomes {
+//             conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
 
-            label 'ristretto'
+//             label 'ristretto'
 
-            publishDir "${params.results}", mode: 'copy', pattern: '*.html'
+//             publishDir "${params.results}", mode: 'copy', pattern: '*.html'
 
-            input:
-                file(copro_csv) from coproid_res
-                file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
-                file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
-                file(mdplot3) from mapdamage_result_genome3.collect().ifEmpty([])
+//             input:
+//                 file(copro_csv) from coproid_res
+//                 file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
+//                 file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
+//                 file(mdplot3) from mapdamage_result_genome3.collect().ifEmpty([])
 
-            output:
-                file("*.html") into coproid_report
-        }
-    }
-} else {
-    process generate_report {
-        conda "anaconda::nbconvert bokeh::bokeh jupyter pandas"
+//             output:
+//                 file("*.html") into coproid_report
+//         }
+//     }
+// } else {
+//     process generate_report {
+//         conda "anaconda::nbconvert bokeh::bokeh jupyter pandas"
 
-        label 'ristretto'
+//         label 'ristretto'
 
-        publishDir "${params.results}", mode: 'copy', pattern: '*.html'
+//         publishDir "${params.results}", mode: 'copy', pattern: '*.html'
 
-        input:
-            file(copro_csv) from coproid_res
-        output:
-            file("*.html") into coproid_report
-    }
-} 
+//         input:
+//             file(copro_csv) from coproid_res
+//         output:
+//             file("*.html") into coproid_report
+//     }
+// } 
 
 
 // // 7:     Write Markdown report

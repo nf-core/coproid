@@ -282,16 +282,13 @@ if __name__ == "__main__":
     nb1 = getNumberMappedReadsMultiprocess(
         bam=BAM1, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
     nnbp1 = (nb1 + 1) / gs1
-    nnbp1 = nnbp1 * (sp[ORGANAME1]+0.001)
     nb2 = getNumberMappedReadsMultiprocess(
         bam=BAM2, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
     nnbp2 = (nb2 + 1) / gs2
-    nnbp2 = nnbp2 * (sp[ORGANAME2]+0.001)
     if BAM3:
         nb3 = getNumberMappedReadsMultiprocess(
             bam=BAM3, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
         nnbp3 = (nb3 + 1) / gs3
-        nnbp3 = nnbp3 * (sp[ORGANAME3]+0.001)
 
     if OBAM1 is None:
         outbam1 = bam_basename1 + ".filtered.bam"
