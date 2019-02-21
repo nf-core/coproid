@@ -98,12 +98,6 @@ def get_args():
         help="Output bam 3 filename. Default = {BAM2_INPUT}.filtered.bam"
     )
     parser.add_argument(
-        '-sp',
-        dest='sourcepredict',
-        default=None,
-        help='sourcepredict log ratio (orga1 vs others)'
-    )
-    parser.add_argument(
         '-p',
         dest="processes",
         default=4,
@@ -121,7 +115,6 @@ def get_args():
     bam3 = args.bam3
     genome3 = args.genome3
     organame3 = args.organism3
-    sourcepredict = args.sourcepredict
     sname = args.name
     identity = float(str(args.identity))
     outfile = args.output
@@ -131,7 +124,7 @@ def get_args():
 
     processes = int(args.processes)
 
-    return(bam1, genome1, organame1, bam2, genome2, organame2, bam3, genome3, organame3, sourcepredict, sname, identity, processes, outfile, obam1, obam2, obam3)
+    return(bam1, genome1, organame1, bam2, genome2, organame2, bam3, genome3, organame3, sname, identity, processes, outfile, obam1, obam2, obam3)
 
 
 def getBasename(file_name):
@@ -240,23 +233,8 @@ def getCommonReads(readsBam1, readsBam2, readsBam3=None):
     return(res)
 
 
-def parse_sourpredict(sp_file):
-    with open(sp_file, 'r') as f:
-        d = {}
-        for line in f:
-            line = line.rstrip()
-            s = line.split(',')
-            if "UNKNOWN" in line:
-                for o in s:
-                    d[o] = 0
-            else:
-                for i, j in zip(d.keys(), s):
-                    d[i] = float(j)
-    return(d)
-
-
 if __name__ == "__main__":
-    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SOURCEPREDICT, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3 = get_args()
+    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3 = get_args()
 
     if BAM1 is None:
         print("Missing BAM file")
@@ -264,10 +242,6 @@ if __name__ == "__main__":
     elif BAM2 is None:
         print("Missing BAM file")
         sys.exit(1)
-
-    sp = parse_sourpredict(SOURCEPREDICT)
-
-    print(sp)
 
     bam_basename1 = getBasename(BAM1)
     bam_basename2 = getBasename(BAM2)
@@ -350,13 +324,13 @@ if __name__ == "__main__":
 
     if not BAM3:
         # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2
+        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2
         with open(OUTFILE, 'w') as w:
             w.write(
-                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{sp[ORGANAME1]},{sp[ORGANAME2]},{sp['UNKNOWN']},{nb1},{nb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1},{NormalizedReadRatio_2}\n")
+                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{nb1},{nb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1},{NormalizedReadRatio_2}\n")
     else:
         # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3
+        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3
         with open(OUTFILE, 'w') as w:
             w.write(
-                f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{sp[ORGANAME1]},{sp[ORGANAME2]},{sp[ORGANAME3]},{sp['UNKNOWN']},{nb1},{nb2},{nb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1},{NormalizedReadRatio_2},{NormalizedReadRatio_3}\n")
+                f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{nb1},{nb2},{nb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1},{NormalizedReadRatio_2},{NormalizedReadRatio_3}\n")

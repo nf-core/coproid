@@ -80,13 +80,24 @@ def getFile(path):
 def write_csv(adict, CSV, n_samp):
     with open(CSV, "w") as f:
         if n_samp == 2:
-            f.write("Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio\n")
+            f.write("Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2\n")
             for akey in adict:
-                f.write(f"{akey},{adict[akey]['orga1']}, {adict[akey]['orga2']}, {adict[akey]['gs1']}, {dict[akey]['gs2']}, {adict[akey]['sourcepredict_g1']},{adict[akey]['sourcepredict_g2']}, {adict[akey]['nbp1']}, {adict[akey]['nbp2']}, {adict[akey]['nrr']}\n")
+                f.write(f"{akey},{adict[akey]['orga1']}, {adict[akey]['orga2']}, {adict[akey]['gs1']}, {dict[akey]['gs2']}, {adict[akey]['sourcepredict_g1']},{adict[akey]['sourcepredict_g2']},{adict[akey]['sourcepredict_unknown']}, {adict[akey]['nbp1']}, {adict[akey]['nbp2']}, {adict[akey]['nrr1']},{adict[akey]['nrr2']}\n")
         else:
-            f.write("Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3\n")
+            f.write("Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3\n")
             for akey in adict:
-                f.write(f"{akey},{adict[akey]['orga1']},{adict[akey]['orga2']},{adict[akey]['orga3']},{adict[akey]['gs1']},{adict[akey]['gs2']},{adict[akey]['gs3']},{adict[akey]['sourcepredict_g1']},{adict[akey]['sourcepredict_g2']},{adict[akey]['sourcepredict_g3']},{adict[akey]['nbp1']},{adict[akey]['nbp2']},{adict[akey]['nbp3']},{adict[akey]['nnbp1']},{adict[akey]['nnbp2']},{adict[akey]['nnbp3']},{adict[akey]['nrr_1vs2']},{adict[akey]['nrr_1vs3']},{adict[akey]['nrr_2vs3']}\n")
+                f.write(f"{akey},{adict[akey]['orga1']},{adict[akey]['orga2']},{adict[akey]['orga3']},{adict[akey]['gs1']},{adict[akey]['gs2']},{adict[akey]['gs3']},{adict[akey]['sourcepredict_g1']},{adict[akey]['sourcepredict_g2']},{adict[akey]['sourcepredict_g3']},{adict[akey]['sourcepredict_unknown']},{adict[akey]['nbp1']},{adict[akey]['nbp2']},{adict[akey]['nbp3']},{adict[akey]['nnbp1']},{adict[akey]['nnbp2']},{adict[akey]['nnbp3']},{adict[akey]['nrr1']},{adict[akey]['nrr2']},{adict[akey]['nrr3']}\n")
+
+
+def sample_text(sample_dict):
+    res = []
+    if nrr3 not in asample.keys():
+        orga1_clean = asample["orga1"].replace("_", " ")
+        orga2_clean = asample["orga2"].replace("_", " ")
+    else:
+        orga1_clean = asample["orga1"].replace("_", " ")
+        orga2_clean = asample["orga2"].replace("_", " ")
+        orga3_clean = asample["orga2"].replace("_", " ")
 
 
 if __name__ == "__main__":
@@ -104,7 +115,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Template output file structure
-    # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio
+    # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio
 
     d = {}
     d2 = {}
@@ -112,7 +123,7 @@ if __name__ == "__main__":
     with open(CF, "r") as f:
         for line in f:
             line = line.rstrip().split(",")
-            if len(line) <= 12:
+            if len(line) <= 14:
                 nsamp = 2
                 sample = line[0]
                 organism1 = line[1]
@@ -121,11 +132,13 @@ if __name__ == "__main__":
                 gs2 = int(line[4])
                 sourcepredict_g1 = float(line[5])
                 sourcepredict_g2 = float(line[6])
-                nbp1 = int(line[7])
-                nbp2 = int(line[8])
-                nnbp1 = float(line[9])
-                nnbp2 = float(line[10])
-                nrr = float(line[11])
+                sourcepredict_unknown = float(line[7])
+                nbp1 = int(line[8])
+                nbp2 = int(line[9])
+                nnbp1 = float(line[10])
+                nnbp2 = float(line[11])
+                nrr1 = float(line[12])
+                nrr1 = float(line[13])
                 if sample not in d.keys():
                     d[sample] = {}
                 d[sample]["orga1"] = organism1
@@ -134,13 +147,15 @@ if __name__ == "__main__":
                 d[sample]["gs2"] = gs2
                 d[sample]["sourcepredict_g1"] = sourcepredict_g1
                 d[sample]["sourcepredict_g2"] = sourcepredict_g2
+                d[sample]["sourcepredict_unknown"] = sourcepredict_unknown
                 d[sample]["nbp1"] = nbp1
                 d[sample]["nbp2"] = nbp2
                 d[sample]["nnbp1"] = nnbp1
                 d[sample]["nnbp2"] = nnbp2
-                d[sample]["nrr"] = nrr
+                d[sample]["nrr1"] = nrr1
+                d[sample]["nrr2"] = nrr2
             else:
-                # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3
+                # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,sourcepredict_genome1,sourcepredict_genome2,sourcepredict_genome3,sourcepredict_unknown,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1vs2,NormalizedReadRatio_1vs3,NormalizedReadRatio_2vs3
                 nsamp = 3
                 sample = line[0]
                 organism1 = line[1]
@@ -152,15 +167,16 @@ if __name__ == "__main__":
                 sourcepredict_g1 = float(line[7])
                 sourcepredict_g2 = float(line[8])
                 sourcepredict_g3 = float(line[9])
-                nbp1 = int(line[10])
-                nbp2 = int(line[11])
-                nbp3 = int(line[12])
-                nnbp1 = float(line[13])
-                nnbp2 = float(line[14])
-                nnbp3 = float(line[15])
-                nrr_1vs2 = float(line[16])
-                nrr_1vs3 = float(line[17])
-                nrr_2vs3 = float(line[18])
+                sourcepredict_unknown = float(line[10])
+                nbp1 = int(line[11])
+                nbp2 = int(line[12])
+                nbp3 = int(line[13])
+                nnbp1 = float(line[14])
+                nnbp2 = float(line[15])
+                nnbp3 = float(line[16])
+                nrr1 = float(line[17])
+                nrr2 = float(line[18])
+                nrr3 = float(line[19])
                 if sample not in d.keys():
                     d[sample] = {}
                     d[sample]["orga1"] = organism1
@@ -172,15 +188,16 @@ if __name__ == "__main__":
                     d[sample]["sourcepredict_g1"] = sourcepredict_g1
                     d[sample]["sourcepredict_g2"] = sourcepredict_g2
                     d[sample]["sourcepredict_g3"] = sourcepredict_g3
+                    d[sample]["sourcepredict_unknown"] = sourcepredict_unknown
                     d[sample]["nbp1"] = nbp1
                     d[sample]["nbp2"] = nbp2
                     d[sample]["nbp3"] = nbp3
                     d[sample]["nnbp1"] = nnbp1
                     d[sample]["nnbp2"] = nnbp2
                     d[sample]["nnbp3"] = nnbp3
-                    d[sample]["nrr_1vs2"] = nrr_1vs2
-                    d[sample]["nrr_1vs3"] = nrr_1vs3
-                    d[sample]["nrr_2vs3"] = nrr_2vs3
+                    d[sample]["nrr1"] = nrr1
+                    d[sample]["nrr2"] = nrr2
+                    d[sample]["nrr3"] = nrr3
     write_csv(d, CSV, n_samp=nsamp)
 
     orga1_clean = organism1.replace("_", " ")
@@ -192,11 +209,11 @@ if __name__ == "__main__":
     raw_data = {}
     barWidth = 0.85
     if nsamp == 2:
-        raw_data['greenBars'] = [i/j for i, j in zip([d[sample]['nnbp1'] for sample in list(
-            d.keys())], [d[sample]['gs1'] for sample in list(d.keys())])]
+        raw_data['greenBars'] = [i for i in [d[sample]['nrr1']
+                                             for sample in list(d.keys())]]
         print(raw_data['greenBars'])
-        raw_data['orangeBars'] = [i/j for i, j in zip([d[sample]['nnbp2'] for sample in list(
-            d.keys())], [d[sample]['gs2'] for sample in list(d.keys())])]
+        raw_data['orangeBars'] = [i/j for i in [d[sample]['nrr2']
+                                                for sample in list(d.keys())]]
         print(raw_data['orangeBars'])
         df = pd.DataFrame(raw_data)
 
@@ -215,12 +232,12 @@ if __name__ == "__main__":
                 edgecolor='white', width=barWidth, label=orga2_clean)
 
     elif nsamp == 3:
-        raw_data['greenBars'] = [i/j for i, j in zip([d[sample]['nnbp1'] for sample in list(
-            d.keys())], [d[sample]['gs1'] for sample in list(d.keys())])]
-        raw_data['orangeBars'] = [i/j for i, j in zip([d[sample]['nnbp2'] for sample in list(
-            d.keys())], [d[sample]['gs2'] for sample in list(d.keys())])]
-        raw_data['blueBars'] = [i/j for i, j in zip([d[sample]['nnbp3'] for sample in list(
-            d.keys())], [d[sample]['gs3'] for sample in list(d.keys())])]
+        raw_data['greenBars'] = [i for i in [d[sample]['nrr1']
+                                             for sample in list(d.keys())]]
+        raw_data['orangeBars'] = [i for i in [d[sample]['nrr2']
+                                              for sample in list(d.keys())]]
+        raw_data['blueBars'] = [i for i in [d[sample]['nrr3']
+                                            for sample in list(d.keys())]]
         df = pd.DataFrame(raw_data)
 
         totals = [i+j+k for i,
@@ -262,14 +279,14 @@ if __name__ == "__main__":
         #          " bp )  \n\n    - *" + orga2_clean + "* (genome size = " + str(gs2) + " bp)  \n")
         # fw.write(
         #     "- **The formula used to compute the read ratio is the following:** \n\n  $NormalizedRead_{Ratio} = \\log2\\left(\\frac{\\frac{N_{\\ aDNA\\ bp \\ aligned \\ genome1}}{size_{genome2} }}{\\frac{N_{ \\ aDNA \\ bp \\ aligned \\ genome2}}{size_{genome2}}}\\right)$\n\n  ")
-        # fw.write("***\n")
+        fw.write("\n***\n")
         fw.write("## coproID read ratio plot\n\n")
         fw.write("![Normalized read ratio (insert legend here)](./ratio.png)\n")
-        # fw.write("\n\n***\n\n")
-        # fw.write("***\n\n")
-        # for asample in d.keys():
-        #     orga1_clean = d[asample]["orga1"].replace("_", " ")
-        #     orga2_clean = d[asample]["orga2"].replace("_", " ")
+        fw.write("\n\n***\n\n")
+        fw.write("***\n\n")
+        for asample in d.keys():
+            orga1_clean = d[asample]["orga1"].replace("_", " ")
+            orga2_clean = d[asample]["orga2"].replace("_", " ")
         #     if d[asample]["nrr"] > 1:
         #         conclusion = 'There are more *' + orga1_clean + '* aDNA reads than *' + orga2_clean + \
         #             '* by > 2 folds. Therefore this coprolite is most likely originating from *' + \
@@ -303,4 +320,4 @@ if __name__ == "__main__":
         #     else:
         #         fw.write(
         #             "\n\nNo plot is displayed because the number of bases aligned is too low for mapDamage, or it is Modern DNA\n\n")
-        #     fw.write("\n\n***\n")
+            fw.write("\n\n***\n")
