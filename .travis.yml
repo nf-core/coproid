@@ -16,8 +16,8 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment -c bioconda -c conda-forge python=$TRAVIS_PYTHON_VERSION nextflow
-  - source activate test-environment
+  - conda env create -f conda_env.yaml
+  - source activate coproid
 
 script:
   - nextflow run main.nf -c nextflow.conf -profile test_index_adna

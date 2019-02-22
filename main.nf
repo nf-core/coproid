@@ -104,6 +104,7 @@ css = baseDir+'/res/pandoc.css'
 
 params.sp_sources = "$baseDir/data/sourcepredict/modern_gut_microbiomes_sources.csv"
 params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
+report_template = "$baseDir/templates/coproID_report.ipynb"
 params.sp_kfold = 3
 params.sp_pdim = 20
 params.sp_udim = 2
@@ -200,7 +201,11 @@ if (params.name3 != '' && params.index3 != '') {
         .set {bt_index_genome3}
 }
 
+// Report template channel
 
+Channel
+    .fromPath(report_template)
+    .set {report_template_ch}
 
 //Logging parameters
 log.info "================================================================"
@@ -252,7 +257,7 @@ log.info "========================================="
 process fastqc {
     tag "$name"
 
-    conda 'bioconda::fastqc'
+    // conda "bioconda::fastqc'
 
     label 'ristretto'
 
@@ -275,7 +280,7 @@ process renameGenome1 {
     input:
         file (genome) from genome1rename
     output:
-        file (params.name1+".fa") into (genome1Fasta, genome1Size, genome1Log, genome1mapdamage)
+        file (params.name1+".fa") into (genome1Fasta, genome1Size, genome1Log, genome1damageprofiler)
     script:
         outname = params.name1+".fa"
         """
@@ -289,7 +294,7 @@ process renameGenome2 {
     input:
         file (genome) from genome2rename
     output:
-        file (params.name2+".fa") into (genome2Fasta, genome2Size, genome2Log, genome2mapdamage)
+        file (params.name2+".fa") into (genome2Fasta, genome2Size, genome2Log, genome2damageprofiler)
     script:
         outname = params.name2+".fa"
         """
@@ -304,7 +309,7 @@ if (params.name3 != ''){
         input:
             file (genome) from genome3rename
         output:
-            file (params.name3+".fa") into (genome3Fasta, genome3Size, genome3Log, genome3mapdamage)
+            file (params.name3+".fa") into (genome3Fasta, genome3Size, genome3Log, genome3damageprofiler)
         script:
             outname = params.name3+".fa"
             """
@@ -319,7 +324,7 @@ if (params.collapse == true && params.singleEnd == false){
     process AdapterRemovalCollapse {
         tag "$name"
 
-        conda 'bioconda::adapterremoval'
+        // conda "bioconda::adapterremoval'
 
         label 'expresso'
 
@@ -343,7 +348,7 @@ if (params.collapse == true && params.singleEnd == false){
     process AdapterRemovalNoCollapse {
         tag "$name"
 
-        conda 'bioconda::adapterremoval'
+        // conda "bioconda::adapterremoval'
 
         label 'expresso'
 
@@ -380,7 +385,7 @@ if (params.hgindex == ''){
     process BowtieIndexGenome1 {
         tag "${params.name1}"
 
-        conda 'bioconda::bowtie2'
+        // conda "bioconda::bowtie2'
 
         label 'intenso'
 
@@ -399,7 +404,7 @@ if (params.hgindex == ''){
 process AlignCollapseToGenome1 {
     tag "$name"
 
-    conda '  bioconda::bowtie2 bioconda::samtools'
+    // conda "  bioconda::bowtie2 bioconda::samtools'
 
     label 'intenso'
 
@@ -433,7 +438,7 @@ process AlignCollapseToGenome1 {
 process bam2fq {
     tag "$name"
 
-    conda 'bioconda::bedtools'
+    // conda "bioconda::bedtools'
 
     label 'intenso'
 
@@ -463,7 +468,7 @@ if (params.index2 == ''){
     process BowtieIndexGenome2 {
         tag "${params.name2}"
 
-        conda 'bioconda::bowtie2'
+        // conda "bioconda::bowtie2'
 
         label 'intenso'
 
@@ -482,7 +487,7 @@ if (params.name3 != '' && params.index3 == ''){
     process BowtieIndexGenome3 {
         tag "${params.name2}"
 
-        conda 'bioconda::bowtie2'
+        // conda "bioconda::bowtie2'
 
         label 'intenso'
 
@@ -503,7 +508,7 @@ if (params.collapse == true || params.singleEnd == true){
     process AlignCollapseToGenome2 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        // conda "bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -527,7 +532,7 @@ if (params.collapse == true || params.singleEnd == true){
     process AlignNoCollapseToGenome2 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        // conda "bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -554,7 +559,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
     process AlignCollapseToGenome3 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        // conda "bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -578,7 +583,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
     process AlignNoCollapseToGenome3 {
         tag "$name"
 
-        conda 'bioconda::bowtie2 bioconda::samtools'
+        // conda "bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -606,7 +611,7 @@ if (params.adna){
     process pmdtoolsgenome1 {
     tag "$name"
 
-    conda 'bioconda::pmdtools'
+    // conda "bioconda::pmdtools'
 
     label 'ristretto'
 
@@ -624,7 +629,7 @@ if (params.adna){
     process pmdtoolsgenome2 {
         tag "$name"
 
-        conda 'bioconda::pmdtools '
+        // conda "bioconda::pmdtools '
 
         label 'ristretto'
 
@@ -643,7 +648,7 @@ if (params.adna){
         process pmdtoolsgenome3 {
         tag "$name"
 
-        conda 'bioconda::pmdtools'
+        // conda "bioconda::pmdtools'
 
         label 'ristretto'
 
@@ -663,7 +668,7 @@ if (params.adna){
 process kraken2 {
     tag "$name"
 
-    conda 'bioconda::kraken2'
+    // conda "bioconda::kraken2'
 
     label 'intenso'
 
@@ -692,7 +697,7 @@ process kraken2 {
 process kraken_parse {
     tag "$name"
 
-    conda 'python=3.6'
+    // conda "python=3.6'
 
     label 'ristretto'
 
@@ -711,7 +716,7 @@ process kraken_parse {
 
 process kraken_merge {
 
-    conda 'python=3.6 pandas numpy'
+    // conda "python=3.6 pandas numpy'
 
     label 'ristretto'
 
@@ -732,7 +737,7 @@ process kraken_merge {
 
 process sourcepredict {
 
-    conda 'conda-forge::umap-learn bioconda::ete3 maxibor::sourcepredict=0.2.1'
+    // conda "conda-forge::umap-learn bioconda::ete3 maxibor::sourcepredict=0.2.1'
 
     label 'expresso'
 
@@ -756,7 +761,7 @@ if (params.name3 == ''){
     process countBp2genomes{
     tag "$name"
 
-    conda 'python=3.6 bioconda::pysam '
+    // conda "python=3.6 bioconda::pysam '
 
     label 'expresso'
 
@@ -786,7 +791,7 @@ if (params.name3 == ''){
     process countBp3genomes{
     tag "$name"
 
-    conda 'python=3.6 bioconda::pysam '
+    // conda "python=3.6 bioconda::pysam '
 
     label 'expresso'
 
@@ -825,88 +830,82 @@ if (params.name3 == ''){
 // 5:     MapDamage
 
 if (params.adna){
-    process mapdamageGenome1 {
+    process damageprofilerGenome1 {
     tag "$name"
 
-    conda 'bioconda::mapdamage2 conda-forge::imagemagick'
+    // conda "bioconda::damageprofiler'
 
     label 'ristretto'
 
     errorStrategy 'ignore'
 
-    publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
+    publishDir "${params.results}/damageprofiler_${params.name1}", mode: 'copy'
 
     input:
         set val(name), file(align) from filtered_bam1
-        file(fasta) from genome1mapdamage.first()
+        file(fasta) from genome1damageprofiler.first()
     output:
-        set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome1
-        file("*.fragmisincorporation_plot.png") into mapdamage_result_genome1
+        file("*_freq.txt") into damage_result_genome1
     script:
-        orgaName = params.name1
-        plot_title = name+"_"+orgaName
-        fname = name+"."+orgaName+".fragmisincorporation_plot.png"
-        pdfloc = name+"/Fragmisincorporation_plot.pdf"
+        fwd_name = name+"_"+params.name1+".5pCtoT_freq.txt"
+        rev_name = name+"_"+params.name1+".3pGtoA_freq.txt"
         """
-        mapDamage -i $align -r $fasta -d $name -t $plot_title
-        gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
+        damageprofiler -i $align -r $fasta -o tmp -title tmp
+        mv tmp/tmp/5pCtoT_freq.txt $fwd_name
+        mv tmp/tmp/3pGtoA_freq.txt $rev_name
         """
     }
 
-    process mapdamageGenome2 {
+    process damageprofilerGenome2 {
         tag "$name"
 
-        conda 'bioconda::mapdamage2 conda-forge::imagemagick'
+        // conda "bioconda::damageprofiler'
 
         label 'ristretto'
 
         errorStrategy 'ignore'
 
-        publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
+        publishDir "${params.results}/damageprofiler_${params.name2}", mode: 'copy'
 
         input:
             set val(name), file(align) from filtered_bam2
-            file(fasta) from genome2mapdamage.first()
+            file(fasta) from genome2damageprofiler.first()
         output:
-            set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome2
-            file("*.fragmisincorporation_plot.png") into mapdamage_result_genome2
+            file("*_freq.txt") into damage_result_genome2
         script:
-            orgaName = params.name2
-            plot_title = name+"_"+orgaName
-            fname = name+"."+orgaName+".fragmisincorporation_plot.png"
-            pdfloc = name+"/Fragmisincorporation_plot.pdf"
+            fwd_name = name+"_"+params.name2+".5pCtoT_freq.txt"
+            rev_name = name+"_"+params.name2+".3pGtoA_freq.txt"
             """
-            mapDamage -i $align -r $fasta -d $name -t $plot_title
-            gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
+            damageprofiler -i $align -r $fasta -o tmp -title tmp
+            mv tmp/tmp/5pCtoT_freq.txt $fwd_name
+            mv tmp/tmp/3pGtoA_freq.txt $rev_name
             """
     }
 
     if (params.name3 != ""){
-        process mapdamageGenome3 {
+        process damageprofilerGenome3 {
         tag "$name"
 
-        conda 'bioconda::mapdamage2 conda-forge::imagemagick'
+        // conda "bioconda::damageprofiler'
 
         label 'ristretto'
 
         errorStrategy 'ignore'
 
-        publishDir "${params.results}/mapdamage_${orgaName}", mode: 'copy'
+        publishDir "${params.results}/damageprofiler_${params.name2}", mode: 'copy'
 
         input:
             set val(name), file(align) from filtered_bam3
-            file(fasta) from genome3mapdamage.first()
+            file(fasta) from genome3damageprofiler.first()
         output:
-            set val(name), file("$name/*.pdf") into mapdamagePDF_result_genome3
-            file("*.fragmisincorporation_plot.png") into mapdamage_result_genome3
+            file("*_freq.txt") into damage_result_genome3
         script:
-            orgaName = params.name3
-            plot_title = name+"_"+orgaName
-            fname = name+"."+orgaName+".fragmisincorporation_plot.png"
-            pdfloc = name+"/Fragmisincorporation_plot.pdf"
+            fwd_name = name+"_"+params.name3+".5pCtoT_freq.txt"
+            rev_name = name+"_"+params.name3+".3pGtoA_freq.txt"
             """
-            mapDamage -i $align -r $fasta -d $name -t $plot_title
-            gs -sDEVICE=png16m -dTextAlphaBits=4 -r300 -o $fname $pdfloc
+            damageprofiler -i $align -r $fasta -o tmp -title tmp
+            mv tmp/tmp/5pCtoT_freq.txt $fwd_name
+            mv tmp/tmp/3pGtoA_freq.txt $rev_name
             """
         }
     }
@@ -916,7 +915,7 @@ if (params.adna){
 // 6: concatenate read ratios
 
 process concatenateRatios {
-    conda "python=3.7 pandas"
+    // conda "python=3.7 pandas"
 
     label 'ristretto'
 
@@ -935,165 +934,80 @@ process concatenateRatios {
         """
 }
 
-// // Make report
-// if (params.adna) {
-//     if (params.name3) {
-//         process generate_report_adna_3_genomes {
-//             conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
+// Make report
+if (params.adna) {
+    if (params.name3) {
+        process generate_report_adna_3_genomes {
+            // conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
 
-//             label 'ristretto'
+            label 'ristretto'
 
-//             publishDir "${params.results}", mode: 'copy', pattern: '*.html'
+            publishDir "${params.results}", mode: 'copy'
 
-//             input:
-//                 file(copro_csv) from coproid_res
-//                 file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
-//                 file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
-//                 file(mdplot3) from mapdamage_result_genome3.collect().ifEmpty([])
-//             output:
-//                 file("*.html") into coproid_report
-//         }
-//     } else {
-//         process generate_report_adna_2_genomes {
-//             conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
+            input:
+                file(copro_csv) from coproid_res
+                file(dplot1) from damage_result_genome1.collect().ifEmpty([])
+                file(dplot1) from damage_result_genome2.collect().ifEmpty([])
+                file(dplot3) from damage_result_genome3.collect().ifEmpty([])
+                file(umap) from sourcepredict_umap_out
+                file(report) from report_template_ch
+            output:
+                file("*.html") into coproid_report
+            script:
+                """
+                echo $version > version.txt
+                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --execute --to html $report
+                """
+        }
+    } else {
+        process generate_report_adna_2_genomes {
+            // conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
 
-//             label 'ristretto'
+            label 'ristretto'
 
-//             publishDir "${params.results}", mode: 'copy', pattern: '*.html'
+            publishDir "${params.results}", mode: 'copy'
 
-//             input:
-//                 file(copro_csv) from coproid_res
-//                 file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
-//                 file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
-//                 file(mdplot3) from mapdamage_result_genome3.collect().ifEmpty([])
+            input:
+                file(copro_csv) from coproid_res
+                file(dplot1) from damage_result_genome1.collect().ifEmpty([])
+                file(dplot1) from damage_result_genome2.collect().ifEmpty([])
+                file(umap) from sourcepredict_umap_out
+                file(report) from report_template_ch
+            output:
+                file("*.html") into coproid_report
+            script:
+                """
+                echo $version > version.txt
+                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --execute --to html $report
+                """
+        }
+    }
+} else {
+    process generate_report {
+        // conda "anaconda::nbconvert bokeh::bokeh jupyter pandas"
 
-//             output:
-//                 file("*.html") into coproid_report
-//         }
-//     }
-// } else {
-//     process generate_report {
-//         conda "anaconda::nbconvert bokeh::bokeh jupyter pandas"
+        label 'ristretto'
 
-//         label 'ristretto'
+        publishDir "${params.results}", mode: 'copy', pattern: '*.html'
 
-//         publishDir "${params.results}", mode: 'copy', pattern: '*.html'
-
-//         input:
-//             file(copro_csv) from coproid_res
-//         output:
-//             file("*.html") into coproid_report
-//     }
-// } 
-
-
-// // 7:     Write Markdown report
-// process proportionAndReport {
-
-//     conda 'python=3.6 matplotlib pandas'
-
-//     label 'ristretto'
-
-//     publishDir "${params.results}", mode: 'copy', pattern: '*.csv'
-
-//     input:
-//         file(count) from coproid_count
-//     output:
-//         file("*.md") into coproidmd
-//         file("*.png") into plot
-//         file("*.csv") into csv_out
-//     script:
-//         outfile = "coproID_result.md"
-//         csvout = "coproid_result.csv"
-//         """
-//         plotAndReport2 -c $count -i ${params.identity} -v $version -csv $csvout -o $outfile -adna ${params.adna}
-//         """
-// }
-
-// // 8:     Convert Markdown report to HTML
-// if (params.adna){
-//     if (params.name3 == ""){
-//         process md2html_adna_2genome {
-
-//         conda 'conda-forge::pandoc'
-
-//         label 'ristretto'
-
-//         errorStrategy 'ignore'
-
-//         publishDir "${params.results}", mode: 'copy'
-
-//         input:
-//             file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
-//             file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
-//             file(report) from coproidmd
-//             file(fig) from plot
-//         output:
-//             file("*.html") into htmlReport
-//         script:
-//             outfile = "coproID_result.html"
-//             """
-//             pandoc --self-contained --css $css --webtex -s $report -o $outfile
-//             """
-//         }
-//     }
-//     else {
-//         process md2html_adna_3genome {
-
-//         conda 'conda-forge::pandoc'
-
-//         label 'ristretto'
-
-//         errorStrategy 'ignore'
-
-//         publishDir "${params.results}", mode: 'copy'
-
-//         input:
-//             file(mdplot1) from mapdamage_result_genome1.collect().ifEmpty([])
-//             file(mdplot1) from mapdamage_result_genome2.collect().ifEmpty([])
-//             file(mdplot3) from mapdamage_result_genome3.collect().ifEmpty([])
-//             file(report) from coproidmd
-//             file(fig) from plot
-//         output:
-//             file("*.html") into htmlReport
-//         script:
-//             outfile = "coproID_result.html"
-//             """
-//             pandoc --self-contained --css $css --webtex -s $report -o $outfile
-//             """
-//         }
-//     }
-// } else {
-//     process md2html_modern {
-
-//     conda 'conda-forge::pandoc'
-
-//     label 'ristretto'
-
-//     errorStrategy 'ignore'
-
-//     publishDir "${params.results}", mode: 'copy'
-
-//     input:
-//         file(report) from coproidmd
-//         file(fig) from plot
-//     output:
-//         file("*.html") into htmlReport
-//     script:
-//         outfile = "coproID_result.html"
-//         """
-//         pandoc --self-contained --css $css --webtex -s $report -o $outfile
-//         """
-//     }
-// }
-
-
-
+        input:
+            file(copro_csv) from coproid_res
+            file(umap) from sourcepredict_umap_out
+            file(report) from report_template_ch
+        output:
+            file("*.html") into coproid_report
+        script:
+            """
+            echo $version > version.txt
+            jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --execute --to html $report
+            """
+    }
+} 
 
 // 9:     MultiQC
 process multiqc {
 
-    conda 'conda-forge::networkx bioconda::multiqc=1.5'
+    // conda 'conda-forge::networkx bioconda::multiqc=1.5'
 
     label 'ristretto'
 
