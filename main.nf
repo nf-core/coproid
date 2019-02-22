@@ -102,8 +102,11 @@ params.minKraken = 50
 params.removeHuman = false
 css = baseDir+'/res/pandoc.css'
 
-sp_sources = "$baseDir/data/sourcepredict/ modern_gut_microbiomes_sources.csv"
-sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
+params.sp_sources = "$baseDir/data/sourcepredict/modern_gut_microbiomes_sources.csv"
+params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
+params.sp_kfold = 3
+params.sp_pdim = 20
+params.sp_udim = 2
 
 bowtie_setting = ''
 collapse_setting = ''
@@ -236,6 +239,8 @@ summary['Organism 2'] = params.name2
 if (params.name3 != ''){
     summary['Organism 3'] = params.name3
 }
+summary['Sourcepredict sources'] = params.sp_sources
+summary['Sourcepredict labels'] = params.sp_labels
 summary['PMD Score'] = params.pmdscore
 summary['Library type'] = params.library
 summary["Result directory"] = params.results
@@ -375,7 +380,7 @@ if (params.hgindex == ''){
     process BowtieIndexGenome1 {
         tag "${params.name1}"
 
-        conda 'anaconda::ncurses=5.9 bioconda::bowtie2'
+        conda 'bioconda::bowtie2'
 
         label 'intenso'
 
@@ -394,7 +399,7 @@ if (params.hgindex == ''){
 process AlignCollapseToGenome1 {
     tag "$name"
 
-    conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
+    conda '  bioconda::bowtie2 bioconda::samtools'
 
     label 'intenso'
 
@@ -458,7 +463,7 @@ if (params.index2 == ''){
     process BowtieIndexGenome2 {
         tag "${params.name2}"
 
-        conda 'anaconda::ncurses=5.9 bioconda::bowtie2'
+        conda 'bioconda::bowtie2'
 
         label 'intenso'
 
@@ -477,7 +482,7 @@ if (params.name3 != '' && params.index3 == ''){
     process BowtieIndexGenome3 {
         tag "${params.name2}"
 
-        conda 'anaconda::ncurses=5.9 bioconda::bowtie2'
+        conda 'bioconda::bowtie2'
 
         label 'intenso'
 
@@ -498,7 +503,7 @@ if (params.collapse == true || params.singleEnd == true){
     process AlignCollapseToGenome2 {
         tag "$name"
 
-        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
+        conda 'bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -522,7 +527,7 @@ if (params.collapse == true || params.singleEnd == true){
     process AlignNoCollapseToGenome2 {
         tag "$name"
 
-        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
+        conda 'bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -549,7 +554,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
     process AlignCollapseToGenome3 {
         tag "$name"
 
-        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
+        conda 'bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -573,7 +578,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
     process AlignNoCollapseToGenome3 {
         tag "$name"
 
-        conda 'anaconda::ncurses=5.9 anaconda::openssl=1.0.* bioconda::bowtie2 bioconda::samtools'
+        conda 'bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
@@ -601,7 +606,7 @@ if (params.adna){
     process pmdtoolsgenome1 {
     tag "$name"
 
-    conda 'anaconda::ncurses=5.9 bioconda::pmdtools anaconda::openssl=1.0.*'
+    conda 'bioconda::pmdtools'
 
     label 'ristretto'
 
@@ -619,7 +624,7 @@ if (params.adna){
     process pmdtoolsgenome2 {
         tag "$name"
 
-        conda 'anaconda::ncurses=5.9 bioconda::pmdtools anaconda::openssl=1.0.*'
+        conda 'bioconda::pmdtools '
 
         label 'ristretto'
 
@@ -638,7 +643,7 @@ if (params.adna){
         process pmdtoolsgenome3 {
         tag "$name"
 
-        conda 'anaconda::ncurses=5.9 bioconda::pmdtools anaconda::openssl=1.0.*'
+        conda 'bioconda::pmdtools'
 
         label 'ristretto'
 
@@ -658,7 +663,7 @@ if (params.adna){
 process kraken2 {
     tag "$name"
 
-    conda 'anaconda::ncurses=5.9 bioconda::kraken2 intel::openmp'
+    conda 'bioconda::kraken2'
 
     label 'intenso'
 
@@ -695,7 +700,7 @@ process kraken_parse {
         set val(name), file(kraken_r) from kraken_report
 
     output:
-        set val(name), file('*.kraken_parsed.csv') into kraken_parsed
+        file('*.kraken_parsed.csv') into kraken_parsed
 
     script:
         out = name+".kraken_parsed.csv"
@@ -716,7 +721,7 @@ process kraken_merge {
         file(csv_count) from kraken_parsed.collect()
 
     output:
-        file('kraken_merged_*.csv') into kraken_merged
+        file('kraken_merged.csv') into kraken_merged
 
     script:
         out = "kraken_merged.csv"
@@ -727,23 +732,21 @@ process kraken_merge {
 
 process sourcepredict {
 
-    conda 'maxibor::sourcepredict=0.2'
+    conda 'conda-forge::umap-learn bioconda::ete3 maxibor::sourcepredict=0.2.1'
 
     label 'expresso'
 
-    echo true
-
     input:
-        set val(name), file(otu_table) from kraken_merged
+        file(otu_table) from kraken_merged
     output:
-        set val(name), file('*.sourcepredict.csv') into sourcepredict_out
-        set val(name), file('*.umap.csv') into sourcepredict_umap_out
+        file('*.sourcepredict.csv') into sourcepredict_out
+        file('*.umap.csv') into sourcepredict_umap_out
 
     script:
-        outfile = name+".sourcepredict.csv"
-        umap_out = name+".umap.csv"
+        outfile = "prediction.sourcepredict.csv"
+        umap_out = "embedding.umap.csv"
         """
-        sourcepredict -l $sp_labels -s $sp_sources -t ${task.cpus} -o $outfile -u $umap_out $otu_table 
+        sourcepredict -pd ${params.sp_pdim} -ud ${params.sp_udim} -k ${params.sp_kfold} -l ${params.sp_labels} -s ${params.sp_sources} -t ${task.cpus} -o $outfile -u $umap_out $otu_table 
         """
 }
 
@@ -753,7 +756,7 @@ if (params.name3 == ''){
     process countBp2genomes{
     tag "$name"
 
-    conda 'anaconda::ncurses=5.9 python=3.6 bioconda::pysam anaconda::openssl=1.0.*'
+    conda 'python=3.6 bioconda::pysam '
 
     label 'expresso'
 
@@ -764,11 +767,11 @@ if (params.name3 == ''){
         file(genome1) from genome1Size.first()
         file(genome2) from genome2Size.first()
     output:
-        set val(name), file("*.sp.csv") into bp_count
+        set val(name), file("*.bpc.csv") into bp_count
         set val(name), file("*"+params.name1+".filtered.bam") into filtered_bam1
         set val(name), file("*"+params.name2+".filtered.bam") into filtered_bam2
     script:
-        outfile = name+".sp.csv"
+        outfile = name+".bpc.csv"
         organame1 = params.name1
         organame2 = params.name2
         obam1 = name+"_"+organame1+".filtered.bam"
@@ -783,7 +786,7 @@ if (params.name3 == ''){
     process countBp3genomes{
     tag "$name"
 
-    conda 'anaconda::ncurses=5.9 python=3.6 bioconda::pysam anaconda::openssl=1.0.*'
+    conda 'python=3.6 bioconda::pysam '
 
     label 'expresso'
 
@@ -797,12 +800,12 @@ if (params.name3 == ''){
         file(genome2) from genome2Size.first()
         file(genome3) from genome3Size.first()
     output:
-        set val(name), file("*.sp.csv") into bp_count
+        set val(name), file("*.bpc.csv") into bp_count
         set val(name), file("*"+params.name1+".filtered.bam") into filtered_bam1
         set val(name), file("*"+params.name2+".filtered.bam") into filtered_bam2
         set val(name), file("*"+params.name3+".filtered.bam") into filtered_bam3
     script:
-        outfile = name+".sp.csv"
+        outfile = name+".bpc.csv"
         organame1 = params.name1
         organame2 = params.name2
         organame3 = params.name3
@@ -913,7 +916,7 @@ if (params.adna){
 // 6: concatenate read ratios
 
 process concatenateRatios {
-    conda "python=3.6"
+    conda "python=3.7 pandas"
 
     label 'ristretto'
 
@@ -927,7 +930,7 @@ process concatenateRatios {
     script:
         outfile = "coproID_result.csv"
         """
-        cat *.sp.csv > coproid_bp.csv
+        cat *.bpc.csv > coproid_bp.csv
         merge_bp_sp.py -c coproid_bp.csv -s $sp -o $outfile
         """
 }

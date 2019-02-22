@@ -55,4 +55,4 @@ if __name__ == "__main__":
     OUTFILE = _get_args()
     all_csv = get_csv()
     resdf = merge_csv(all_csv)
-    write_csv(resdf, "kraken_merged_non_norm.csv")
+    write_csv(resdf, OUTFILE)

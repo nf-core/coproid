@@ -26,7 +26,7 @@ def _get_args():
     args = parser.parse_args()
 
     infile = args.krakenReport
-    countlim = args.count
+    countlim = int(args.count)
     outfile = args.output
 
     return(infile, countlim, outfile)

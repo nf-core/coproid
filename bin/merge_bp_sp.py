@@ -54,8 +54,9 @@ def compute_coproba(indic, nrr, sp):
 if __name__ == "__main__":
     CF, SP, OUTPUT = get_args()
 
-    dcf = pd.read_csv(CF, index_col=0)
-    if dcf.shape[1] < 12:
+    dcf = pd.read_csv(CF, index_col=0, header=None)
+    print(dcf.shape)
+    if dcf.shape[1] < 13:
         dcf.columns = ['Organism_name1',
                        'Organism_name2',
                        'Genome1_size',
@@ -68,6 +69,7 @@ if __name__ == "__main__":
                        'NormalizedReadRatio_2']
         orga1 = dcf['Organism_name1'][0]
         orga2 = dcf['Organism_name2'][0]
+        orga3 = None
     else:
         dcf.columns = ['Organism_name1',
                        'Organism_name2',
@@ -84,6 +86,8 @@ if __name__ == "__main__":
                        'NormalizedReadRatio_1',
                        'NormalizedReadRatio_2',
                        'NormalizedReadRatio_3']
+        orga1 = dcf['Organism_name1'][0]
+        orga2 = dcf['Organism_name2'][0]
         orga3 = dcf['Organism_name3'][0]
 
     dsp = pd.read_csv(SP, index_col=0).T
@@ -99,18 +103,18 @@ if __name__ == "__main__":
     d = dcf.merge(dsp, left_index=True, right_index=True)
 
     coproba_list_orga1 = [compute_coproba(
-        indic=indicator(a), nrr=b, sp=c) for a, b, c in zip(list(d['unknown']), list(d['normalized_nb_bp_aligned_genome1']), list(d[orga1]))]
+        indic=indicator(a), nrr=b, sp=c) for a, b, c in zip(list(d['unknown']), list(d['NormalizedReadRatio_1']), list(d[orga1]))]
     coproba_list_orga2 = [compute_coproba(
-        indic=indicator(a), nrr=b, sp=c) for a, b, c in zip(list(d['unknown']), list(d['normalized_nb_bp_aligned_genome2']), list(d[orga2]))]
+        indic=indicator(a), nrr=b, sp=c) for a, b, c in zip(list(d['unknown']), list(d['NormalizedReadRatio_2']), list(d[orga2]))]
     if orga3:
         coproba_list_orga3 = [compute_coproba(indic=indicator(a), nrr=b, sp=c) for a, b, c in zip(
-            list(d['unknown']), list(d['normalized_nb_bp_aligned_genome3']), list(d[orga3]))]
+            list(d['unknown']), list(d['NormalizedReadRatio_3']), list(d[orga3]))]
 
     d2 = pd.DataFrame()
-    d2[f"normalized_bp_proportion_aligned_{orga1}"] = d['nb_bp_aligned_genome1']
-    d2[f"normalized_bp_proportion_aligned_{orga2}"] = d['nb_bp_aligned_genome2']
+    d2[f"normalized_bp_proportion_aligned_{orga1}"] = d['NormalizedReadRatio_1']
+    d2[f"normalized_bp_proportion_aligned_{orga2}"] = d['NormalizedReadRatio_2']
     if orga3:
-        d2[f"nb_bp_aligned_{orga3}"] = d['nb_bp_aligned_genome3']
+        d2[f"normalized_bp_aligned_{orga3}"] = d['NormalizedReadRatio_3']
     d2[f"metagenomic_proportion_{orga1}"] = d[orga1]
     d2[f"metagenomic_proportion_{orga2}"] = d[orga2]
     if orga3:
@@ -120,5 +124,4 @@ if __name__ == "__main__":
     if orga3:
         d2[f"coproID_proba_{orga3}"] = coproba_list_orga3
     d2.index = d.index
-
     d2.to_csv(OUTPUT)
