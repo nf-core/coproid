@@ -1,7 +1,9 @@
 .nextflow*
-work
-results
+*.png*
+work/
+results/
 .DS_Store
+*results*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

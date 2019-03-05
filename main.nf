@@ -74,8 +74,8 @@ def helpMessage() {
 }
 
 
-version = "0.6.2"
-version_date = "November 23rd, 2018"
+version = "0.7"
+version_date = "February 24th, 2018"
 
 params.phred = 33
 
@@ -83,7 +83,7 @@ params.adna = true
 params.results = "./results"
 params.reads = ''
 params.singleEnd = false
-params.genome1 = ''
+params.hgenome = ''
 params.genome2 = ''
 params.genome3 = ''
 params.hgindex = ''
@@ -152,8 +152,6 @@ if( ! nextflow.version.matches(">= 0.30") ){
     exit(1)
 }
 
-println(params.singleEnd)
-println(params.singleEnd.getClass())
 // Creating reads channel
 Channel
     .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
@@ -162,8 +160,8 @@ Channel
 
 // Creating genome1 channels
 Channel
-    .fromPath(params.genome1)
-    .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.genome1}\n" }
+    .fromPath(params.hgenome)
+    .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.hgenome}\n" }
     .set {genome1rename}
 
 if(params.hgindex != '') {
@@ -223,7 +221,7 @@ summary['collapse'] = params.collapse
 summary['Ancient DNA'] = params.adna
 summary['singleEnd'] = params.singleEnd
 summary['bowtie setting'] = params.bowtie
-summary['Genome1'] = params.genome1
+summary['Genome1'] = params.hgenome
 if (params.hgindex != '') {
     summary["Genome1 BT2 index"] = params.hgindex
 }
@@ -249,7 +247,7 @@ summary['Sourcepredict labels'] = params.sp_labels
 summary['PMD Score'] = params.pmdscore
 summary['Library type'] = params.library
 summary["Result directory"] = params.results
-log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
+log.info summary.collect { k,v -> "${k.padRight(25)}: $v" }.join("\n")
 log.info "========================================="
 
 
@@ -414,23 +412,28 @@ process AlignCollapseToGenome1 {
         set val(name), file(reads) from trimmed_reads_genome1
         file(index) from bt_index_genome1.collect()
     output:
-        set val(name), file("*.aligned.sorted.bam") into alignment_genome1, filter_bam1
+        set val(name), file("*.aligned.sorted.bam") into alignment_genome1
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome1
+        set val(name), file("*.flagstat.txt") into align1_multiqc
     script:
         index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
+        samfile = "aligned_"+params.name1+".sam"
+        fstat = name+"_"+params.name1+".flagstat.txt"
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
         if (params.collapse == true || params.singleEnd == true) {
             """
-            bowtie2 -x $index_name -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > aligned_human.sam
-            samtools view -S -b -F 4 -@ ${task.cpus} aligned_human.sam | samtools sort -@ ${task.cpus} -o $outfile
-            samtools view -S -b -f 4 -@ ${task.cpus} aligned_human.sam | samtools sort -@ ${task.cpus} -o $outfile_unalign
+            bowtie2 -x $index_name -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+            samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
+            samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
+            samtools flagstat $samfile > $fstat
             """
         } else if (params.collapse == false){
             """
-            bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > aligned_human.sam
-            samtools view -S -b -F 4 -@ ${task.cpus} aligned_human.sam | samtools sort -@ ${task.cpus} -o $outfile
-            samtools view -S -b -f 4 -@ ${task.cpus} aligned_human.sam | samtools sort -@ ${task.cpus} -o $outfile_unalign
+            bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+            samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
+            samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
+            samtools flagstat $samfile > $fstat
             """
         }            
 }
@@ -520,7 +523,7 @@ if (params.collapse == true || params.singleEnd == true){
             set val(name), file(reads) from trimmed_reads_genome2
             file(index) from bt_index_genome2.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome2, filter_bam2
+            set val(name), file("*.sorted.bam") into alignment_genome2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = name+"_"+params.name2+".sorted.bam"
@@ -544,7 +547,7 @@ if (params.collapse == true || params.singleEnd == true){
             set val(name), file(reads) from trimmed_reads_genome2
             file(index) from bt_index_genome2.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome2, filter_bam2
+            set val(name), file("*.sorted.bam") into alignment_genome2
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = name+"_"+params.name2+".sorted.bam"
@@ -571,7 +574,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
             set val(name), file(reads) from trimmed_reads_genome3
             file(index) from bt_index_genome3.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome3, filter_bam3
+            set val(name), file("*.sorted.bam") into alignment_genome3
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = name+"_"+params.name3+".sorted.bam"
@@ -595,7 +598,7 @@ if (params.name3 && (params.collapse == true || params.singleEnd == true)){
             set val(name), file(reads) from trimmed_reads_genome3
             file(index) from bt_index_genome3.collect()
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome3, filter_bam3
+            set val(name), file("*.sorted.bam") into alignment_genome3
         script:
             index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
             outfile = name+"_"+params.name3+".sorted.bam"
@@ -847,8 +850,8 @@ if (params.adna){
     output:
         file("*_freq.txt") into damage_result_genome1
     script:
-        fwd_name = name+"_"+params.name1+".5pCtoT_freq.txt"
-        rev_name = name+"_"+params.name1+".3pGtoA_freq.txt"
+        fwd_name = name+"_[otu]_"+params.name1+".5pCtoT_freq.txt"
+        rev_name = name+"_[otu]_"+params.name1+".3pGtoA_freq.txt"
         """
         damageprofiler -i $align -r $fasta -o tmp -title tmp
         mv tmp/tmp/5pCtoT_freq.txt $fwd_name
@@ -873,8 +876,8 @@ if (params.adna){
         output:
             file("*_freq.txt") into damage_result_genome2
         script:
-            fwd_name = name+"_"+params.name2+".5pCtoT_freq.txt"
-            rev_name = name+"_"+params.name2+".3pGtoA_freq.txt"
+            fwd_name = name+"_[otu]_"+params.name2+".5pCtoT_freq.txt"
+            rev_name = name+"_[otu]_"+params.name2+".3pGtoA_freq.txt"
             """
             damageprofiler -i $align -r $fasta -o tmp -title tmp
             mv tmp/tmp/5pCtoT_freq.txt $fwd_name
@@ -900,8 +903,8 @@ if (params.adna){
         output:
             file("*_freq.txt") into damage_result_genome3
         script:
-            fwd_name = name+"_"+params.name3+".5pCtoT_freq.txt"
-            rev_name = name+"_"+params.name3+".3pGtoA_freq.txt"
+            fwd_name = name+"_[otu]_"+params.name3+".5pCtoT_freq.txt"
+            rev_name = name+"_[otu]_"+params.name3+".3pGtoA_freq.txt"
             """
             damageprofiler -i $align -r $fasta -o tmp -title tmp
             mv tmp/tmp/5pCtoT_freq.txt $fwd_name
@@ -956,7 +959,7 @@ if (params.adna) {
             script:
                 """
                 echo $version > version.txt
-                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --execute --to html $report
+                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
                 """
         }
     } else {
@@ -978,7 +981,7 @@ if (params.adna) {
             script:
                 """
                 echo $version > version.txt
-                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --execute --to html $report
+                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
                 """
         }
     }
@@ -999,7 +1002,7 @@ if (params.adna) {
         script:
             """
             echo $version > version.txt
-            jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --execute --to html $report
+            jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
             """
     }
 } 
@@ -1017,12 +1020,13 @@ process multiqc {
 
     input:
         file (ar:'adapter_removal/*') from adapter_removal_results.collect()
+        file (al1: 'alignment/*') from align1_multiqc.collect()
         file ('fastqc/*') from fastqc_results.collect()
     output:
         file 'multiqc_report.html' into multiqc_report
 
     script:
         """
-        multiqc -f -d adapter_removal fastqc -c $multiqc_conf
+        multiqc -f -d adapter_removal alignment fastqc -c $multiqc_conf
         """
 }
