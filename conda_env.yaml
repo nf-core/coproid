@@ -18,8 +18,8 @@ dependencies:
   - bioconda::htslib=1.9
   - anaconda::jupyter=1.0.0
   - bioconda::kraken2=2.0.7_beta
-  - bioconda::multiqc=1.7
-  - anaconda::nbconvert=5.3.1
+  - conda-forge::notebook=5.7.5
+  - anaconda::nbconvert=5.4.1
   - bioconda::nextflow=19.01.0
   - bioconda::pmdtools=0.60 
   - bioconda::pysam=0.15.2
@@ -32,4 +32,6 @@ dependencies:
     - numpy
     - pandas
     - scipy
+    - networkx
+    - multiqc
 
