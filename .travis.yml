@@ -20,4 +20,4 @@ install:
   - source activate coproid
 
 script:
-  - nextflow run main.nf -c nextflow.conf -profile test_index_adna
+  - nextflow run main.nf -profile test_index_adna
