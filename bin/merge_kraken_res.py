@@ -42,7 +42,8 @@ def merge_csv(all_csv):
     df = pd.read_csv(all_csv[0], index_col=0)
     for i in range(1, len(all_csv)):
         df_tmp = pd.read_csv(all_csv[i], index_col=0)
-        df = pd.merge(left=df, right=df_tmp, on='TAXID', how='outer')
+        df = pd.merge(left=df, right=df_tmp, how='outer',
+                      right_index=True, left_index=True)
     df.fillna(0, inplace=True)
     return(df)
 
