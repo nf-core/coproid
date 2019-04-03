@@ -9,5 +9,6 @@ COPY ${env_file} /
 RUN conda install python=${python_version}
 RUN conda env create -f ${env_file} && conda clean -a
 ENV PATH /opt/conda/envs/${env_name}/bin:$PATH
+ENV PYTHONPATH /opt/conda/lib/python${python_version}:$PYTHONPATH
 ENV PYTHONPATH /opt/conda/lib/python${python_version}/site-packages:$PYTHONPATH
 ENV PYTHONPATH /opt/conda/envs/${env_name}/lib/python${python_version}/site-packages:$PYTHONPATH
