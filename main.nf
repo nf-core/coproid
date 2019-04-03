@@ -105,9 +105,9 @@ css = baseDir+'/res/pandoc.css'
 params.sp_sources = "$baseDir/data/sourcepredict/modern_gut_microbiomes_sources.csv"
 params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
 report_template = "$baseDir/templates/coproID_report.ipynb"
-params.sp_kfold = 3
+params.sp_kfold = 5
 params.sp_pdim = 20
-params.sp_udim = 2
+params.sp_dim = 2
 
 bowtie_setting = ''
 collapse_setting = ''
@@ -748,13 +748,13 @@ process sourcepredict {
         file(otu_table) from kraken_merged
     output:
         file('*.sourcepredict.csv') into sourcepredict_out
-        file('*.umap.csv') into sourcepredict_umap_out
+        file('*_embedding.csv') into sourcepredict_embed_out
 
     script:
         outfile = "prediction.sourcepredict.csv"
-        umap_out = "embedding.umap.csv"
+        embed_out = "sourcepredict_embedding.csv"
         """
-        sourcepredict -pd ${params.sp_pdim} -ud ${params.sp_udim} -k ${params.sp_kfold} -l ${params.sp_labels} -s ${params.sp_sources} -t ${task.cpus} -o $outfile -u $umap_out $otu_table 
+        sourcepredict -di ${params.sp_dim} -k ${params.sp_kfold} -l ${params.sp_labels} -s ${params.sp_sources} -t ${task.cpus} -o $outfile -e $embed_out $otu_table 
         """
 }
 
@@ -952,7 +952,7 @@ if (params.adna) {
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
                 file(dplot3) from damage_result_genome3.collect().ifEmpty([])
-                file(umap) from sourcepredict_umap_out
+                file(umap) from  sourcepredict_embed_out
                 file(report) from report_template_ch
             output:
                 file("*.html") into coproid_report
@@ -974,7 +974,7 @@ if (params.adna) {
                 file(copro_csv) from coproid_res
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
-                file(umap) from sourcepredict_umap_out
+                file(umap) from  sourcepredict_embed_out
                 file(report) from report_template_ch
             output:
                 file("*.html") into coproid_report
@@ -995,7 +995,7 @@ if (params.adna) {
 
         input:
             file(copro_csv) from coproid_res
-            file(umap) from sourcepredict_umap_out
+            file(umap) from  sourcepredict_embed_out
             file(report) from report_template_ch
         output:
             file("*.html") into coproid_report
