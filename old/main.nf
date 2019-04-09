@@ -2,18 +2,35 @@
 
 /*
 ========================================================================================
-                         nf-core/coproid
+                                      CoproID
 ========================================================================================
- nf-core/coproid Analysis Pipeline.
- #### Homepage / Documentation
- https://github.com/nf-core/coproid
+ CoproID: Coprolite Identification
+#### Homepage / Documentation
+https://github.com/maxibor/coproid
+#### Authors
+ Maxime Borry <borry@shh.mpg.de>
 ----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+Pipeline overview:
+ - 0.0    Fastqc
+ - 0.1    Rename reference genome fasta files
+ - 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
+ - 1.2:   Bowtie Indexing of Genome1
+ - 1.3:   Bowtie Indexing of Genome2
+ - 2.1:   Reads alignment on Genome1
+ - 2.2:   Reads alignment on Genome2
+ - 3:     Checking for read PMD with PMDtools
+ - 4:     Count aligned bp on each genome and compute ratio
+ - 5:     MapDamage
+ - 6:     Concatenate read ratios
+ - 7:     Write Markdown report
+ - 8:     Convert Markdown report to HTML
+ - 9:     MultiQC
+
+ ----------------------------------------------------------------------------------------
 */
 
-version = "0.7"
-
 def helpMessage() {
-    log.info nfcoreHeader()
     log.info"""
     =========================================
      coproID: Coprolite Identification
@@ -21,24 +38,21 @@ def helpMessage() {
      Documentation: https://coproid.readthedocs.io
      Author: Maxime Borry <borry@shh.mpg.de>
      Version ${version}
+     Last updated on ${version_date}
     =========================================
     Usage:
     The typical command for running the pipeline is as follows:
     nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
-      --name1                       Name of candidate 1. Example: "Homo_sapiens"
-      --fasta1                      Path to human genome fasta file (must be surrounded with quotes)
       --name2                       Name of candidate 2. Example: "Canis_familiaris"
-      --fasta2                      Path to canidate organism 2 genome fasta file (must be surrounded with quotes)
+      --hgenome                     Path to human genome fasta file (must be surrounded with quotes)
+      --genome2                     Path to candidate 2 Coprolite maker's genome fasta file (must be surrounded with quotes)
+      --krakendb                    Path to MiniKraken2_v2_8GB Database
 
     Options:
-      --genome1                     Name of iGenomes reference for Homo_sapiens
-      --genome2                     Name of iGenomes reference for candidate organism 2
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
-      --fasta3                      Path to candidate organism 3 genome fasta file (must be surrounded with quotes)
-      --genome3                     Name of iGenomes reference for candidate organism 3
-      --krakendb                    Path to MiniKraken2_v2_8GB Database
+      --genome3                     Path to candidate 3 Coprolite maker's genome fasta file (must be surrounded with quotes)
       --adna                        Specified if data is modern (false) or ancient DNA (true). Default = ${params.adna}
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
       --singleEnd                   Specified if reads are single-end (true | false). Default = ${params.singleEnd}
@@ -59,52 +73,9 @@ def helpMessage() {
     """.stripIndent()
 }
 
-/*
- * SET UP CONFIGURATION VARIABLES
- */
 
-// Show help emssage
-if (params.help){
-    helpMessage()
-    exit 0
-}
-
-// Check if genome(s) exists in the config file
-if (params.genomes && params.hgenome && !params.genomes.containsKey(params.hgenome)) {
-    exit 1, "The provided genome '${params.hgenome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-if (params.genomes && params.genome2 && !params.genomes.containsKey(params.genome2)) {
-    exit 1, "The provided genome '${params.genome2}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-if (params.genomes && params.genome3 && !params.genomes.containsKey(params.genome3)) {
-    exit 1, "The provided genome '${params.genome3}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-
-
-
-fasta1 = params.genome ? params.genomes[ params.genome1 ].fasta ?: false : false
-bt1 = params.genome ? params.genomes[ params.genome1 ].bowtie2 ?: false : false
-if ( params.fasta1 ){
-    fasta = file(params.fasta1)
-    if( !fasta1.exists() ) exit 1, "Fasta file not found: ${params.fasta1}"
-}
-
-fasta2 = params.genome ? params.genomes[ params.genome2 ].fasta ?: false : false
-bt2 = params.genome ? params.genomes[ params.genome2 ].bowtie2 ?: false : false
-if ( params.fasta2 ){
-    fasta2 = file(params.fasta2)
-    if( !fasta2.exists() ) exit 1, "Fasta file not found: ${params.fasta2}"
-}
-
-fasta3 = params.genome ? params.genomes[ params.genome3 ].fasta ?: false : false
-bt3 = params.genome ? params.genomes[ params.genome3 ].bowtie2 ?: false : false
-if ( params.fasta3 ){
-    fasta3 = file(params.fasta3)
-    if( !fasta3.exists() ) exit 1, "Fasta file not found: ${params.fasta3}"
-}
-
-
-// Default variable configuration
+version = "0.7"
+version_date = "February 24th, 2018"
 
 params.phred = 33
 

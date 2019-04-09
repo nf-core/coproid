@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; coproID  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="Welcome to coproID’s documentation!" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> coproID
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coproid-help-menu">coproID help menu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coproid-example-workflow">coproID example workFlow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">coproID</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/intro.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<span id="introduction"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><img src="_static/_img/logo.png" height="150"></p>
+<p><strong>coproID</strong> (<strong>CO</strong>prolite <strong>ID</strong>entification) is a tool developed at the <a class="reference external" href="http://www.shh.mpg.de/en">Max Planck insitute for the Science of Human History</a> by <a class="reference external" href="https://github.com/maxibor">Maxime Borry</a></p>
+<p>The purpose of <strong>coproID</strong> is to help identify the host of given sequenced microbiome when there is a doubt between two species.</p>
+<p><strong>coproID</strong> is a pipeline developed using <a class="reference external" href="https://www.nextflow.io/">Nextflow</a> and <a class="reference external" href="https://conda.io/docs/">Conda</a> to ensure scalability and reproducibility.</p>
+<p>Even though it was developed with coprolite host identification in mind, it can be applied to any microbiome, provided they contain host DNA.</p>
+<p>To run <strong>coproID</strong> you need to provide as input:</p>
+<ul class="simple">
+<li>microbiome sequencing paired end <code class="docutils literal notranslate"><span class="pre">fastq</span></code> files</li>
+<li><strong>two</strong> reference genomes (either in <code class="docutils literal notranslate"><span class="pre">fasta</span></code> format, or already <code class="docutils literal notranslate"><span class="pre">bowtie2</span></code> indexed)</li>
+<li>the names of the two reference species</li>
+<li>if you choose to give the reference genomes as indexed <code class="docutils literal notranslate"><span class="pre">bowtie2</span></code> files, you also need to provide the genomes sizes.</li>
+</ul>
+<div class="section" id="quick-start">
+<span id="quick-start"></span><h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nextflow</span> <span class="n">run</span> <span class="n">maxibor</span><span class="o">/</span><span class="n">coproid</span> <span class="o">--</span><span class="n">genome1</span> <span class="s1">&#39;genome1.fa&#39;</span> <span class="o">--</span><span class="n">genome2</span> <span class="s1">&#39;genome2.fa&#39;</span> <span class="o">--</span><span class="n">name1</span> <span class="s1">&#39;Homo_sapiens&#39;</span> <span class="o">--</span><span class="n">name2</span> <span class="s1">&#39;Canis_familiaris&#39;</span> <span class="o">--</span><span class="n">reads</span> <span class="s1">&#39;*_R{1,2}.fastq.gz&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="coproid-help-menu">
+<span id="coproid-help-menu"></span><h2>coproID help menu<a class="headerlink" href="#coproid-help-menu" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nextflow run maxibor/coproid --help
+N E X T F L O W  ~  version 0.31.1
+Launching `maxibor/coproid` [special_laplace] - revision: b579d0002f
+
+=========================================
+ coproID: Coprolite Identification
+ Homepage: https://github.com/maxibor/coproid
+ Documentation: https://coproid.readthedocs.io
+ Author: Maxime Borry &lt;borry@shh.mpg.de&gt;
+ Version 0.6
+ Last updated on October 4th, 2018
+=========================================
+Usage:
+The typical command for running the pipeline is as follows:
+nextflow run maxibor/coproid --genome1 &#39;genome1.fa&#39; --genome2 &#39;genome2.fa&#39; --name1 &#39;Homo_sapiens&#39; --name2 &#39;Canis_familiaris&#39; --reads &#39;*_R{1,2}.fastq.gz&#39;
+Mandatory arguments:
+  --reads                       Path to input data (must be surrounded with quotes)
+  --name1                       Name of candidate 1. Example: &quot;Homo sapiens&quot;
+  --name2                       Name of candidate 2. Example: &quot;Canis familiaris&quot;
+  --genome1                     Path to candidate 1 Coprolite maker&#39;s genome fasta file (must be surrounded with quotes)
+  --genome2                     Path to candidate 2 Coprolite maker&#39;s genome fasta file (must be surrounded with quotes)
+
+Options:
+  --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to 33
+  --index1                      Path to Bowtie2 index genome andidate 1 Coprolite maker&#39;s genome, in the form of /path/to/*.bt2 - Required if genome1 is not set
+  --index2                      Path to Bowtie2 index genome andidate 2 Coprolite maker&#39;s genome, in the form of /path/to/*.bt2 - Required if genome2 is not set
+  --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (yes | no). Default = yes
+  --identity                    Identity threshold to retain read alignment. Default = 0.95
+  --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = very-sensitive
+Other options:
+  --results                     Name of result directory. Defaults to ./results
+  --help  --h                   Shows this help page
+</pre></div>
+</div>
+</div>
+<div class="section" id="coproid-example-workflow">
+<span id="coproid-example-workflow"></span><h2>coproID example workFlow<a class="headerlink" href="#coproid-example-workflow" title="Permalink to this headline">¶</a></h2>
+<p><img alt="" src="_images/dag.png" /></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to coproID’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Maxime Borry.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

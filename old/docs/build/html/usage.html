@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage &mdash; coproID  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Output" href="output.html" />
+    <link rel="prev" title="Methods" href="methods.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> coproID
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods.html">Methods</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage-case-1-both-reference-genomes-are-in-fasta-format">Example usage case 1: Both reference genomes are in <code class="docutils literal notranslate"><span class="pre">fasta</span></code> format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage-case-2-both-reference-genomes-are-indexed-by-bowtie2">Example usage case 2: Both reference genomes are indexed by bowtie2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage-case-3-one-reference-genome-in-fasta-format-the-other-is-indexed-by-bowtie2">Example usage case 3: One reference genome in <code class="docutils literal notranslate"><span class="pre">fasta</span></code> format, the other is indexed by bowtie2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#to-collapse-or-not-collapse">To collapse or not collapse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-coproid-on-a-cluster">Using coproID on a cluster</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#on-a-slurm-based-cluster">On a SLURM based cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-sdag">On SDAG</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">coproID</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/usage.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage">
+<span id="usage"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage-case-1-both-reference-genomes-are-in-fasta-format">
+<span id="example-usage-case-1-both-reference-genomes-are-in-fasta-format"></span><h2>Example usage case 1: Both reference genomes are in <code class="docutils literal notranslate"><span class="pre">fasta</span></code> format<a class="headerlink" href="#example-usage-case-1-both-reference-genomes-are-in-fasta-format" title="Permalink to this headline">¶</a></h2>
+<p>You need to specify:</p>
+<ul class="simple">
+<li>the path the paired-end <code class="docutils literal notranslate"><span class="pre">fastq</span></code> sequencing files</li>
+<li>the path to the two reference genomes <code class="docutils literal notranslate"><span class="pre">fasta</span></code> files</li>
+<li>the names of the two reference species</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nextflow</span> <span class="n">run</span> <span class="n">maxibor</span><span class="o">/</span><span class="n">coproid</span> <span class="o">--</span><span class="n">genome1</span> <span class="s1">&#39;path/to/data/genomes/hsapiens.fa&#39;</span> <span class="o">--</span><span class="n">genome2</span> <span class="s1">&#39;path/to/data/genomes/cfamiliaris.fa&#39;</span> <span class="o">--</span><span class="n">name1</span> <span class="s1">&#39;data/genomes/Homo_sapiens&#39;</span> <span class="o">--</span><span class="n">name2</span> <span class="s1">&#39;Canis_familiaris&#39;</span> <span class="o">--</span><span class="n">reads</span> <span class="s1">&#39;*_R{1,2}.fastq.gz&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-usage-case-2-both-reference-genomes-are-indexed-by-bowtie2">
+<span id="example-usage-case-2-both-reference-genomes-are-indexed-by-bowtie2"></span><h2>Example usage case 2: Both reference genomes are indexed by bowtie2<a class="headerlink" href="#example-usage-case-2-both-reference-genomes-are-indexed-by-bowtie2" title="Permalink to this headline">¶</a></h2>
+<p>You need to specify:</p>
+<ul class="simple">
+<li>the path the paired-end <code class="docutils literal notranslate"><span class="pre">fastq</span></code> sequencing files</li>
+<li>the path to the two reference genomes <code class="docutils literal notranslate"><span class="pre">bowtie2</span></code> index files</li>
+<li>the names of the two reference species</li>
+<li>the genome size of the two reference species</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nextflow</span> <span class="n">run</span> <span class="n">maxibor</span><span class="o">/</span><span class="n">coproid</span> <span class="o">--</span><span class="n">index1</span> <span class="s1">&#39;path/to/data/genomes/hsapiens/Bowtie2Index/*.bt2&#39;</span> <span class="o">--</span><span class="n">index2</span> <span class="s1">&#39;path/to/data/genomes/cfamiliaris/Bowtie2Index/*.bt2&#39;</span> <span class="o">--</span><span class="n">name1</span> <span class="s1">&#39;Homo_sapiens&#39;</span> <span class="o">--</span><span class="n">name2</span> <span class="s1">&#39;Canis_familiaris&#39;</span> <span class="o">--</span><span class="n">genome1Size</span> <span class="mi">3099922541</span> <span class="o">--</span><span class="n">genome2size</span> <span class="mi">2327650711</span> <span class="o">--</span><span class="n">reads</span> <span class="s1">&#39;*_R{1,2}.fastq.gz&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-usage-case-3-one-reference-genome-in-fasta-format-the-other-is-indexed-by-bowtie2">
+<span id="example-usage-case-3-one-reference-genome-in-fasta-format-the-other-is-indexed-by-bowtie2"></span><h2>Example usage case 3: One reference genome in <code class="docutils literal notranslate"><span class="pre">fasta</span></code> format, the other is indexed by bowtie2<a class="headerlink" href="#example-usage-case-3-one-reference-genome-in-fasta-format-the-other-is-indexed-by-bowtie2" title="Permalink to this headline">¶</a></h2>
+<p>You need to specify:</p>
+<ul class="simple">
+<li>the path the paired-end <code class="docutils literal notranslate"><span class="pre">fastq</span></code> sequencing files</li>
+<li>the path the reference genomes <code class="docutils literal notranslate"><span class="pre">fasta</span></code> files</li>
+<li>the path to other reference genomes <code class="docutils literal notranslate"><span class="pre">bowtie2</span></code> index files</li>
+<li>the names of the two reference species</li>
+<li>the genome size of the <code class="docutils literal notranslate"><span class="pre">bowtie2</span></code> indexed reference species</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nextflow</span> <span class="n">run</span> <span class="n">maxibor</span><span class="o">/</span><span class="n">coproid</span> <span class="o">--</span><span class="n">genome1</span> <span class="s1">&#39;path/to/data/genomes/hsapiens.fa&#39;</span> <span class="o">--</span><span class="n">index2</span> <span class="s1">&#39;data/genomes/cfamiliaris/Bowtie2Index/*.bt2&#39;</span> <span class="o">--</span><span class="n">name1</span> <span class="s1">&#39;Homo_sapiens&#39;</span> <span class="o">--</span><span class="n">name2</span> <span class="s1">&#39;Canis_familiaris&#39;</span> <span class="o">--</span><span class="n">genome2size</span> <span class="mi">2327650711</span> <span class="o">--</span><span class="n">reads</span> <span class="s1">&#39;*_R{1,2}.fastq.gz&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="to-collapse-or-not-collapse">
+<span id="to-collapse-or-not-collapse"></span><h2>To collapse or not collapse<a class="headerlink" href="#to-collapse-or-not-collapse" title="Permalink to this headline">¶</a></h2>
+<p>Depending on the size of your DNA fragments, you might want to play with the <code class="docutils literal notranslate"><span class="pre">--collapse</span></code> option.
+You can start by leaving it to default (<code class="docutils literal notranslate"><span class="pre">--collapse</span> <span class="pre">yes</span></code>), and changing it to <code class="docutils literal notranslate"><span class="pre">--collapse</span> <span class="pre">no</span></code> if you find that most of your reads aren’t merged/collapsed by <code class="docutils literal notranslate"><span class="pre">AdapterRemoval</span></code> (Plot in <code class="docutils literal notranslate"><span class="pre">multiqc</span></code> report)</p>
+</div>
+<div class="section" id="using-coproid-on-a-cluster">
+<span id="using-coproid-on-a-cluster"></span><h2>Using coproID on a cluster<a class="headerlink" href="#using-coproid-on-a-cluster" title="Permalink to this headline">¶</a></h2>
+<p>To use <strong>coproID</strong> on a cluster, you add the <code class="docutils literal notranslate"><span class="pre">-profile</span></code> option.</p>
+<div class="section" id="on-a-slurm-based-cluster">
+<span id="on-a-slurm-based-cluster"></span><h3>On a SLURM based cluster<a class="headerlink" href="#on-a-slurm-based-cluster" title="Permalink to this headline">¶</a></h3>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nextflow</span> <span class="n">run</span> <span class="n">maxibor</span><span class="o">/</span><span class="n">coproid</span> <span class="o">--</span><span class="n">genome1</span> <span class="s1">&#39;path/to/data/genomes/hsapiens.fa&#39;</span> <span class="o">--</span><span class="n">index2</span> <span class="s1">&#39;data/genomes/cfamiliaris/Bowtie2Index/*.bt2&#39;</span> <span class="o">--</span><span class="n">name1</span> <span class="s1">&#39;Homo_sapiens&#39;</span> <span class="o">--</span><span class="n">name2</span> <span class="s1">&#39;Canis_familiaris&#39;</span> <span class="o">--</span><span class="n">genome2size</span> <span class="mi">2327650711</span> <span class="o">--</span><span class="n">reads</span> <span class="s1">&#39;*_R{1,2}.fastq.gz&#39;</span> <span class="o">-</span><span class="n">profile</span> <span class="n">slurm</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="on-sdag">
+<span id="on-sdag"></span><h3>On SDAG<a class="headerlink" href="#on-sdag" title="Permalink to this headline">¶</a></h3>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nextflow</span> <span class="n">run</span> <span class="n">maxibor</span><span class="o">/</span><span class="n">coproid</span> <span class="o">--</span><span class="n">genome1</span> <span class="s1">&#39;path/to/data/genomes/hsapiens.fa&#39;</span> <span class="o">--</span><span class="n">index2</span> <span class="s1">&#39;data/genomes/cfamiliaris/Bowtie2Index/*.bt2&#39;</span> <span class="o">--</span><span class="n">name1</span> <span class="s1">&#39;Homo_sapiens&#39;</span> <span class="o">--</span><span class="n">name2</span> <span class="s1">&#39;Canis_familiaris&#39;</span> <span class="o">--</span><span class="n">genome2size</span> <span class="mi">2327650711</span> <span class="o">--</span><span class="n">reads</span> <span class="s1">&#39;*_R{1,2}.fastq.gz&#39;</span> <span class="o">-</span><span class="n">profile</span> <span class="n">sdag</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="output.html" class="btn btn-neutral float-right" title="Output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="methods.html" class="btn btn-neutral" title="Methods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Maxime Borry.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,14 +1,7 @@
-FROM continuumio/miniconda3
+FROM nfcore/base
+LABEL authors="Maxime Borry" \
+      description="Docker image containing all requirements for nf-core/coproid pipeline"
 
-ENV env_file conda_env.yaml
-ENV env_name coproid
-ENV python_version 3.6
-
-LABEL description="Docker image containing all requirements for coproID pipeline"
-COPY ${env_file} /
-RUN conda install python=${python_version}
-RUN conda env create -f ${env_file} && conda clean -a
-ENV PATH /opt/conda/envs/${env_name}/bin:$PATH
-ENV PYTHONPATH /opt/conda/lib/python${python_version}:$PYTHONPATH
-ENV PYTHONPATH /opt/conda/lib/python${python_version}/site-packages:$PYTHONPATH
-ENV PYTHONPATH /opt/conda/envs/${env_name}/lib/python${python_version}/site-packages:$PYTHONPATH
+COPY environment.yml /
+RUN conda env create -f /environment.yml && conda clean -a
+ENV PATH /opt/conda/envs/nf-core-coproid-1.0dev/bin:$PATH
