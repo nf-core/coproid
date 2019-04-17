@@ -10,6 +10,12 @@
 ----------------------------------------------------------------------------------------
 */
 
+
+/***********
+HELP MESSAGE
+************/
+ 
+
 version = "0.7"
 
 def helpMessage() {
@@ -24,27 +30,27 @@ def helpMessage() {
     =========================================
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run maxibor/coproid --genome1 'genome1.fa' --genome2 'genome2.fa' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
+    nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
       --name1                       Name of candidate 1. Example: "Homo_sapiens"
-      --fasta1                      Path to human genome fasta file (must be surrounded with quotes)
+      --fasta1                      Path to human genome fasta file (must be surrounded with quotes). Must be provided if --genome1 is not provided
+      --genome1                     Name of iGenomes reference for Homo_sapiens. Must be provided if --fasta1 is not provided
       --name2                       Name of candidate 2. Example: "Canis_familiaris"
-      --fasta2                      Path to canidate organism 2 genome fasta file (must be surrounded with quotes)
+      --fasta2                      Path to canidate organism 2 genome fasta file (must be surrounded with quotes). Must be provided if --genome2 is not provided
+      --genome2                     Name of iGenomes reference for candidate organism 2. Must be provided if --fasta2 is not provided
 
     Options:
-      --genome1                     Name of iGenomes reference for Homo_sapiens
-      --genome2                     Name of iGenomes reference for candidate organism 2
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
-      --fasta3                      Path to candidate organism 3 genome fasta file (must be surrounded with quotes)
-      --genome3                     Name of iGenomes reference for candidate organism 3
+      --fasta2                      Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if --genome3 is not provided
+      --genome2                     Name of iGenomes reference for candidate organism 3. Must be provided if --fasta3 is not provided
       --krakendb                    Path to MiniKraken2_v2_8GB Database
       --adna                        Specified if data is modern (false) or ancient DNA (true). Default = ${params.adna}
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
       --singleEnd                   Specified if reads are single-end (true | false). Default = ${params.singleEnd}
-      --hgindex                     Path to Bowtie2 index oh human genome, in the form of /path/to/*.bt2
-      --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of /path/to/*.bt2
-      --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of /path/to/*.bt2
+      --index1                      Path to Bowtie2 index oh human genome, in the form of "/path/to/bowtie_index/basename"
+      --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
+      --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
@@ -52,57 +58,21 @@ def helpMessage() {
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
       --minKraken                   Minimum number of Kraken hits per Taxonomy ID to report. Default = ${params.minKraken}
       --removeHuman                 Remove human reads for metagenomic taxonomic classification. Default = ${params.removeHuman}
-    Other options:
-      --results                     Name of result directory. Defaults to ${params.results}
+
+     Other options:
+      --results                     The output directory where the results will be saved. Defaults to ${params.results}
+      --email                       Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits
+      --maxMultiqcEmailFileSize     Theshold size for MultiQC report to be attached in notification email. If file generated by pipeline exceeds the threshold, it will not be attached (Default: 25MB)
+      -name                         Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic.
       --help  --h                   Shows this help page
+      
 
     """.stripIndent()
 }
 
-/*
- * SET UP CONFIGURATION VARIABLES
- */
-
-// Show help emssage
-if (params.help){
-    helpMessage()
-    exit 0
-}
-
-// Check if genome(s) exists in the config file
-if (params.genomes && params.hgenome && !params.genomes.containsKey(params.hgenome)) {
-    exit 1, "The provided genome '${params.hgenome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-if (params.genomes && params.genome2 && !params.genomes.containsKey(params.genome2)) {
-    exit 1, "The provided genome '${params.genome2}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-if (params.genomes && params.genome3 && !params.genomes.containsKey(params.genome3)) {
-    exit 1, "The provided genome '${params.genome3}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-
-
-
-fasta1 = params.genome ? params.genomes[ params.genome1 ].fasta ?: false : false
-bt1 = params.genome ? params.genomes[ params.genome1 ].bowtie2 ?: false : false
-if ( params.fasta1 ){
-    fasta = file(params.fasta1)
-    if( !fasta1.exists() ) exit 1, "Fasta file not found: ${params.fasta1}"
-}
-
-fasta2 = params.genome ? params.genomes[ params.genome2 ].fasta ?: false : false
-bt2 = params.genome ? params.genomes[ params.genome2 ].bowtie2 ?: false : false
-if ( params.fasta2 ){
-    fasta2 = file(params.fasta2)
-    if( !fasta2.exists() ) exit 1, "Fasta file not found: ${params.fasta2}"
-}
-
-fasta3 = params.genome ? params.genomes[ params.genome3 ].fasta ?: false : false
-bt3 = params.genome ? params.genomes[ params.genome3 ].bowtie2 ?: false : false
-if ( params.fasta3 ){
-    fasta3 = file(params.fasta3)
-    if( !fasta3.exists() ) exit 1, "Fasta file not found: ${params.fasta3}"
-}
-
+/****************************
+DEFAULT VARIABLE VALUES SETUP
+*****************************/
 
 // Default variable configuration
 
@@ -112,15 +82,18 @@ params.adna = true
 params.results = "./results"
 params.reads = ''
 params.singleEnd = false
-params.hgenome = ''
-params.genome2 = ''
+params.genome1 = 'GRCh37'
+params.genome2 = 'CanFam3.1'
 params.genome3 = ''
-params.hgindex = ''
+params.name1 = 'Homo_sapiens'
+params.name2 = 'Canis_familiaris'
+params.name3 = ''
+params.index1 = ''
 params.index2 = ''
 params.index3 = ''
-params.name1 = 'Homo_sapiens'
-params.name2 = ''
-params.name3 = ''
+params.fasta1 = ''
+params.fasta2 = ''
+params.fasta3 = ''
 params.collapse = true
 params.identity = 0.95
 params.pmdscore = 3
@@ -131,8 +104,6 @@ params.minKraken = 50
 params.removeHuman = false
 css = baseDir+'/res/pandoc.css'
 
-params.sp_sources = "$baseDir/data/sourcepredict/modern_gut_microbiomes_sources.csv"
-params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
 report_template = "$baseDir/templates/coproID_report.ipynb"
 params.sp_kfold = 5
 params.sp_pdim = 20
@@ -142,13 +113,133 @@ bowtie_setting = ''
 collapse_setting = ''
 multiqc_conf = "$baseDir/conf/.multiqc_config.yaml"
 
+
 // Show help message
-params.help = false
-params.h = false
-if (params.help || params.h){
+if (params.help){
     helpMessage()
     exit 0
 }
+
+/****************************************
+SETTING UP REFERENCE GENOMES AND IGENOMES
+*****************************************/
+
+
+// Check if genome(s) exists in the config file
+if (params.genomes && params.genome1 && !params.genomes.containsKey(params.genome1)) {
+    exit 1, "The provided genome '${params.genome1}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
+}
+if (params.genomes && params.genome2 && !params.genomes.containsKey(params.genome2)) {
+    exit 1, "The provided genome '${params.genome2}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
+}
+if (params.genomes && params.genome3 && !params.genomes.containsKey(params.genome3)) {
+    exit 1, "The provided genome '${params.genome3}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
+}
+
+
+// Genome 1
+fasta1 = params.genome1 ? params.genomes[ params.genome1 ].fasta ?: false : false
+bt1 = params.genome1 ? params.genomes[ params.genome1 ].bowtie2 ?: false : false
+if ( params.fasta1 ){
+    fasta1 = file(params.fasta1)
+} else if (fasta1) {
+    fasta1 = file(params.genomes[ params.genome1 ].fasta, checkIfExists: true)
+}
+if( !fasta1.exists() ) exit 1, "Fasta1 file not found: ${params.fasta2}"
+
+if (params.index1) {
+    bt1 = params.index1
+}
+if (bt1) {
+    lastPath = bt1.lastIndexOf(File.separator)
+    bt1_dir = bt1.substring(0, lastPath+1)
+    bt1_index = bt1.substring(lastPath+1)
+
+    Channel
+        .fromPath(bt1)
+        .ifEmpty {exit 1, "Cannot find any index matching : ${bt1}\n"}
+        .set {bt1_ch}
+} else {
+    bt1_index = params.name1
+}
+
+
+// Genome 2
+fasta2 = params.genome2 ? params.genomes[ params.genome2 ].fasta ?: false : false
+bt2 = params.genome2 ? params.genomes[ params.genome2 ].bowtie2 ?: false : false
+if ( params.fasta2 ){
+    fasta2 = file(params.fasta2)
+} else if (fasta2) {
+    fasta2 = file(params.genomes[ params.genome2 ].fasta, checkIfExists: true)
+}
+if( !fasta2.exists() ) exit 1, "Fasta2 file not found: ${params.fasta2}"
+
+if (params.index2) {
+    bt2 = params.index2
+}
+
+if (bt2) {
+    lastPath = bt2.lastIndexOf(File.separator)
+    bt2_dir = bt2.substring(0, lastPath+1)
+    bt2_index = bt2.substring(lastPath+1)
+
+    Channel
+        .fromPath(bt2)
+        .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt2}\n"}
+        .set {bt2_ch}
+
+} else {
+    bt2_index = params.name2
+}
+
+// Genome 3
+if (params.name3) {
+    fasta3 = params.genome3 ? params.genomes[ params.genome3 ].fasta ?: false : false
+    bt3 = params.genome3 ? params.genomes[ params.genome3 ].bowtie2 ?: false : false
+    if ( params.fasta3 ){
+        fasta3 = file(params.fasta3)
+    } else if (fasta3) {
+        fasta3 = file(params.genomes[ params.genome3 ].fasta, checkIfExists: true)
+    }
+    if( !fasta3.exists() ) exit 1, "Fasta3 file not found: ${params.fasta3}"
+
+    if (params.index3) {
+        bt3 = params.index3
+    }
+    if (bt3) {
+        lastPath = bt3.lastIndexOf(File.separator)
+        bt3_dir = bt3.substring(0, lastPath+1)
+        bt3_index = bt3.substring(lastPath+1)
+
+        Channel
+            .fromPath(bt3)
+            .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt3}\n"}
+            .set {bt3_ch}
+    } else {
+        bt3_index = params.name3
+    }
+    
+}
+
+
+// Has the run name been specified by the user?
+//  this has the bonus effect of catching both -name and --name
+custom_runName = params.name
+if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
+  custom_runName = workflow.runName
+}
+
+
+// Stage config files
+ch_multiqc_config = Channel.fromPath(params.multiqc_config)
+ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
+// Report template channel
+report_template_ch = file(report_template)
+
+
+/*************
+SETTINGS CHECK
+**************/
 
 // Bowtie setting check
 if (params.bowtie == 'very-fast'){
@@ -160,6 +251,7 @@ if (params.bowtie == 'very-fast'){
     exit(1)
 }
 
+// singleEnd or pairedEnd Check
 if (params.singleEnd == false) {
     pairedEnd = true
 }
@@ -181,94 +273,109 @@ if( ! nextflow.version.matches(">= 0.30") ){
     exit(1)
 }
 
+
+/*********************
+READS CHANNEL CREATION
+**********************/
+
 // Creating reads channel
-Channel
-    .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
-    .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\n" }
-	.into { reads_to_trim; reads_fastqc }
-
-// Creating genome1 channels
-Channel
-    .fromPath(params.hgenome)
-    .ifEmpty {exit 1, "Cannot find any file for Genome1 matching: ${params.hgenome}\n" }
-    .set {genome1rename}
-
-if(params.hgindex != '') {
+if(params.readPaths){
+    if(params.singleEnd){
+        Channel
+            .from(params.readPaths)
+            .map { row -> [ row[0], [file(row[1][0])]] }
+            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
+            .into { read_files_fastqc; read_files_trimming }
+    } else {
+        Channel
+            .from(params.readPaths)
+            .map { row -> [ row[0], [file(row[1][0]), file(row[1][1])]] }
+            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
+            .into { read_files_fastqc; read_files_trimming }
+    }
+} else {
     Channel
-        .fromPath(params.hgindex)
-        .ifEmpty {exit 1, "Cannot find any index matching : ${params.hgindex}\n"}
-        .set {bt_index_genome1}
+        .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
+        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --singleEnd on the command line." }
+        .into { read_files_fastqc; read_files_trimming }
 }
 
+/****************
+KRAKEN DB CHANNEL
+*****************/
 
-// Creating genome2 channels
-Channel
-    .fromPath(params.genome2)
-    .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome2}\n" }
-    .set {genome2rename}
+if (params.krakendb.endsWith(".tar.gz")){
+    comp_kraken = file(params.krakendb)
 
-if (params.index2 != '') {
+    process decomp_kraken {
+        input:
+            file(ckdb) from comp_kraken
+        output:
+            file("kraken") into krakendb
+        script:
+            """
+            tar xvzf $ckdb
+            """
+    }
+} else {
     Channel
-        .fromPath(params.index2)
-        .ifEmpty {exit 1, "Cannot find any index matching : ${params.index2}\n"}
-        .set {bt_index_genome2}
+        .from(params.krakendb)
+        .ifEmpty { exit 1, "Cannot find any Kraken DB Index at ${params.krakendb}"}
+        .set {krakendb}
 }
 
-// Creating genome3 channels
-if (params.name3 != '')
-Channel
-    .fromPath(params.genome3)
-    .ifEmpty {exit 1, "Cannot find any file for Genome2 matching: ${params.genome3}\n" }
-    .set {genome3rename}
+/*******************************
+SOURCEPREDICT SOURCES AND LABELS
+********************************/
+sp_labels = file(params.sp_labels, checkIfExists: true)
+sp_sources = file(params.sp_sources, checkIfExists: true)
 
-if (params.name3 != '' && params.index3 != '') {
-    Channel
-        .fromPath(params.index3)
-        .ifEmpty {exit 1, "Cannot find any index matching : ${params.index3}\n"}
-        .set {bt_index_genome3}
-}
 
-// Report template channel
+/*******************
+Logging parameters
+********************/
 
-Channel
-    .fromPath(report_template)
-    .set {report_template_ch}
-
-//Logging parameters
 log.info "================================================================"
 log.info " coproID: Coprolite Identification"
 log.info " Homepage / Documentation: https://github.com/maxibor/coproid"
 log.info " Author: Maxime Borry <borry@shh.mpg.de>"
 log.info " Version ${version}"
-log.info " Last updated on ${version_date}"
 log.info "================================================================"
 def summary = [:]
-summary['Reads'] = params.reads
+if (params.reads) {
+    summary['Reads'] = params.reads
+} else {
+    summary['Read Path'] = params.readPaths
+}
 summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
 summary['collapse'] = params.collapse
 summary['Ancient DNA'] = params.adna
 summary['singleEnd'] = params.singleEnd
 summary['bowtie setting'] = params.bowtie
-summary['Genome1'] = params.hgenome
-if (params.hgindex != '') {
-    summary["Genome1 BT2 index"] = params.hgindex
+if (params.genome1){
+    summary['Genome1'] = params.genome1
 }
-summary['Genome2'] = params.genome2
-if (params.index2 != '') {
+if (params.index1) {
+    summary["Genome1 BT2 index"] = params.index1
+}
+if (params.genome2) {
+    summary['Genome2'] = params.genome2
+}
+if (params.index2) {
     summary["Genome2 BT2 index"] = params.index2
 }
-if (params.index3 != ''){
+if (params.genome3){
     summary['Genome3'] = params.genome3
 }
-if (params.index3 != '') {
+if (params.index3) {
     summary["Genome3 BT3 index"] = params.index3
 }
 summary['Kraken DB'] = params.krakendb
 summary['Min Kraken Hits to report Clade'] = params.minKraken
 summary['Organism 1'] = params.name1
 summary['Organism 2'] = params.name2
-if (params.name3 != ''){
+if (params.name3){
     summary['Organism 3'] = params.name3
 }
 summary['Sourcepredict sources'] = params.sp_sources
@@ -289,7 +396,7 @@ process fastqc {
     label 'ristretto'
 
     input:
-        set val(name), file(reads) from reads_fastqc
+        set val(name), file(reads) from read_files_fastqc
 
     output:
         file '*_fastqc.{zip,html}' into fastqc_results
@@ -305,9 +412,9 @@ process renameGenome1 {
     label 'ristretto'
 
     input:
-        file (genome) from genome1rename
+        file (genome) from fasta1
     output:
-        file (params.name1+".fa") into (genome1Fasta, genome1Size, genome1Log, genome1damageprofiler)
+        file (params.name1+".fa") into (genome1Fasta, genome1Size, genome1damageprofiler)
     script:
         outname = params.name1+".fa"
         """
@@ -319,9 +426,9 @@ process renameGenome2 {
     label 'ristretto'
 
     input:
-        file (genome) from genome2rename
+        file (genome) from fasta2
     output:
-        file (params.name2+".fa") into (genome2Fasta, genome2Size, genome2Log, genome2damageprofiler)
+        file (params.name2+".fa") into (genome2Fasta, genome2Size, genome2damageprofiler)
     script:
         outname = params.name2+".fa"
         """
@@ -329,14 +436,14 @@ process renameGenome2 {
         """
 }
 
-if (params.name3 != ''){
+if (params.name3){
     process renameGenome3 {
         label 'ristretto'
 
         input:
-            file (genome) from genome3rename
+            file (genome) from fasta3
         output:
-            file (params.name3+".fa") into (genome3Fasta, genome3Size, genome3Log, genome3damageprofiler)
+            file (params.name3+".fa") into (genome3Fasta, genome3Size, genome3damageprofiler)
         script:
             outname = params.name3+".fa"
             """
@@ -351,12 +458,10 @@ if (params.collapse == true && params.singleEnd == false){
     process AdapterRemovalCollapse {
         tag "$name"
 
-        // conda "bioconda::adapterremoval'
-
         label 'expresso'
 
         input:
-            set val(name), file(reads) from reads_to_trim
+            set val(name), file(reads) from read_files_trimming
 
         output:
             set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3, trimmed_reads_kraken
@@ -375,12 +480,10 @@ if (params.collapse == true && params.singleEnd == false){
     process AdapterRemovalNoCollapse {
         tag "$name"
 
-        // conda "bioconda::adapterremoval'
-
         label 'expresso'
 
         input:
-            set val(name), file(reads) from reads_to_trim
+            set val(name), file(reads) from read_files_trimming
 
         output:
             set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3
@@ -407,59 +510,52 @@ if (params.collapse == true && params.singleEnd == false){
     exit(1)
 }
 
-if (params.hgindex == ''){
+if (!params.index1){
     // 1.2:   Bowtie Indexing of Genome1
     process BowtieIndexGenome1 {
         tag "${params.name1}"
-
-        // conda "bioconda::bowtie2'
 
         label 'intenso'
 
         input:
             file(fasta) from genome1Fasta
         output:
-            file("*.bt2") into bt_index_genome1
+            file("*.bt2") into bt1_ch
         script:
             """
-            bowtie2-build $fasta ${params.name1}
+            bowtie2-build $fasta ${bt1_index}
             """
     }
 }
 
-// 2.1:   Reads alignment on Genome1 (Human genome)
-process AlignCollapseToGenome1 {
+// 2.1:   Reads alignment on Genome1
+process AlignToGenome1 {
     tag "$name"
-
-    // conda "  bioconda::bowtie2 bioconda::samtools'
 
     label 'intenso'
 
-    errorStrategy 'ignore'
-
     input:
         set val(name), file(reads) from trimmed_reads_genome1
-        file(index) from bt_index_genome1.collect()
+        file(index) from bt1_ch
     output:
         set val(name), file("*.aligned.sorted.bam") into alignment_genome1
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome1
         set val(name), file("*.flagstat.txt") into align1_multiqc
     script:
-        index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
         samfile = "aligned_"+params.name1+".sam"
         fstat = name+"_"+params.name1+".flagstat.txt"
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
         if (params.collapse == true || params.singleEnd == true) {
             """
-            bowtie2 -x $index_name -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
             samtools flagstat $samfile > $fstat
             """
         } else if (params.collapse == false){
             """
-            bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt1_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
             samtools flagstat $samfile > $fstat
@@ -469,8 +565,6 @@ process AlignCollapseToGenome1 {
 
 process bam2fq {
     tag "$name"
-
-    // conda "bioconda::bedtools'
 
     label 'intenso'
 
@@ -495,145 +589,116 @@ process bam2fq {
         }
 }   
 
-if (params.index2 == ''){
-    // 1.3:   Bowtie Indexing of Genome2
+
+// 1.3:   Bowtie Indexing of Genome2
+if (!params.index2){
     process BowtieIndexGenome2 {
         tag "${params.name2}"
-
-        // conda "bioconda::bowtie2'
 
         label 'intenso'
 
         input:
             file(fasta) from genome2Fasta
         output:
-            file("*.bt2") into bt_index_genome2
+            file("*.bt2") into bt2_ch
         script:
             """
-            bowtie2-build $fasta ${params.name2}
+            bowtie2-build $fasta ${bt2_index}
             """
     }
 }
-if (params.name3 != '' && params.index3 == ''){
-    // 1.3:   Bowtie Indexing of Genome2
+
+
+// 1.3:   Bowtie Indexing of Genome2
+if (params.name3 && !params.index3) {
     process BowtieIndexGenome3 {
         tag "${params.name2}"
-
-        // conda "bioconda::bowtie2'
 
         label 'intenso'
 
         input:
             file(fasta) from genome3Fasta
         output:
-            file("*.bt2") into bt_index_genome3
+            file("*.bt2") into bt3_ch
         script:
             """
-            bowtie2-build $fasta ${params.name3}
+            bowtie2-build $fasta ${bt3_index}
             """
     }
 }
+
 
 
 // 2.2:   Reads alignment on Genome2
-if (params.collapse == true || params.singleEnd == true){
-    process AlignCollapseToGenome2 {
-        tag "$name"
+process AlignToGenome2 {
+    tag "$name"
 
-        // conda "bioconda::bowtie2 bioconda::samtools'
+    label 'intenso'
 
-        label 'intenso'
-
-        // errorStrategy 'ignore'
-
-        //publishDir "${params.results}/alignment", mode: 'copy'
-
-        input:
-            set val(name), file(reads) from trimmed_reads_genome2
-            file(index) from bt_index_genome2.collect()
-        output:
-            set val(name), file("*.sorted.bam") into alignment_genome2
-        script:
-            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = name+"_"+params.name2+".sorted.bam"
+    input:
+        set val(name), file(reads) from trimmed_reads_genome2
+        file(index) from bt2_ch
+    output:
+        set val(name), file("*.aligned.sorted.bam") into alignment_genome2
+        set val(name), file("*.unaligned.sorted.bam") into unaligned_genome2
+        set val(name), file("*.flagstat.txt") into align2_multiqc
+    script:
+        samfile = "aligned_"+params.name2+".sam"
+        fstat = name+"_"+params.name2+".flagstat.txt"
+        outfile = name+"_"+params.name2+".aligned.sorted.bam"
+        outfile_unalign = name+"_"+params.name2+".unaligned.sorted.bam"
+        if (params.collapse == true || params.singleEnd == true) {
             """
-            bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
+            bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+            samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
+            samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
+            samtools flagstat $samfile > $fstat
             """
-    }
-} else if (params.collapse == false){
-    process AlignNoCollapseToGenome2 {
-        tag "$name"
-
-        // conda "bioconda::bowtie2 bioconda::samtools'
-
-        label 'intenso'
-
-        // errorStrategy 'ignore'
-
-        //publishDir "${params.results}/alignment", mode: 'copy'
-
-        input:
-            set val(name), file(reads) from trimmed_reads_genome2
-            file(index) from bt_index_genome2.collect()
-        output:
-            set val(name), file("*.sorted.bam") into alignment_genome2
-        script:
-            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = name+"_"+params.name2+".sorted.bam"
+        } else if (params.collapse == false){
             """
-            bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 -@ ${task.cpus} - | samtools sort -@ ${task.cpus} -o $outfile
+            bowtie2 -x $bt2_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+            samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
+            samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
+            samtools flagstat $samfile > $fstat
             """
-    }
+        }            
 }
 
+
 // 2.2:   Reads alignment on Genome3
-if (params.name3 && (params.collapse == true || params.singleEnd == true)){
-    process AlignCollapseToGenome3 {
+if (params.name3) {
+    process AlignToGenome3 {
         tag "$name"
-
-        // conda "bioconda::bowtie2 bioconda::samtools'
 
         label 'intenso'
 
-        errorStrategy 'ignore'
-
-        //publishDir "${params.results}/alignment", mode: 'copy'
-
         input:
             set val(name), file(reads) from trimmed_reads_genome3
-            file(index) from bt_index_genome3.collect()
+            file(index) from bt3_ch
         output:
-            set val(name), file("*.sorted.bam") into alignment_genome3
+            set val(name), file("*.aligned.sorted.bam") into alignment_genome3
+            set val(name), file("*.unaligned.sorted.bam") into unaligned_genome3
+            set val(name), file("*.flagstat.txt") into align3_multiqc
         script:
-            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = name+"_"+params.name3+".sorted.bam"
-            """
-            bowtie2 -x $index_name -U $reads $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
-            """
-    }
-} else if (params.name3 !='' && params.collapse == false){
-    process AlignNoCollapseToGenome3 {
-        tag "$name"
-
-        // conda "bioconda::bowtie2 bioconda::samtools'
-
-        label 'intenso'
-
-        errorStrategy 'ignore'
-
-        //publishDir "${params.results}/alignment", mode: 'copy'
-
-        input:
-            set val(name), file(reads) from trimmed_reads_genome3
-            file(index) from bt_index_genome3.collect()
-        output:
-            set val(name), file("*.sorted.bam") into alignment_genome3
-        script:
-            index_name = index.toString().tokenize(' ')[0].tokenize('.')[0]
-            outfile = name+"_"+params.name3+".sorted.bam"
-            """
-            bowtie2 -x $index_name -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} | samtools view -S -b -F 4 - | samtools sort -o $outfile
-            """
+            samfile = "aligned_"+params.name3+".sam"
+            fstat = name+"_"+params.name3+".flagstat.txt"
+            outfile = name+"_"+params.name3+".aligned.sorted.bam"
+            outfile_unalign = name+"_"+params.name3+".unaligned.sorted.bam"
+            if (params.collapse == true || params.singleEnd == true) {
+                """
+                bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+                samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
+                samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
+                samtools flagstat $samfile > $fstat
+                """
+            } else if (params.collapse == false){
+                """
+                bowtie2 -x $bt3_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+                samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
+                samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
+                samtools flagstat $samfile > $fstat
+                """
+            }            
     }
 }
 
@@ -700,12 +765,12 @@ if (params.adna){
 process kraken2 {
     tag "$name"
 
-    // conda "bioconda::kraken2'
-
     label 'intenso'
 
     input:
         set val(name), file(reads) from unmapped_humans_reads
+        file(krakendb) from krakendb
+
 
     output:
         set val(name), file('*.kraken.out') into kraken_out
@@ -716,11 +781,11 @@ process kraken2 {
         kreport = name+".kreport"
         if (pairedEnd && params.collapse == false){
             """
-            kraken2 --db ${params.krakendb} --threads ${task.cpus} --output $out --report $kreport --paired ${reads[0]} ${reads[1]}
+            kraken2 --db ${krakendb} --threads ${task.cpus} --output $out --report $kreport --paired ${reads[0]} ${reads[1]}
             """    
         } else {
             """
-            kraken2 --db ${params.krakendb} --threads ${task.cpus} --output $out --report $kreport ${reads[0]}
+            kraken2 --db ${krakendb} --threads ${task.cpus} --output $out --report $kreport ${reads[0]}
             """
         }
         
@@ -728,8 +793,6 @@ process kraken2 {
 
 process kraken_parse {
     tag "$name"
-
-    // conda "python=3.6'
 
     label 'ristretto'
 
@@ -747,8 +810,6 @@ process kraken_parse {
 }
 
 process kraken_merge {
-
-    // conda "python=3.6 pandas numpy'
 
     label 'ristretto'
 
@@ -769,12 +830,12 @@ process kraken_merge {
 
 process sourcepredict {
 
-    // conda "conda-forge::umap-learn bioconda::ete3 maxibor::sourcepredict=0.2.1'
-
     label 'expresso'
 
     input:
         file(otu_table) from kraken_merged
+        file(sp_sources) from sp_sources
+        file(sp_labels) from sp_labels
     output:
         file('*.sourcepredict.csv') into sourcepredict_out
         file('*_embedding.csv') into sourcepredict_embed_out
@@ -783,7 +844,7 @@ process sourcepredict {
         outfile = "prediction.sourcepredict.csv"
         embed_out = "sourcepredict_embedding.csv"
         """
-        sourcepredict -di ${params.sp_dim} -k ${params.sp_kfold} -l ${params.sp_labels} -s ${params.sp_sources} -t ${task.cpus} -o $outfile -e $embed_out $otu_table 
+        sourcepredict -di ${params.sp_dim} -k ${params.sp_kfold} -l ${sp_labels} -s ${sp_sources} -t ${task.cpus} -o $outfile -e $embed_out $otu_table 
         """
 }
 
@@ -793,16 +854,13 @@ if (params.name3 == ''){
     process countBp2genomes{
     tag "$name"
 
-    // conda "python=3.6 bioconda::pysam '
-
     label 'expresso'
 
     input:
 
         set val(name), file(bam1), file(bam2) from ( params.adna ? pmd_aligned1.join(pmd_aligned2) : alignment_genome1.join(alignment_genome2))
-        // set val(name), file(bam1), file(bam2) from pmd_aligned1.join(pmd_aligned2)
-        file(genome1) from genome1Size.first()
-        file(genome2) from genome2Size.first()
+        file(genome1) from genome1Size
+        file(genome2) from genome2Size
     output:
         set val(name), file("*.bpc.csv") into bp_count
         set val(name), file("*"+params.name1+".filtered.bam") into filtered_bam1
@@ -832,10 +890,9 @@ if (params.name3 == ''){
     input:
 
         set val(name), file(bam1), file(bam2), file(bam3) from ( params.adna ? pmd_aligned1.join(pmd_aligned2).join(pmd_aligned3) : alignment_genome1.join(alignment_genome2).join(alignment_genome3))
-        // set val(name), file(bam1), file(bam2) from pmd_aligned1.join(pmd_aligned2)
-        file(genome1) from genome1Size.first()
-        file(genome2) from genome2Size.first()
-        file(genome3) from genome3Size.first()
+        file(genome1) from genome1Size
+        file(genome2) from genome2Size
+        file(genome3) from genome3Size
     output:
         set val(name), file("*.bpc.csv") into bp_count
         set val(name), file("*"+params.name1+".filtered.bam") into filtered_bam1
@@ -865,8 +922,6 @@ if (params.adna){
     process damageprofilerGenome1 {
     tag "$name"
 
-    // conda "bioconda::damageprofiler'
-
     label 'ristretto'
 
     errorStrategy 'ignore'
@@ -875,7 +930,7 @@ if (params.adna){
 
     input:
         set val(name), file(align) from filtered_bam1
-        file(fasta) from genome1damageprofiler.first()
+        file(fasta) from genome1damageprofiler
     output:
         file("*_freq.txt") into damage_result_genome1
     script:
@@ -891,8 +946,6 @@ if (params.adna){
     process damageprofilerGenome2 {
         tag "$name"
 
-        // conda "bioconda::damageprofiler'
-
         label 'ristretto'
 
         errorStrategy 'ignore'
@@ -901,7 +954,7 @@ if (params.adna){
 
         input:
             set val(name), file(align) from filtered_bam2
-            file(fasta) from genome2damageprofiler.first()
+            file(fasta) from genome2damageprofiler
         output:
             file("*_freq.txt") into damage_result_genome2
         script:
@@ -918,8 +971,6 @@ if (params.adna){
         process damageprofilerGenome3 {
         tag "$name"
 
-        // conda "bioconda::damageprofiler'
-
         label 'ristretto'
 
         errorStrategy 'ignore'
@@ -928,7 +979,7 @@ if (params.adna){
 
         input:
             set val(name), file(align) from filtered_bam3
-            file(fasta) from genome3damageprofiler.first()
+            file(fasta) from genome3damageprofiler
         output:
             file("*_freq.txt") into damage_result_genome3
         script:
@@ -970,7 +1021,6 @@ process concatenateRatios {
 if (params.adna) {
     if (params.name3) {
         process generate_report_adna_3_genomes {
-            // conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
 
             label 'ristretto'
 
@@ -993,7 +1043,6 @@ if (params.adna) {
         }
     } else {
         process generate_report_adna_2_genomes {
-            // conda "anaconda::nbconvert bokeh::bokeh jupyter pandas matplotlib"
 
             label 'ristretto'
 
@@ -1016,7 +1065,6 @@ if (params.adna) {
     }
 } else {
     process generate_report {
-        // conda "anaconda::nbconvert bokeh::bokeh jupyter pandas"
 
         label 'ristretto'
 
@@ -1039,8 +1087,6 @@ if (params.adna) {
 // 9:     MultiQC
 process multiqc {
 
-    // conda 'conda-forge::networkx bioconda::multiqc=1.5'
-
     label 'ristretto'
 
     errorStrategy 'ignore'
@@ -1058,4 +1104,179 @@ process multiqc {
         """
         multiqc -f -d adapter_removal alignment fastqc -c $multiqc_conf
         """
+}
+
+/*
+ * STEP 3 - Output Description HTML
+ */
+process output_documentation {
+    publishDir "${params.outdir}/pipeline_info", mode: 'copy'
+
+    input:
+    file output_docs from ch_output_docs
+
+    output:
+    file "results_description.html"
+
+    script:
+    """
+    markdown_to_html.r $output_docs results_description.html
+    """
+}
+
+
+
+/*
+ * Completion e-mail notification
+ */
+workflow.onComplete {
+
+    // Set up the e-mail variables
+    def subject = "[nf-core/coproid] Successful: $workflow.runName"
+    if(!workflow.success){
+      subject = "[nf-core/coproid] FAILED: $workflow.runName"
+    }
+    def email_fields = [:]
+    email_fields['version'] = workflow.manifest.version
+    email_fields['runName'] = custom_runName ?: workflow.runName
+    email_fields['success'] = workflow.success
+    email_fields['dateComplete'] = workflow.complete
+    email_fields['duration'] = workflow.duration
+    email_fields['exitStatus'] = workflow.exitStatus
+    email_fields['errorMessage'] = (workflow.errorMessage ?: 'None')
+    email_fields['errorReport'] = (workflow.errorReport ?: 'None')
+    email_fields['commandLine'] = workflow.commandLine
+    email_fields['projectDir'] = workflow.projectDir
+    email_fields['summary'] = summary
+    email_fields['summary']['Date Started'] = workflow.start
+    email_fields['summary']['Date Completed'] = workflow.complete
+    email_fields['summary']['Pipeline script file path'] = workflow.scriptFile
+    email_fields['summary']['Pipeline script hash ID'] = workflow.scriptId
+    if(workflow.repository) email_fields['summary']['Pipeline repository Git URL'] = workflow.repository
+    if(workflow.commitId) email_fields['summary']['Pipeline repository Git Commit'] = workflow.commitId
+    if(workflow.revision) email_fields['summary']['Pipeline Git branch/tag'] = workflow.revision
+    if(workflow.container) email_fields['summary']['Docker image'] = workflow.container
+    email_fields['summary']['Nextflow Version'] = workflow.nextflow.version
+    email_fields['summary']['Nextflow Build'] = workflow.nextflow.build
+    email_fields['summary']['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
+
+    // TODO nf-core: If not using MultiQC, strip out this code (including params.maxMultiqcEmailFileSize)
+    // On success try attach the multiqc report
+    def mqc_report = null
+    try {
+        if (workflow.success) {
+            mqc_report = multiqc_report.getVal()
+            if (mqc_report.getClass() == ArrayList){
+                log.warn "[nf-core/coproid] Found multiple reports from process 'multiqc', will use only one"
+                mqc_report = mqc_report[0]
+            }
+        }
+    } catch (all) {
+        log.warn "[nf-core/coproid] Could not attach MultiQC report to summary email"
+    }
+
+    // Render the TXT template
+    def engine = new groovy.text.GStringTemplateEngine()
+    def tf = new File("$baseDir/assets/email_template.txt")
+    def txt_template = engine.createTemplate(tf).make(email_fields)
+    def email_txt = txt_template.toString()
+
+    // Render the HTML template
+    def hf = new File("$baseDir/assets/email_template.html")
+    def html_template = engine.createTemplate(hf).make(email_fields)
+    def email_html = html_template.toString()
+
+    // Render the sendmail template
+    def smail_fields = [ email: params.email, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$baseDir", mqcFile: mqc_report, mqcMaxSize: params.maxMultiqcEmailFileSize.toBytes() ]
+    def sf = new File("$baseDir/assets/sendmail_template.txt")
+    def sendmail_template = engine.createTemplate(sf).make(smail_fields)
+    def sendmail_html = sendmail_template.toString()
+
+    // Send the HTML e-mail
+    if (params.email) {
+        try {
+          if( params.plaintext_email ){ throw GroovyException('Send plaintext e-mail, not HTML') }
+          // Try to send HTML e-mail using sendmail
+          [ 'sendmail', '-t' ].execute() << sendmail_html
+          log.info "[nf-core/coproid] Sent summary e-mail to $params.email (sendmail)"
+        } catch (all) {
+          // Catch failures and try with plaintext
+          [ 'mail', '-s', subject, params.email ].execute() << email_txt
+          log.info "[nf-core/coproid] Sent summary e-mail to $params.email (mail)"
+        }
+    }
+
+    // Write summary e-mail HTML to a file
+    def output_d = new File( "${params.outdir}/pipeline_info/" )
+    if( !output_d.exists() ) {
+      output_d.mkdirs()
+    }
+    def output_hf = new File( output_d, "pipeline_report.html" )
+    output_hf.withWriter { w -> w << email_html }
+    def output_tf = new File( output_d, "pipeline_report.txt" )
+    output_tf.withWriter { w -> w << email_txt }
+
+    c_reset = params.monochrome_logs ? '' : "\033[0m";
+    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
+    c_green = params.monochrome_logs ? '' : "\033[0;32m";
+    c_red = params.monochrome_logs ? '' : "\033[0;31m";
+
+    if (workflow.stats.ignoredCountFmt > 0 && workflow.success) {
+      log.info "${c_purple}Warning, pipeline completed, but with errored process(es) ${c_reset}"
+      log.info "${c_red}Number of ignored errored process(es) : ${workflow.stats.ignoredCountFmt} ${c_reset}"
+      log.info "${c_green}Number of successfully ran process(es) : ${workflow.stats.succeedCountFmt} ${c_reset}"
+    }
+
+    if(workflow.success){
+        log.info "${c_purple}[nf-core/coproid]${c_green} Pipeline completed successfully${c_reset}"
+    } else {
+        checkHostname()
+        log.info "${c_purple}[nf-core/coproid]${c_red} Pipeline completed with errors${c_reset}"
+    }
+
+}
+
+
+def nfcoreHeader(){
+    // Log colors ANSI codes
+    c_reset = params.monochrome_logs ? '' : "\033[0m";
+    c_dim = params.monochrome_logs ? '' : "\033[2m";
+    c_black = params.monochrome_logs ? '' : "\033[0;30m";
+    c_green = params.monochrome_logs ? '' : "\033[0;32m";
+    c_yellow = params.monochrome_logs ? '' : "\033[0;33m";
+    c_blue = params.monochrome_logs ? '' : "\033[0;34m";
+    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
+    c_cyan = params.monochrome_logs ? '' : "\033[0;36m";
+    c_white = params.monochrome_logs ? '' : "\033[0;37m";
+
+    return """    ${c_dim}----------------------------------------------------${c_reset}
+                                            ${c_green},--.${c_black}/${c_green},-.${c_reset}
+    ${c_blue}        ___     __   __   __   ___     ${c_green}/,-._.--~\'${c_reset}
+    ${c_blue}  |\\ | |__  __ /  ` /  \\ |__) |__         ${c_yellow}}  {${c_reset}
+    ${c_blue}  | \\| |       \\__, \\__/ |  \\ |___     ${c_green}\\`-._,-`-,${c_reset}
+                                            ${c_green}`._,._,\'${c_reset}
+    ${c_purple}  nf-core/coproid v${workflow.manifest.version}${c_reset}
+    ${c_dim}----------------------------------------------------${c_reset}
+    """.stripIndent()
+}
+
+def checkHostname(){
+    def c_reset = params.monochrome_logs ? '' : "\033[0m"
+    def c_white = params.monochrome_logs ? '' : "\033[0;37m"
+    def c_red = params.monochrome_logs ? '' : "\033[1;91m"
+    def c_yellow_bold = params.monochrome_logs ? '' : "\033[1;93m"
+    if(params.hostnames){
+        def hostname = "hostname".execute().text.trim()
+        params.hostnames.each { prof, hnames ->
+            hnames.each { hname ->
+                if(hostname.contains(hname) && !workflow.profile.contains(prof)){
+                    log.error "====================================================\n" +
+                            "  ${c_red}WARNING!${c_reset} You are running with `-profile $workflow.profile`\n" +
+                            "  but your machine hostname is ${c_white}'$hostname'${c_reset}\n" +
+                            "  ${c_yellow_bold}It's highly recommended that you use `-profile $prof${c_reset}`\n" +
+                            "============================================================"
+                }
+            }
+        }
+    }
 }

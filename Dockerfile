@@ -1,7 +1,9 @@
 FROM nfcore/base
-LABEL authors="Maxime Borry" \
-      description="Docker image containing all requirements for nf-core/coproid pipeline"
 
-COPY environment.yml /
-RUN conda env create -f /environment.yml && conda clean -a
-ENV PATH /opt/conda/envs/nf-core-coproid-1.0dev/bin:$PATH
+ENV env_file environment.yml
+ENV env_name coproid
+
+LABEL description="Docker image containing all requirements for coproID pipeline"
+COPY ${env_file} /
+RUN conda env create -f ${env_file} && conda clean -a
+ENV PATH /opt/conda/envs/${env_name}/bin:$PATH
