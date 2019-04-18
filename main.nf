@@ -16,17 +16,13 @@ HELP MESSAGE
 ************/
  
 
-version = "0.7"
-
 def helpMessage() {
     log.info nfcoreHeader()
     log.info"""
-    =========================================
      coproID: Coprolite Identification
-     Homepage: https://github.com/maxibor/coproid
-     Documentation: https://coproid.readthedocs.io
+     Homepage: https://github.com/nf-core/coproid
      Author: Maxime Borry <borry@shh.mpg.de>
-     Version ${version}
+     Version ${workflow.manifest.version}
     =========================================
     Usage:
     The typical command for running the pipeline is as follows:
@@ -105,6 +101,8 @@ params.removeHuman = false
 css = baseDir+'/res/pandoc.css'
 
 report_template = "$baseDir/templates/coproID_report.ipynb"
+params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
+params.sp_sources = "$baseDir/data/sourcepredict/modern_gut_microbiomes_sources.csv"
 params.sp_kfold = 5
 params.sp_pdim = 20
 params.sp_dim = 2
@@ -339,7 +337,7 @@ log.info "================================================================"
 log.info " coproID: Coprolite Identification"
 log.info " Homepage / Documentation: https://github.com/maxibor/coproid"
 log.info " Author: Maxime Borry <borry@shh.mpg.de>"
-log.info " Version ${version}"
+log.info " Version ${workflow.manifest.version}"
 log.info "================================================================"
 def summary = [:]
 if (params.reads) {

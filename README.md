@@ -11,6 +11,7 @@
 ## Introduction
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
+**CoproID** helps you to identify the *"true maker"* of a sequenced Coprolite by checking the microbiome composition and the endogenous DNA.
 
 ## Documentation
 The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory:

@@ -5,5 +5,6 @@ ENV env_name coproid
 
 LABEL description="Docker image containing all requirements for coproID pipeline"
 COPY ${env_file} /
+RUN apt-get update && apt-get install procps
 RUN conda env create -f ${env_file} && conda clean -a
 ENV PATH /opt/conda/envs/${env_name}/bin:$PATH
