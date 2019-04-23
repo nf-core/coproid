@@ -5,3 +5,4 @@ top_modules:
     - 'fastqc'
     - 'adapterRemoval'
     - 'samtools'
+    - 'damageProfiler'
