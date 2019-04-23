@@ -12,7 +12,7 @@ dependencies:
   - bioconda::blast=2.5.0
   - anaconda::bokeh=1.0.4
   - bioconda::bowtie2=2.3.5
-  - bioconda::damageprofiler
+  - bioconda::damageprofiler=0.4.6
   - bioconda::ete3=3.1.1
   - bioconda::fastqc=0.11.8
   - bioconda::htslib=1.9
