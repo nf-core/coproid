@@ -540,25 +540,23 @@ process AlignToGenome1 {
     output:
         set val(name), file("*.aligned.sorted.bam") into alignment_genome1
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome1
-        set val(name), file("*.flagstat.txt") into align1_multiqc
+        set val(name), file("*.stats.txt") into align1_multiqc
     script:
         samfile = "aligned_"+params.name1+".sam"
-        fstat = name+"_"+params.name1+".flagstat.txt"
+        fstat = name+"_"+params.name1+".stats.txt"
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
         if (params.collapse == true || params.singleEnd == true) {
             """
-            bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         } else if (params.collapse == false){
             """
-            bowtie2 -x $bt1_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt1_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         }            
 }
@@ -641,25 +639,23 @@ process AlignToGenome2 {
     output:
         set val(name), file("*.aligned.sorted.bam") into alignment_genome2
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome2
-        set val(name), file("*.flagstat.txt") into align2_multiqc
+        set val(name), file("*.stats.txt") into align2_multiqc
     script:
         samfile = "aligned_"+params.name2+".sam"
-        fstat = name+"_"+params.name2+".flagstat.txt"
+        fstat = name+"_"+params.name2+".stats.txt"
         outfile = name+"_"+params.name2+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name2+".unaligned.sorted.bam"
         if (params.collapse == true || params.singleEnd == true) {
             """
-            bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         } else if (params.collapse == false){
             """
-            bowtie2 -x $bt2_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt2_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         }            
 }
@@ -678,25 +674,23 @@ if (params.name3) {
         output:
             set val(name), file("*.aligned.sorted.bam") into alignment_genome3
             set val(name), file("*.unaligned.sorted.bam") into unaligned_genome3
-            set val(name), file("*.flagstat.txt") into align3_multiqc
+            set val(name), file("*.stats.txt") into align3_multiqc
         script:
             samfile = "aligned_"+params.name3+".sam"
-            fstat = name+"_"+params.name3+".flagstat.txt"
+            fstat = name+"_"+params.name3+".stats.txt"
             outfile = name+"_"+params.name3+".aligned.sorted.bam"
             outfile_unalign = name+"_"+params.name3+".unaligned.sorted.bam"
             if (params.collapse == true || params.singleEnd == true) {
                 """
-                bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+                bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
                 samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
                 samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-                samtools flagstat $samfile > $fstat
                 """
             } else if (params.collapse == false){
                 """
-                bowtie2 -x $bt3_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+                bowtie2 -x $bt3_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
                 samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
                 samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-                samtools flagstat $samfile > $fstat
                 """
             }            
     }
@@ -830,7 +824,7 @@ process kraken_merge {
 
 process sourcepredict {
 
-    label 'expresso'
+    label 'intenso'
 
     input:
         file(otu_table) from kraken_merged
