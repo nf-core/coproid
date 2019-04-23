@@ -252,6 +252,8 @@ if (params.bowtie == 'very-fast'){
 // singleEnd or pairedEnd Check
 if (params.singleEnd == false) {
     pairedEnd = true
+} else if (params.singleEnd == true) {
+    pairedEnd = false
 }
 
 //Library setting check
@@ -931,13 +933,18 @@ if (params.adna){
         file(fasta) from genome1damageprofiler
     output:
         file("*_freq.txt") into damage_result_genome1
+        file("*dmgprof.json") into dmgProf1_ch
     script:
-        fwd_name = name+"_[otu]_"+params.name1+".5pCtoT_freq.txt"
-        rev_name = name+"_[otu]_"+params.name1+".3pGtoA_freq.txt"
+        fwd_name = name+"_otu_"+params.name1+".5pCtoT_freq.txt"
+        rev_name = name+"_otu_"+params.name1+".3pGtoA_freq.txt"
+        bam_name = "${name}_${params.name1}.bam"
+        smp_name = "${name}_${params.name1}"
         """
-        damageprofiler -i $align -r $fasta -o tmp -title tmp
-        mv tmp/tmp/5pCtoT_freq.txt $fwd_name
-        mv tmp/tmp/3pGtoA_freq.txt $rev_name
+        mv $align $bam_name
+        damageprofiler -i $bam_name -r $fasta -o tmp
+        mv tmp/${smp_name}/5pCtoT_freq.txt $fwd_name
+        mv tmp/${smp_name}/3pGtoA_freq.txt $rev_name
+        mv tmp/${smp_name}/dmgprof.json ${smp_name}.dmgprof.json
         """
     }
 
@@ -955,13 +962,18 @@ if (params.adna){
             file(fasta) from genome2damageprofiler
         output:
             file("*_freq.txt") into damage_result_genome2
+            file("*dmgprof.json") into dmgProf2_ch
         script:
-            fwd_name = name+"_[otu]_"+params.name2+".5pCtoT_freq.txt"
-            rev_name = name+"_[otu]_"+params.name2+".3pGtoA_freq.txt"
+            fwd_name = name+"_otu_"+params.name2+".5pCtoT_freq.txt"
+            rev_name = name+"_otu_"+params.name2+".3pGtoA_freq.txt"
+            bam_name = "${name}_${params.name2}.bam"
+            smp_name = "${name}_${params.name2}"
             """
-            damageprofiler -i $align -r $fasta -o tmp -title tmp
-            mv tmp/tmp/5pCtoT_freq.txt $fwd_name
-            mv tmp/tmp/3pGtoA_freq.txt $rev_name
+            mv $align $bam_name
+            damageprofiler -i $bam_name -r $fasta -o tmp
+            mv tmp/${smp_name}/5pCtoT_freq.txt $fwd_name
+            mv tmp/${smp_name}/3pGtoA_freq.txt $rev_name
+            mv tmp/${smp_name}/dmgprof.json ${smp_name}.dmgprof.json
             """
     }
 
@@ -980,13 +992,18 @@ if (params.adna){
             file(fasta) from genome3damageprofiler
         output:
             file("*_freq.txt") into damage_result_genome3
+            file("*dmgprof.json") into dmgProf3_ch
         script:
-            fwd_name = name+"_[otu]_"+params.name3+".5pCtoT_freq.txt"
-            rev_name = name+"_[otu]_"+params.name3+".3pGtoA_freq.txt"
+            fwd_name = name+"_otu_"+params.name3+".5pCtoT_freq.txt"
+            rev_name = name+"_otu_"+params.name3+".3pGtoA_freq.txt"
+            bam_name = "${name}_${params.name3}.bam"
+            smp_name = "${name}_${params.name3}"
             """
-            damageprofiler -i $align -r $fasta -o tmp -title tmp
-            mv tmp/tmp/5pCtoT_freq.txt $fwd_name
-            mv tmp/tmp/3pGtoA_freq.txt $rev_name
+            mv $align $bam_name
+            damageprofiler -i $bam_name -r $fasta -o tmp
+            mv tmp/${smp_name}/5pCtoT_freq.txt $fwd_name
+            mv tmp/${smp_name}/3pGtoA_freq.txt $rev_name
+            mv tmp/${smp_name}/dmgprof.json ${smp_name}.dmgprof.json
             """
         }
     }
@@ -1035,7 +1052,7 @@ if (params.adna) {
                 file("*.html") into coproid_report
             script:
                 """
-                echo $version > version.txt
+                echo ${workflow.manifest.version} > version.txt
                 jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
                 """
         }
@@ -1056,7 +1073,7 @@ if (params.adna) {
                 file("*.html") into coproid_report
             script:
                 """
-                echo $version > version.txt
+                echo ${workflow.manifest.version} > version.txt
                 jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
                 """
         }
@@ -1076,7 +1093,7 @@ if (params.adna) {
             file("*.html") into coproid_report
         script:
             """
-            echo $version > version.txt
+            echo ${workflow.manifest.version} > version.txt
             jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
             """
     }
@@ -1095,12 +1112,15 @@ process multiqc {
         file (ar:'adapter_removal/*') from adapter_removal_results.collect()
         file (al1: 'alignment/*') from align1_multiqc.collect()
         file ('fastqc/*') from fastqc_results.collect()
+        file ('DamageProfiler/*') from dmgProf1_ch.collect()
+        file ('DamageProfiler/*') from dmgProf2_ch.collect()
+        // file ('DamageProfiler/*') dmgProf3_ch.collect()
     output:
         file 'multiqc_report.html' into multiqc_report
 
     script:
         """
-        multiqc -f -d adapter_removal alignment fastqc -c $multiqc_conf
+        multiqc -f -d adapter_removal alignment fastqc DamageProfiler -c $multiqc_conf
         """
 }
 
