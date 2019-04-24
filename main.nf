@@ -97,7 +97,6 @@ params.bowtie = 'very-sensitive'
 params.krakendb =''
 params.minKraken = 50
 params.removeHuman = false
-css = baseDir+'/res/pandoc.css'
 
 report_template = "$baseDir/templates/coproID_report.ipynb"
 params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
@@ -709,7 +708,7 @@ if (params.adna){
 
     label 'ristretto'
 
-    publishDir "${params.outdir}/pmdtools/${params.name1}", mode: 'copy', pattern: '*.filtered.bam'
+    publishDir "${params.outdir}/pmdtools/${params.name1}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
     input:
         set val(name), file(bam1) from alignment_genome1
@@ -727,7 +726,7 @@ if (params.adna){
 
         label 'ristretto'
 
-        publishDir "${params.outdir}/pmdtools/${params.name2}", mode: 'copy', pattern: '*.filtered.bam'
+        publishDir "${params.outdir}/pmdtools/${params.name2}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
         input:
             set val(name), file(bam2) from alignment_genome2
@@ -746,7 +745,7 @@ if (params.adna){
 
         label 'ristretto'
 
-        publishDir "${params.outdir}/pmdtools/${params.name3}", mode: 'copy', pattern: '*.filtered.bam'
+        publishDir "${params.outdir}/pmdtools/${params.name3}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
         input:
             set val(name), file(bam3) from alignment_genome3
