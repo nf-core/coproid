@@ -53,20 +53,20 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 If `-profile` is not specified at all the pipeline will be run locally and expects all software to be installed and available on the `PATH`.
 
-- `awsbatch`
-  - A generic configuration profile to be used with AWS Batch.
-- `conda`
-  - A generic configuration profile to be used with [conda](https://conda.io/docs/)
-  - Pulls most software from [Bioconda](https://bioconda.github.io/)
-- `docker`
-  - A generic configuration profile to be used with [Docker](http://docker.com/)
-  - Pulls software from dockerhub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
-- `singularity`
-  - A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
-  - Pulls software from DockerHub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
-- `test`
-  - A profile with a complete configuration for automated testing
-  - Includes links to test data so needs no other parameters
+-   `awsbatch`
+    -   A generic configuration profile to be used with AWS Batch.
+-   `conda`
+    -   A generic configuration profile to be used with [conda](https://conda.io/docs/)
+    -   Pulls most software from [Bioconda](https://bioconda.github.io/)
+-   `docker`
+    -   A generic configuration profile to be used with [Docker](http://docker.com/)
+    -   Pulls software from dockerhub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
+-   `singularity`
+    -   A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
+    -   Pulls software from DockerHub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
+-   `test`
+    -   A profile with a complete configuration for automated testing
+    -   Includes links to test data so needs no other parameters
 
 ### `--reads`
 
@@ -78,9 +78,9 @@ Use this to specify the location of your input FastQ files. For example:
 
 Please note the following requirements:
 
-1. The path must be enclosed in quotes
-2. The path must have at least one `*` wildcard character
-3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
+1.  The path must be enclosed in quotes
+2.  The path must have at least one `*` wildcard character
+3.  When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
 
 If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
@@ -116,10 +116,10 @@ There are 31 different species supported in the iGenomes references. To run the 
 
 You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
 
-- Human
-  - `--genome GRCh37`
-- Dog
-  - `--genome CanFam3.1`
+-   Human
+    -   `--genome GRCh37`
+-   Dog
+    -   `--genome CanFam3.1`
 
 > There are numerous others - check the config file for more.
 
@@ -203,35 +203,7 @@ Name of iGenomes reference for candidate organism 3. Must be provided if fasta2 
 
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
-## Other parameters
-
-### `--name3`
-
-Name of candidate 1. Example: "Sus_scrofa"
-
-### `--fasta3`
-
-Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if ### \`genome3 is not provided
-
-```bash
---fasta3 'path/to/fasta/reference.fa'
-```
-
-### `--genome3`
-
-Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta3 is not provided
-
-```bash
---genome3 'Sscrofa10.2'
-```
-
-### `--krakendb`
-
-Path to MiniKraken2_v2_8GB Database
-
-```bash
---krakendb /path/to/krakendb
-```
+## Settings
 
 ### `--adna`
 
@@ -259,30 +231,6 @@ or
 
 ```bash
 --phred 64
-```
-
-### `--index1`
-
-Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
-
-```bash
---index1 'path/to/bt_index/basename*'
-```
-
-### `--index2`
-
-Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
-
-```bash
---index2 'path/to/bt_index/basename*'
-```
-
-### `--index3`
-
-Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
-
-```bash
---index3 'path/to/bt_index/basename*'
 ```
 
 ### `--collapse`
@@ -349,6 +297,84 @@ Minimum number of Kraken hits per Taxonomy ID to report. Default = 50
 
 ```bash
 --minKraken 50
+```
+
+### `--endo1`
+
+Proportion of Endogenous DNA in organism 1 target microbiome. Must be between 0 and 1. Default = 0.01
+
+```bash
+--endo1 0.01
+```
+
+### `--endo2`
+
+Proportion of Endogenous DNA in organism 2 target microbiome. Must be between 0 and 1. Default = 0.01
+
+```bash
+--endo2 0.01
+```
+
+### `--endo3`
+
+Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 and 1. Default = 0.01
+
+```bash
+--endo3 0.01
+```
+
+## Other parameters
+
+### `--name3`
+
+Name of candidate 1. Example: "Sus_scrofa"
+
+### `--fasta3`
+
+Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if ### \`genome3 is not provided
+
+```bash
+--fasta3 'path/to/fasta/reference.fa'
+```
+
+### `--genome3`
+
+Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta3 is not provided
+
+```bash
+--genome3 'Sscrofa10.2'
+```
+
+### `--krakendb`
+
+Path to MiniKraken2_v2_8GB Database
+
+```bash
+--krakendb /path/to/krakendb
+```
+
+### `--index1`
+
+Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
+
+```bash
+--index1 'path/to/bt_index/basename*'
+```
+
+### `--index2`
+
+Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
+
+```bash
+--index2 'path/to/bt_index/basename*'
+```
+
+### `--index3`
+
+Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
+
+```bash
+--index3 'path/to/bt_index/basename*'
 ```
 
 ## Job resources
