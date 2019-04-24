@@ -35,16 +35,16 @@ def helpMessage() {
       --name2                       Name of candidate 2. Example: "Canis_familiaris"
       --fasta2                      Path to canidate organism 2 genome fasta file (must be surrounded with quotes). Must be provided if --genome2 is not provided
       --genome2                     Name of iGenomes reference for candidate organism 2. Must be provided if --fasta2 is not provided
+      --krakendb                    Path to MiniKraken2_v2_8GB Database
 
     Options:
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
       --fasta2                      Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if --genome3 is not provided
       --genome2                     Name of iGenomes reference for candidate organism 3. Must be provided if --fasta3 is not provided
-      --krakendb                    Path to MiniKraken2_v2_8GB Database
       --adna                        Specified if data is modern (false) or ancient DNA (true). Default = ${params.adna}
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
       --singleEnd                   Specified if reads are single-end (true | false). Default = ${params.singleEnd}
-      --index1                      Path to Bowtie2 index oh human genome, in the form of "/path/to/bowtie_index/basename"
+      --index1                      Path to Bowtie2 index of genome candidate 1, in the form of "/path/to/bowtie_index/basename"
       --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
       --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = ${params.collapse}
@@ -534,31 +534,31 @@ process AlignToGenome1 {
 
     label 'intenso'
 
+    publishDir "${params.results}/alignments/${params.name1}", mode: 'copy', pattern: '*.sorted.bam'
+
     input:
         set val(name), file(reads) from trimmed_reads_genome1
         file(index) from bt1_ch
     output:
         set val(name), file("*.aligned.sorted.bam") into alignment_genome1
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome1
-        set val(name), file("*.flagstat.txt") into align1_multiqc
+        set val(name), file("*.stats.txt") into align1_multiqc
     script:
         samfile = "aligned_"+params.name1+".sam"
-        fstat = name+"_"+params.name1+".flagstat.txt"
+        fstat = name+"_"+params.name1+".stats.txt"
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
         if (params.collapse == true || params.singleEnd == true) {
             """
-            bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         } else if (params.collapse == false){
             """
-            bowtie2 -x $bt1_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt1_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         }            
 }
@@ -635,31 +635,31 @@ process AlignToGenome2 {
 
     label 'intenso'
 
+    publishDir "${params.results}/alignments/${params.name2}", mode: 'copy', pattern: '*.sorted.bam'
+
     input:
         set val(name), file(reads) from trimmed_reads_genome2
         file(index) from bt2_ch
     output:
         set val(name), file("*.aligned.sorted.bam") into alignment_genome2
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome2
-        set val(name), file("*.flagstat.txt") into align2_multiqc
+        set val(name), file("*.stats.txt") into align2_multiqc
     script:
         samfile = "aligned_"+params.name2+".sam"
-        fstat = name+"_"+params.name2+".flagstat.txt"
+        fstat = name+"_"+params.name2+".stats.txt"
         outfile = name+"_"+params.name2+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name2+".unaligned.sorted.bam"
         if (params.collapse == true || params.singleEnd == true) {
             """
-            bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         } else if (params.collapse == false){
             """
-            bowtie2 -x $bt2_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+            bowtie2 -x $bt2_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-            samtools flagstat $samfile > $fstat
             """
         }            
 }
@@ -672,31 +672,31 @@ if (params.name3) {
 
         label 'intenso'
 
+        publishDir "${params.results}/alignments/${params.name1}", mode: 'copy', pattern: '*.sorted.bam'
+
         input:
             set val(name), file(reads) from trimmed_reads_genome3
             file(index) from bt3_ch
         output:
             set val(name), file("*.aligned.sorted.bam") into alignment_genome3
             set val(name), file("*.unaligned.sorted.bam") into unaligned_genome3
-            set val(name), file("*.flagstat.txt") into align3_multiqc
+            set val(name), file("*.stats.txt") into align3_multiqc
         script:
             samfile = "aligned_"+params.name3+".sam"
-            fstat = name+"_"+params.name3+".flagstat.txt"
+            fstat = name+"_"+params.name3+".stats.txt"
             outfile = name+"_"+params.name3+".aligned.sorted.bam"
             outfile_unalign = name+"_"+params.name3+".unaligned.sorted.bam"
             if (params.collapse == true || params.singleEnd == true) {
                 """
-                bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile
+                bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
                 samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
                 samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-                samtools flagstat $samfile > $fstat
                 """
             } else if (params.collapse == false){
                 """
-                bowtie2 -x $bt3_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile
+                bowtie2 -x $bt3_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
                 samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
                 samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
-                samtools flagstat $samfile > $fstat
                 """
             }            
     }
@@ -708,9 +708,9 @@ if (params.adna){
     process pmdtoolsgenome1 {
     tag "$name"
 
-    // conda "bioconda::pmdtools'
-
     label 'ristretto'
+
+    publishDir "${params.results}/pmdtools/${params.name1}", mode: 'copy', pattern: '*.filtered.bam'
 
     input:
         set val(name), file(bam1) from alignment_genome1
@@ -726,9 +726,9 @@ if (params.adna){
     process pmdtoolsgenome2 {
         tag "$name"
 
-        // conda "bioconda::pmdtools '
-
         label 'ristretto'
+
+        publishDir "${params.results}/pmdtools/${params.name2}", mode: 'copy', pattern: '*.filtered.bam'
 
         input:
             set val(name), file(bam2) from alignment_genome2
@@ -745,9 +745,9 @@ if (params.adna){
         process pmdtoolsgenome3 {
         tag "$name"
 
-        // conda "bioconda::pmdtools'
-
         label 'ristretto'
+
+        publishDir "${params.results}/pmdtools/${params.name3}", mode: 'copy', pattern: '*.filtered.bam'
 
         input:
             set val(name), file(bam3) from alignment_genome3
@@ -813,7 +813,7 @@ process kraken_merge {
 
     label 'ristretto'
 
-    publishDir "${params.results}/merged", mode: 'copy'
+    publishDir "${params.results}/kraken", mode: 'copy'
 
     input:
         file(csv_count) from kraken_parsed.collect()
@@ -830,7 +830,7 @@ process kraken_merge {
 
 process sourcepredict {
 
-    label 'expresso'
+    label 'intenso'
 
     input:
         file(otu_table) from kraken_merged
@@ -881,8 +881,6 @@ if (params.name3 == ''){
     process countBp3genomes{
     tag "$name"
 
-    // conda "python=3.6 bioconda::pysam '
-
     label 'expresso'
 
     echo true
@@ -926,7 +924,7 @@ if (params.adna){
 
     errorStrategy 'ignore'
 
-    publishDir "${params.results}/damageprofiler_${params.name1}", mode: 'copy'
+    publishDir "${params.results}/damageprofiler/${params.name1}", mode: 'copy'
 
     input:
         set val(name), file(align) from filtered_bam1
@@ -955,7 +953,7 @@ if (params.adna){
 
         errorStrategy 'ignore'
 
-        publishDir "${params.results}/damageprofiler_${params.name2}", mode: 'copy'
+        publishDir "${params.results}/damageprofiler/${params.name2}", mode: 'copy'
 
         input:
             set val(name), file(align) from filtered_bam2
@@ -985,7 +983,7 @@ if (params.adna){
 
         errorStrategy 'ignore'
 
-        publishDir "${params.results}/damageprofiler_${params.name2}", mode: 'copy'
+        publishDir "${params.results}/damageprofiler/${params.name3}", mode: 'copy'
 
         input:
             set val(name), file(align) from filtered_bam3
@@ -1013,7 +1011,6 @@ if (params.adna){
 // 6: concatenate read ratios
 
 process concatenateRatios {
-    // conda "python=3.7 pandas"
 
     label 'ristretto'
 

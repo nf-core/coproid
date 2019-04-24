@@ -1,44 +1,5 @@
-# nf-core/coproid: Usage
-
-## Table of contents
-
-<!-- Install Atom plugin markdown-toc-auto for this ToC to auto-update on save -->
-<!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
-* [Table of contents](#table-of-contents)
-* [Introduction](#introduction)
-* [Running the pipeline](#running-the-pipeline)
-  * [Updating the pipeline](#updating-the-pipeline)
-  * [Reproducibility](#reproducibility)
-* [Main arguments](#main-arguments)
-  * [`-profile`](#-profile)
-  * [`--reads`](#--reads)
-  * [`--singleEnd`](#--singleend)
-* [Reference genomes](#reference-genomes)
-  * [`--genome` (using iGenomes)](#--genome-using-igenomes)
-  * [`--fasta`](#--fasta)
-  * [`--igenomesIgnore`](#--igenomesignore)
-* [Job resources](#job-resources)
-  * [Automatic resubmission](#automatic-resubmission)
-  * [Custom resource requests](#custom-resource-requests)
-* [AWS Batch specific parameters](#aws-batch-specific-parameters)
-  * [`--awsqueue`](#--awsqueue)
-  * [`--awsregion`](#--awsregion)
-* [Other command line parameters](#other-command-line-parameters)
-  * [`--outdir`](#--outdir)
-  * [`--email`](#--email)
-  * [`-name`](#-name)
-  * [`-resume`](#-resume)
-  * [`-c`](#-c)
-  * [`--custom_config_version`](#--custom_config_version)
-  * [`--custom_config_base`](#--custom_config_base)
-  * [`--max_memory`](#--max_memory)
-  * [`--max_time`](#--max_time)
-  * [`--max_cpus`](#--max_cpus)
-  * [`--plaintext_email`](#--plaintext_email)
-  * [`--monochrome_logs`](#--monochrome_logs)
-  * [`--multiqc_config`](#--multiqc_config)
-<!-- TOC END -->
-
+Usage
+=====
 
 ## Introduction
 Nextflow handles job submissions on SLURM or other environments, and supervises running the jobs. Thus the Nextflow process must run until the pipeline is finished. We recommend that you put the process running in the background through `screen` / `tmux` or similar tool. Alternatively you can run nextflow within a cluster job submitted your job scheduler.
@@ -132,6 +93,14 @@ By default, the pipeline expects paired-end data. If you have single-end data, y
 
 It is not possible to run a mixture of single-end and paired-end files in one run.
 
+### `--name1`
+Name of the first candidate species. Example : `"Homo_sapiens"`
+
+### `--name2`
+Name of the second candidate species. Example : `"Canis_familiaris"`
+
+### `--krakenDB`
+Path to Path to Kraken2 MiniKraken2_v2_8GB Database. Can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
 
 ## Reference genomes
 
@@ -159,7 +128,7 @@ The syntax for this reference configuration is as follows:
 
 <!-- TODO nf-core: Update reference genome example according to what is needed -->
 
-```nextflow
+```groovy
 params {
   genomes {
     'GRCh37' {
@@ -180,6 +149,56 @@ If you prefer, you can specify the full path to your reference genome when you r
 
 ### `--igenomesIgnore`
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
+
+## Other parameters
+
+### `--name3`
+Name of candidate 1. Example: "Sus_scrofa"
+
+### `--fasta2`
+Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if ### `genome3 is not provided
+
+### `--genome2`
+Name of iGenomes reference for candidate organism 3. Must be provided if ### `fasta3 is not provided
+
+### `--krakendb`
+Path to MiniKraken2_v2_8GB Database
+
+### `--adna`
+Specified if data is modern (false) or ancient DNA (true). Default = true
+
+### `--phred`
+Specifies the fastq quality encoding (33 | 64). Defaults to 33
+
+### `--index1`
+Path to Bowtie2 index oh human genome, in the form of "/path/to/bowtie_index/basename"
+
+### `--index2`
+Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
+
+### `--index3`
+Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
+
+### `--collapse`
+Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = true
+
+### `--identity`
+Identity threshold to retain read alignment. Default = 0.95
+
+### `--pmdscore`
+Minimum PMDscore to retain read alignment. Default = 3
+
+### `--library`
+DNA preparation library type ( classic | UDGhalf). Default = classic
+
+### `--bowtie`
+Bowtie settings for sensivity (very-fast | very-sensitive). Default = very-sensitive
+
+### `--minKraken`
+Minimum number of Kraken hits per Taxonomy ID to report. Default = 50
+
+### `--removeHuman`
+Remove human reads for metagenomic taxonomic classification. Default = false
 
 ## Job resources
 ### Automatic resubmission

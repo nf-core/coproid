@@ -1,20 +1,16 @@
 Introduction
 ============
 
-<img src="_static/_img/logo.png" height="150">
+<img src="_static/img/coproid_logo.png" height="200">
 
 **coproID** (**CO**prolite **ID**entification) is a tool developed at the [Max Planck insitute for the Science of Human History](http://www.shh.mpg.de/en) by [Maxime Borry](https://github.com/maxibor)
 
-The purpose of **coproID** is to help identify the host of given sequenced microbiome when there is a doubt between two species.
+The purpose of **coproID** is to help identify the host of given sequenced microbiome when there is a doubt between species.
 
 **coproID** is a pipeline developed using [Nextflow](https://www.nextflow.io/) and made available through [nf-core](https://github.com/nf-core)
 
 Even though it was developed with coprolite host identification in mind, it can be applied to any microbiome, provided they contain host DNA.
 
-To run **coproID** you need to provide as input:
-- microbiome sequencing paired end `fastq` files
-- **two** (or three) reference genomes
-- the names of the two (or three) reference species
 
 ## Quick start
 
@@ -27,9 +23,8 @@ nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'H
 
 ```
 $ nextflow run nf-core/coproid --help
-nextflow run . --help
 N E X T F L O W  ~  version 19.01.0
-Launching `./main.nf` [deadly_coulomb] - revision: a9212ea072
+Launching `./main.nf` [nasty_ride] - revision: 362ad5aeaf
 ----------------------------------------------------
                                         ,--./,-.
         ___     __   __   __   ___     /,-._.--~'
@@ -40,12 +35,10 @@ Launching `./main.nf` [deadly_coulomb] - revision: a9212ea072
 ----------------------------------------------------
 
 
-=========================================
  coproID: Coprolite Identification
- Homepage: https://github.com/maxibor/coproid
- Documentation: https://coproid.readthedocs.io
+ Homepage: https://github.com/nf-core/coproid
  Author: Maxime Borry <borry@shh.mpg.de>
- Version 0.7
+ Version 1.0dev
 =========================================
 Usage:
 The typical command for running the pipeline is as follows:
@@ -58,18 +51,18 @@ Mandatory arguments:
   --name2                       Name of candidate 2. Example: "Canis_familiaris"
   --fasta2                      Path to canidate organism 2 genome fasta file (must be surrounded with quotes). Must be provided if --genome2 is not provided
   --genome2                     Name of iGenomes reference for candidate organism 2. Must be provided if --fasta2 is not provided
+  --krakendb                    Path to MiniKraken2_v2_8GB Database
 
 Options:
   --name3                       Name of candidate 1. Example: "Sus_scrofa"
   --fasta2                      Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if --genome3 is not provided
   --genome2                     Name of iGenomes reference for candidate organism 3. Must be provided if --fasta3 is not provided
-  --krakendb                    Path to MiniKraken2_v2_8GB Database
   --adna                        Specified if data is modern (false) or ancient DNA (true). Default = true
   --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to 33
   --singleEnd                   Specified if reads are single-end (true | false). Default = false
-  --index1                      Path to Bowtie2 index oh human genome, in the form of "/path/to/*.bt2"
-  --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of "/path/to/*.bt2"
-  --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of "/path/to/*.bt2"
+  --index1                      Path to Bowtie2 index of genome candidate 1, in the form of "/path/to/bowtie_index/basename"
+  --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
+  --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
   --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = true
   --identity                    Identity threshold to retain read alignment. Default = 0.95
   --pmdscore                    Minimum PMDscore to retain read alignment. Default = 3
@@ -88,12 +81,8 @@ Options:
 
 ## coproID example workFlow
 
-![](_static/_img/dag.png)
+![](_static/img/coproid_dag.png)
 
 ## How to cite coproID
 
-You can cite **coproID** like this:
-
-```
-Maxime Borry (2018). CoproID: Coprolite Identification. DOI: 10.5281/zenodo.1458163
-```
+The coproID article is coming.

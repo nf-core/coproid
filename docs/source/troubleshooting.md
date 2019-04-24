@@ -1,4 +1,5 @@
-# Troubleshooting
+Troubleshooting
+===============
 
 ## Known issues
 
