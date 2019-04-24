@@ -1,10 +1,12 @@
-# <img src="docs/source/_static/img/coproid_logo.png" height="200">  
+# ![logo](docs/source/\_static/img/coproid_logo_small.jpg)  
+
 [![Build Status](https://travis-ci.com/nf-core/coproid.svg?branch=master)](https://travis-ci.com/nf-core/coproid)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
 
 ## Documentation
+
 The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
 1. [Installation](https://nf-co.re/usage/installation)
@@ -23,4 +25,5 @@ The nf-core/coproid pipeline comes with documentation about the pipeline, found 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 ## Credits
+
 nf-core/coproid was originally written by [Maxime Borry](https://github.com/maxibor).
