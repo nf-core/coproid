@@ -6,3 +6,4 @@ tests/test_data
 *.pyc
 *.ipynb_checkpoints
 docs/build/
+test/
