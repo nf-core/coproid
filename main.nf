@@ -136,7 +136,7 @@ if (bt1) {
     bt1_index = bt1.substring(lastPath+1)
 
     Channel
-        .fromPath(bt1)
+        .fromPath(bt1_dir)
         .ifEmpty {exit 1, "Cannot find any index matching : ${bt1}\n"}
         .set {bt1_ch}
 } else {
@@ -164,7 +164,7 @@ if (bt2) {
     bt2_index = bt2.substring(lastPath+1)
 
     Channel
-        .fromPath(bt2)
+        .fromPath(bt2_dir)
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt2}\n"}
         .set {bt2_ch}
 
@@ -192,7 +192,7 @@ if (params.name3) {
         bt3_index = bt3.substring(lastPath+1)
 
         Channel
-            .fromPath(bt3)
+            .fromPath(bt3_dir)
             .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt3}\n"}
             .set {bt3_ch}
     } else {
