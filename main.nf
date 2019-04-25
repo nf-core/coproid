@@ -564,7 +564,7 @@ process AlignToGenome1 {
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
         if (params.index1){
-            bt1_index = "${bt1_dir}/${bt1_index}"
+            bt1_index = "${index.toString()}/${bt1_index}"
         }
         if (params.collapse == true || params.singleEnd == true) {
             """
@@ -668,7 +668,7 @@ process AlignToGenome2 {
         outfile = name+"_"+params.name2+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name2+".unaligned.sorted.bam"
         if (params.index2){
-            bt2_index = "${bt2_dir}/${bt2_index}"
+            bt2_index = "${index.toString()}/${bt2_index}"
         }
         if (params.collapse == true || params.singleEnd == true) {
             """
@@ -708,7 +708,7 @@ if (params.name3) {
             outfile = name+"_"+params.name3+".aligned.sorted.bam"
             outfile_unalign = name+"_"+params.name3+".unaligned.sorted.bam"
             if (params.index3){
-                bt3_index = "${bt3_dir}/${bt3_index}"
+                bt3_index = "${index.toString()}/${bt3_index}"
             }
             if (params.collapse == true || params.singleEnd == true) {
                 """
