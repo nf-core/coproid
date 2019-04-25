@@ -563,6 +563,9 @@ process AlignToGenome1 {
         fstat = name+"_"+params.name1+".stats.txt"
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
+        if (params.index1){
+            bt1_index = "${bt1_dir}/${bt1_index}"
+        }
         if (params.collapse == true || params.singleEnd == true) {
             """
             bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
@@ -664,6 +667,9 @@ process AlignToGenome2 {
         fstat = name+"_"+params.name2+".stats.txt"
         outfile = name+"_"+params.name2+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name2+".unaligned.sorted.bam"
+        if (params.index2){
+            bt2_index = "${bt2_dir}/${bt2_index}"
+        }
         if (params.collapse == true || params.singleEnd == true) {
             """
             bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
@@ -701,6 +707,9 @@ if (params.name3) {
             fstat = name+"_"+params.name3+".stats.txt"
             outfile = name+"_"+params.name3+".aligned.sorted.bam"
             outfile_unalign = name+"_"+params.name3+".unaligned.sorted.bam"
+            if (params.index3){
+                bt3_index = "${bt3_dir}/${bt3_index}"
+            }
             if (params.collapse == true || params.singleEnd == true) {
                 """
                 bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
