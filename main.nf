@@ -47,9 +47,9 @@ def helpMessage() {
       --library                     DNA preparation library type ( classic | UDGhalf). Default = ${params.library}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
       --minKraken                   Minimum number of Kraken hits per Taxonomy ID to report. Default = ${params.minKraken}
-      --endo1                       Proportion of Endogenous DNA in organism 1 target microbiome
-      --endo2                       Proportion of Endogenous DNA in organism 2 target microbiome
-      --endo3                       Proportion of Endogenous DNA in organism 3 target microbiome
+      --endo1                       Proportion of Endogenous DNA in organism 1 target microbiome. Default = ${params.endo1}
+      --endo2                       Proportion of Endogenous DNA in organism 2 target microbiome. Default = ${params.endo1}
+      --endo3                       Proportion of Endogenous DNA in organism 3 target microbiome. Default = ${params.endo1}
 
     Options:
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
@@ -79,6 +79,7 @@ DEFAULT VARIABLE VALUES SETUP
 bowtie_setting = ''
 collapse_setting = ''
 multiqc_conf = "$baseDir/conf/.multiqc_config.yaml"
+report_template = "$baseDir/templates/coproID_report.ipynb"
 
 
 // Show help message
