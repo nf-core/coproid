@@ -26,7 +26,7 @@ def helpMessage() {
     =========================================
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
+    nextflow run maxibor/coproid -profile docker --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
       --name1                       Name of candidate 1. Example: "Homo_sapiens"
@@ -85,6 +85,18 @@ report_template = "$baseDir/templates/coproID_report.ipynb"
 // Show help message
 if (params.help){
     helpMessage()
+    exit 0
+}
+
+// Message for empty run
+if (!params.reads || !params.name1 || !params.name2 || !params.krakendb){
+    log.info"""
+    CoproID was launched with missing mandatory arguments.
+    Please check your command line and retry.
+    To get the help menu, please run:
+    nextflow run maxibor/coproid --help
+    The complete documentation is available at https://github.com/nf-core/coproid
+    """
     exit 0
 }
 
