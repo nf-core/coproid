@@ -89,7 +89,7 @@ if (params.help){
 }
 
 // Message for empty run
-if (!params.reads || !params.name1 || !params.name2 || !params.krakendb){
+if ( (!params.reads && !params.readPaths) || !params.name1 || !params.name2 || !params.krakendb || (!params.genome1 && !params.fasta1) || (!params.genome2 && !params.fasta2)){
     log.info"""
     CoproID was launched with missing mandatory arguments.
     Please check your command line and retry.
