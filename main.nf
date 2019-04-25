@@ -76,42 +76,6 @@ DEFAULT VARIABLE VALUES SETUP
 
 // Default variable configuration
 
-params.phred = 33
-
-params.adna = true
-params.outdir = "./results"
-params.reads = ''
-params.singleEnd = false
-params.genome1 = 'GRCh37'
-params.genome2 = 'CanFam3.1'
-params.genome3 = ''
-params.name1 = 'Homo_sapiens'
-params.name2 = 'Canis_familiaris'
-params.name3 = ''
-params.index1 = ''
-params.index2 = ''
-params.index3 = ''
-params.fasta1 = ''
-params.fasta2 = ''
-params.fasta3 = ''
-params.collapse = true
-params.identity = 0.95
-params.pmdscore = 3
-params.library = 'classic'
-params.bowtie = 'very-sensitive'
-params.krakendb =''
-params.minKraken = 50
-params.endo1 = 0.01
-params.endo2 = 0.01
-params.endo3 = 0.01
-
-report_template = "$baseDir/templates/coproID_report.ipynb"
-params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
-params.sp_sources = "$baseDir/data/sourcepredict/modern_gut_microbiomes_sources.csv"
-params.sp_kfold = 5
-params.sp_pdim = 20
-params.sp_dim = 2
-
 bowtie_setting = ''
 collapse_setting = ''
 multiqc_conf = "$baseDir/conf/.multiqc_config.yaml"
