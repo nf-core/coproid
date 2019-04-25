@@ -138,6 +138,7 @@ if (bt1) {
     Channel
         .fromPath(bt1_dir+"/*.bt2")
         .ifEmpty {exit 1, "Cannot find any index matching : ${bt1}\n"}
+        .collect()
         .set {bt1_ch}
 } else {
     bt1_index = params.name1
@@ -166,6 +167,7 @@ if (bt2) {
     Channel
         .fromPath(bt2_dir+"/*.bt2")
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt2}\n"}
+        .collect()
         .set {bt2_ch}
 
 } else {
@@ -194,6 +196,7 @@ if (params.name3) {
         Channel
             .fromPath(bt3_dir+"/*.bt2")
             .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt3}\n"}
+            .collect()
             .set {bt3_ch}
     } else {
         bt3_index = params.name3
