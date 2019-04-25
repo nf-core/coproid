@@ -136,7 +136,7 @@ if (bt1) {
     bt1_index = bt1.substring(lastPath+1)
 
     Channel
-        .fromPath(bt1_dir)
+        .fromPath(bt1_dir+"/*.bt2")
         .ifEmpty {exit 1, "Cannot find any index matching : ${bt1}\n"}
         .set {bt1_ch}
 } else {
@@ -164,7 +164,7 @@ if (bt2) {
     bt2_index = bt2.substring(lastPath+1)
 
     Channel
-        .fromPath(bt2_dir)
+        .fromPath(bt2_dir+"/*.bt2")
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt2}\n"}
         .set {bt2_ch}
 
@@ -192,7 +192,7 @@ if (params.name3) {
         bt3_index = bt3.substring(lastPath+1)
 
         Channel
-            .fromPath(bt3_dir)
+            .fromPath(bt3_dir+"/*.bt2")
             .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt3}\n"}
             .set {bt3_ch}
     } else {
@@ -563,21 +563,14 @@ process AlignToGenome1 {
         fstat = name+"_"+params.name1+".stats.txt"
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
-        if (params.index1){
-            bt_preprocess = "cp ${index.toString()}/*.bt2 ."
-        } else {
-            bt_preprocess = 'echo nothing_to_preprocess_for_bt_index'
-        }
         if (params.collapse == true || params.singleEnd == true) {
             """
-            $bt_preprocess
             bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
             """
         } else if (params.collapse == false){
             """
-            $bt_preprocess
             bowtie2 -x $bt1_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
@@ -671,21 +664,14 @@ process AlignToGenome2 {
         fstat = name+"_"+params.name2+".stats.txt"
         outfile = name+"_"+params.name2+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name2+".unaligned.sorted.bam"
-        if (params.index2){
-            bt_preprocess = "cp ${index.toString()}/*.bt2 ."
-        } else {
-            bt_preprocess = 'echo nothing_to_preprocess_for_bt_index'
-        }
         if (params.collapse == true || params.singleEnd == true) {
             """
-            $bt_preprocess
             bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
             """
         } else if (params.collapse == false){
             """
-            $bt_preprocess
             bowtie2 -x $bt2_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
             samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
@@ -715,21 +701,14 @@ if (params.name3) {
             fstat = name+"_"+params.name3+".stats.txt"
             outfile = name+"_"+params.name3+".aligned.sorted.bam"
             outfile_unalign = name+"_"+params.name3+".unaligned.sorted.bam"
-            if (params.index3){
-                bt_preprocess = "cp ${index.toString()}/*.bt2 ."
-            }else {
-                bt_preprocess = 'echo nothing_to_preprocess_for_bt_index'
-            }
             if (params.collapse == true || params.singleEnd == true) {
                 """
-                $bt_preprocess
                 bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
                 samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
                 samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
                 """
             } else if (params.collapse == false){
                 """
-                $bt_preprocess
                 bowtie2 -x $bt3_index -1 ${reads[0]} -2 ${reads[1]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
                 samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
                 samtools view -S -b -f 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile_unalign
