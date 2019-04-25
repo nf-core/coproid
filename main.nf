@@ -26,7 +26,7 @@ def helpMessage() {
     =========================================
     Usage:
     The typical command for running the pipeline is as follows:
-    nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
+    nextflow run maxibor/coproid -profile docker --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz'
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
       --name1                       Name of candidate 1. Example: "Homo_sapiens"
@@ -37,22 +37,27 @@ def helpMessage() {
       --genome2                     Name of iGenomes reference for candidate organism 2. Must be provided if --fasta2 is not provided
       --krakendb                    Path to MiniKraken2_v2_8GB Database
 
-    Options:
-      --name3                       Name of candidate 1. Example: "Sus_scrofa"
-      --fasta3                      Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if --genome3 is not provided
-      --genome3                     Name of iGenomes reference for candidate organism 3. Must be provided if --fasta3 is not provided
+    Settings:
       --adna                        Specified if data is modern (false) or ancient DNA (true). Default = ${params.adna}
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
       --singleEnd                   Specified if reads are single-end (true | false). Default = ${params.singleEnd}
-      --index1                      Path to Bowtie2 index of genome candidate 1, in the form of "/path/to/bowtie_index/basename"
-      --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
-      --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
       --library                     DNA preparation library type ( classic | UDGhalf). Default = ${params.library}
       --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
       --minKraken                   Minimum number of Kraken hits per Taxonomy ID to report. Default = ${params.minKraken}
+      --endo1                       Proportion of Endogenous DNA in organism 1 target microbiome. Default = ${params.endo1}
+      --endo2                       Proportion of Endogenous DNA in organism 2 target microbiome. Default = ${params.endo1}
+      --endo3                       Proportion of Endogenous DNA in organism 3 target microbiome. Default = ${params.endo1}
+
+    Options:
+      --name3                       Name of candidate 1. Example: "Sus_scrofa"
+      --fasta3                      Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if --genome3 is not provided
+      --genome3                     Name of iGenomes reference for candidate organism 3. Must be provided if --fasta3 is not provided
+      --index1                      Path to Bowtie2 index of genome candidate 1, in the form of "/path/to/bowtie_index/basename"
+      --index2                      Path to Bowtie2 index genome candidate 2 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
+      --index3                      Path to Bowtie2 index genome candidate 3 Coprolite maker's genome, in the form of "/path/to/bowtie_index/basename"
 
      Other options:
       --outdir                      The output directory where the results will be saved. Defaults to ${params.outdir}
@@ -71,48 +76,27 @@ DEFAULT VARIABLE VALUES SETUP
 
 // Default variable configuration
 
-params.phred = 33
-
-params.adna = true
-params.outdir = "./results"
-params.reads = ''
-params.singleEnd = false
-params.genome1 = 'GRCh37'
-params.genome2 = 'CanFam3.1'
-params.genome3 = ''
-params.name1 = 'Homo_sapiens'
-params.name2 = 'Canis_familiaris'
-params.name3 = ''
-params.index1 = ''
-params.index2 = ''
-params.index3 = ''
-params.fasta1 = ''
-params.fasta2 = ''
-params.fasta3 = ''
-params.collapse = true
-params.identity = 0.95
-params.pmdscore = 3
-params.library = 'classic'
-params.bowtie = 'very-sensitive'
-params.krakendb =''
-params.minKraken = 50
-params.removeHuman = false
-
-report_template = "$baseDir/templates/coproID_report.ipynb"
-params.sp_labels = "$baseDir/data/sourcepredict/modern_gut_microbiomes_labels.csv"
-params.sp_sources = "$baseDir/data/sourcepredict/modern_gut_microbiomes_sources.csv"
-params.sp_kfold = 5
-params.sp_pdim = 20
-params.sp_dim = 2
-
 bowtie_setting = ''
 collapse_setting = ''
 multiqc_conf = "$baseDir/conf/.multiqc_config.yaml"
+report_template = "$baseDir/templates/coproID_report.ipynb"
 
 
 // Show help message
 if (params.help){
     helpMessage()
+    exit 0
+}
+
+// Message for empty run
+if ( (!params.reads && !params.readPaths) || !params.name1 || !params.name2 || !params.krakendb || (!params.genome1 && !params.fasta1) || (!params.genome2 && !params.fasta2)){
+    log.info"""
+    CoproID was launched with missing mandatory arguments.
+    Please check your command line and retry.
+    To get the help menu, please run:
+    nextflow run maxibor/coproid --help
+    The complete documentation is available at https://github.com/nf-core/coproid
+    """
     exit 0
 }
 
@@ -152,8 +136,9 @@ if (bt1) {
     bt1_index = bt1.substring(lastPath+1)
 
     Channel
-        .fromPath(bt1)
+        .fromPath(bt1_dir+"/*.bt2")
         .ifEmpty {exit 1, "Cannot find any index matching : ${bt1}\n"}
+        .collect()
         .set {bt1_ch}
 } else {
     bt1_index = params.name1
@@ -180,8 +165,9 @@ if (bt2) {
     bt2_index = bt2.substring(lastPath+1)
 
     Channel
-        .fromPath(bt2)
+        .fromPath(bt2_dir+"/*.bt2")
         .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt2}\n"}
+        .collect()
         .set {bt2_ch}
 
 } else {
@@ -208,8 +194,9 @@ if (params.name3) {
         bt3_index = bt3.substring(lastPath+1)
 
         Channel
-            .fromPath(bt3)
+            .fromPath(bt3_dir+"/*.bt2")
             .ifEmpty {exit 1, "Cannot find any index matching : ${params.bt3}\n"}
+            .collect()
             .set {bt3_ch}
     } else {
         bt3_index = params.name3
@@ -309,17 +296,14 @@ if (params.krakendb.endsWith(".tar.gz")){
         input:
             file(ckdb) from comp_kraken
         output:
-            file("kraken") into krakendb
+            file("kraken") into krakendb_ch
         script:
             """
             tar xvzf $ckdb
             """
     }
 } else {
-    Channel
-        .from(params.krakendb)
-        .ifEmpty { exit 1, "Cannot find any Kraken DB Index at ${params.krakendb}"}
-        .set {krakendb}
+    krakendb_ch = file(params.krakendb)
 }
 
 /*******************************
@@ -471,7 +455,20 @@ if (params.collapse == true && params.singleEnd == false){
             col_out = name+".trimmed.fastq"
             settings = name+".settings"
             """
-            AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --collapse --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --outputcollapsed $col_out --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
+            AdapterRemoval --basename $name \
+                           --file1 ${reads[0]} \
+                           --file2 ${reads[1]} \
+                           --trimns \
+                           --trimqualities \
+                           --collapse \
+                           --minquality 20 \
+                           --minlength 30 \
+                           --output1 $out1 \
+                           --output2 $out2 \
+                           --outputcollapsed $col_out \
+                           --threads ${task.cpus} \
+                           --qualitybase ${params.phred} \
+                           --settings $settings
             """
     }
 } else if (params.collapse == false || params.singleEnd == true) {
@@ -494,11 +491,31 @@ if (params.collapse == true && params.singleEnd == false){
             settings = name+".settings"
             if (params.singleEnd == false) {
                 """
-                AdapterRemoval --basename $name --file1 ${reads[0]} --file2 ${reads[1]} --trimns --trimqualities --minquality 20 --minlength 30 --output1 $out1 --output2 $out2 --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
+                AdapterRemoval --basename $name \
+                               --file1 ${reads[0]} \
+                               --file2 ${reads[1]} \
+                               --trimns \
+                               --trimqualities \
+                               --minquality 20 \
+                               --minlength 30 \
+                               --output1 $out1 \
+                               --output2 $out2 \
+                               --threads ${task.cpus} \
+                               --qualitybase ${params.phred} \
+                               --settings $settings
                 """
             } else {
                 """
-                AdapterRemoval --basename $name --file1 ${reads[0]} --trimns --trimqualities --minquality 20 --minlength 30 --output1 $se_out --threads ${task.cpus} --qualitybase ${params.phred} --settings $settings
+                AdapterRemoval --basename $name \
+                               --file1 ${reads[0]} \
+                               --trimns \
+                               --trimqualities \
+                               --minquality 20 \
+                               --minlength 30 \
+                               --output1 $se_out \
+                               --threads ${task.cpus} \
+                               --qualitybase ${params.phred} \
+                               --settings $settings
                 """
             }
             
@@ -767,7 +784,7 @@ process kraken2 {
 
     input:
         set val(name), file(reads) from unmapped_humans_reads
-        file(krakendb) from krakendb
+        file(krakendb) from krakendb_ch
 
 
     output:
@@ -779,11 +796,18 @@ process kraken2 {
         kreport = name+".kreport"
         if (pairedEnd && params.collapse == false){
             """
-            kraken2 --db ${krakendb} --threads ${task.cpus} --output $out --report $kreport --paired ${reads[0]} ${reads[1]}
+            kraken2 --db ${krakendb} \
+                    --threads ${task.cpus} \
+                    --output $out \
+                    --report $kreport \
+                    --paired ${reads[0]} ${reads[1]}
             """    
         } else {
             """
-            kraken2 --db ${krakendb} --threads ${task.cpus} --output $out --report $kreport ${reads[0]}
+            kraken2 --db ${krakendb} \
+                    --threads ${task.cpus} \
+                    --output $out \
+                    --report $kreport ${reads[0]}
             """
         }
         
@@ -842,7 +866,13 @@ process sourcepredict {
         outfile = "prediction.sourcepredict.csv"
         embed_out = "sourcepredict_embedding.csv"
         """
-        sourcepredict -di ${params.sp_dim} -k ${params.sp_kfold} -l ${sp_labels} -s ${sp_sources} -t ${task.cpus} -o $outfile -e $embed_out $otu_table 
+        sourcepredict -di ${params.sp_dim} \
+                      -k ${params.sp_kfold} \
+                      -l ${sp_labels} \
+                      -s ${sp_sources} \
+                      -t ${task.cpus} \
+                      -o $outfile \
+                      -e $embed_out $otu_table 
         """
 }
 
@@ -872,7 +902,20 @@ if (params.name3 == ''){
         """
         samtools index $bam1
         samtools index $bam2
-        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -g1 $genome1 -g2 $genome2 -r1 $organame1 -r2 $organame2 -i ${params.identity} -o $outfile -ob1 $obam1 -ob2 $obam2 -p ${task.cpus}
+        normalizedReadCount -n $name \
+                            -b1 $bam1 \
+                            -b2 $bam2 \
+                            -g1 $genome1 \
+                            -g2 $genome2 \
+                            -r1 $organame1 \
+                            -r2 $organame2 \
+                            -i ${params.identity} \
+                            -o $outfile \
+                            -ob1 $obam1 \
+                            -ob2 $obam2 \
+                            -ed1 ${params.endo1} \
+                            -ed2 ${params.endo2} \
+                            -p ${task.cpus}
         """
     }
 } else {
@@ -906,7 +949,25 @@ if (params.name3 == ''){
         samtools index $bam1
         samtools index $bam2
         samtools index $bam3
-        normalizedReadCount -n $name -b1 $bam1 -b2 $bam2 -b3 $bam3 -g1 $genome1 -g2 $genome2 -g3 $genome3 -r1 $organame1 -r2 $organame2 -r3 $organame3 -i ${params.identity} -o $outfile -ob1 $obam1 -ob2 $obam2 -ob3 $obam3 -p ${task.cpus}
+        normalizedReadCount -n $name \
+                            -b1 $bam1 \
+                            -b2 $bam2 \
+                            -b3 $bam3 \
+                            -g1 $genome1 \
+                            -g2 $genome2 \
+                            -g3 $genome3 \
+                            -r1 $organame1 \
+                            -r2 $organame2 \
+                            -r3 $organame3 \
+                            -i ${params.identity} \
+                            -o $outfile \
+                            -ob1 $obam1 \
+                            -ob2 $obam2 \
+                            -ob3 $obam3 \
+                            -ed1 ${params.endo1} \
+                            -ed2 ${params.endo2} \
+                            -ed3 ${params.endo3} \
+                            -p ${task.cpus}
         """
     }
 }
@@ -1048,7 +1109,14 @@ if (params.adna) {
             script:
                 """
                 echo ${workflow.manifest.version} > version.txt
-                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
+                jupyter nbconvert \
+                        --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \
+                        --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \
+                        --TemplateExporter.exclude_input_prompt=True \
+                        --TemplateExporter.exclude_output_prompt=True \
+                        --ExecutePreprocessor.timeout=200 \
+                        --execute \
+                        --to html $report
                 """
         }
     } else {
@@ -1069,7 +1137,14 @@ if (params.adna) {
             script:
                 """
                 echo ${workflow.manifest.version} > version.txt
-                jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
+                jupyter nbconvert \
+                        --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \
+                        --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \
+                        --TemplateExporter.exclude_input_prompt=True \
+                        --TemplateExporter.exclude_output_prompt=True \
+                        --ExecutePreprocessor.timeout=200 \
+                        --execute \
+                        --to html $report
                 """
         }
     }
@@ -1089,7 +1164,14 @@ if (params.adna) {
         script:
             """
             echo ${workflow.manifest.version} > version.txt
-            jupyter nbconvert --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' --TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True --ExecutePreprocessor.timeout=200 --execute --to html $report
+            jupyter nbconvert \
+                    --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \
+                    --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \
+                    --TemplateExporter.exclude_input_prompt=True \
+                    --TemplateExporter.exclude_output_prompt=True \
+                    --ExecutePreprocessor.timeout=200 \
+                    --execute \
+                    --to html $report
             """
     }
 } 

@@ -98,6 +98,24 @@ def get_args():
         help="Output bam 3 filename. Default = {BAM2_INPUT}.filtered.bam"
     )
     parser.add_argument(
+        '-ed1',
+        dest="endo_dna1",
+        default=0.01,
+        help="Proportion of endogenous DNA in microbiome for organism 1. Default = 0.05"
+    )
+    parser.add_argument(
+        '-ed2',
+        dest="endo_dna2",
+        default=0.01,
+        help="Proportion of endogenous DNA in microbiome for organism 2. Default = 0.05"
+    )
+    parser.add_argument(
+        '-ed3',
+        dest="endo_dna3",
+        default=0.01,
+        help="Proportion of endogenous DNA in microbiome for organism 3. Default = 0.05"
+    )
+    parser.add_argument(
         '-p',
         dest="processes",
         default=4,
@@ -121,10 +139,31 @@ def get_args():
     obam1 = args.output_bam1
     obam2 = args.output_bam2
     obam3 = args.output_bam3
+    endo1 = float(str(args.endo_dna1))
+    endo2 = float(str(args.endo_dna2))
+    endo3 = float(str(args.endo_dna3))
 
     processes = int(args.processes)
 
-    return(bam1, genome1, organame1, bam2, genome2, organame2, bam3, genome3, organame3, sname, identity, processes, outfile, obam1, obam2, obam3)
+    return(bam1,
+           genome1,
+           organame1,
+           bam2,
+           genome2,
+           organame2,
+           bam3,
+           genome3,
+           organame3,
+           sname,
+           identity,
+           processes,
+           outfile,
+           obam1,
+           obam2,
+           obam3,
+           endo1,
+           endo2,
+           endo3)
 
 
 def getBasename(file_name):
@@ -233,8 +272,16 @@ def getCommonReads(readsBam1, readsBam2, readsBam3=None):
     return(res)
 
 
+def check_endo(endo_dna, organism):
+    if endo_dna >= 0 and endo_dna <= 1:
+        return True
+    else:
+        print(f"{endo_dna} is not valid: proportion of endogenous DNA for {organism} should be between 0 and 1. ")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3 = get_args()
+    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3, ENDO1, ENDO2, ENDO3 = get_args()
 
     if BAM1 is None:
         print("Missing BAM file")
@@ -245,8 +292,12 @@ if __name__ == "__main__":
 
     bam_basename1 = getBasename(BAM1)
     bam_basename2 = getBasename(BAM2)
+    check_endo(ENDO1, ORGANAME1)
+    check_endo(ENDO2, ORGANAME2)
+
     if BAM3:
         bam_basename3 = getBasename(BAM3)
+        check_endo(ENDO3, ORGANAME3)
 
     if not OUTFILE:
         OUTFILE = SNAME + ".out"
@@ -309,13 +360,13 @@ if __name__ == "__main__":
         writeBam(inbam=BAM3, outbam=outbam3, commonReads=commonReads)
 
     # Two genomes
-    NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2))
-    NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2))
+    NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) * ENDO1
+    NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) * ENDO2
     if BAM3:
         # Three genomes
-        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3))
-        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3))
-        NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3))
+        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3)) * ENDO1
+        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3)) * ENDO2
+        NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3)) * ENDO3
 
     # sourcepredict
 
