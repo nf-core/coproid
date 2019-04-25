@@ -296,17 +296,14 @@ if (params.krakendb.endsWith(".tar.gz")){
         input:
             file(ckdb) from comp_kraken
         output:
-            file("kraken") into krakendb
+            file("kraken") into krakendb_ch
         script:
             """
             tar xvzf $ckdb
             """
     }
 } else {
-    Channel
-        .from(params.krakendb)
-        .ifEmpty { exit 1, "Cannot find any Kraken DB Index at ${params.krakendb}"}
-        .set {krakendb}
+    krakendb_ch = file(params.krakendb)
 }
 
 /*******************************
@@ -787,7 +784,7 @@ process kraken2 {
 
     input:
         set val(name), file(reads) from unmapped_humans_reads
-        file(krakendb) from krakendb
+        file(krakendb) from krakendb_ch
 
 
     output:
