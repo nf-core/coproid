@@ -1,4 +1,43 @@
-# Usage
+# nf-core/coproid: Usage
+
+## Table of contents
+
+<!-- Install Atom plugin markdown-toc-auto for this ToC to auto-update on save -->
+<!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
+* [Table of contents](#table-of-contents)
+* [Introduction](#introduction)
+* [Running the pipeline](#running-the-pipeline)
+  * [Updating the pipeline](#updating-the-pipeline)
+  * [Reproducibility](#reproducibility)
+* [Main arguments](#main-arguments)
+  * [`-profile`](#-profile)
+  * [`--reads`](#--reads)
+  * [`--singleEnd`](#--singleend)
+* [Reference genomes](#reference-genomes)
+  * [`--genome` (using iGenomes)](#--genome-using-igenomes)
+  * [`--fasta`](#--fasta)
+  * [`--igenomesIgnore`](#--igenomesignore)
+* [Job resources](#job-resources)
+  * [Automatic resubmission](#automatic-resubmission)
+  * [Custom resource requests](#custom-resource-requests)
+* [AWS Batch specific parameters](#aws-batch-specific-parameters)
+  * [`--awsqueue`](#--awsqueue)
+  * [`--awsregion`](#--awsregion)
+* [Other command line parameters](#other-command-line-parameters)
+  * [`--outdir`](#--outdir)
+  * [`--email`](#--email)
+  * [`-name`](#-name)
+  * [`-resume`](#-resume)
+  * [`-c`](#-c)
+  * [`--custom_config_version`](#--custom_config_version)
+  * [`--custom_config_base`](#--custom_config_base)
+  * [`--max_memory`](#--max_memory)
+  * [`--max_time`](#--max_time)
+  * [`--max_cpus`](#--max_cpus)
+  * [`--plaintext_email`](#--plaintext_email)
+  * [`--monochrome_logs`](#--monochrome_logs)
+  * [`--multiqc_config`](#--multiqc_config)
+<!-- TOC END -->
 
 ## Introduction
 
