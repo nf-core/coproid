@@ -1,24 +1,31 @@
----
-name: Bug report
-about: Create a report to help us improve
+Hi there!
 
----
+Thanks for telling us about a problem with the pipeline. Please delete this text and anything that's not relevant from the template below:
 
-**Describe the bug**
+#### Describe the bug
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Please incude the command you used that led to the bug
+#### Steps to reproduce
+Steps to reproduce the behaviour:
+1. Command line: `nextflow run ...`
+2. See error: _Please provide your error message_
 
-**Expected behavior**
+#### Expected behaviour
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+#### System:
+ - Hardware: [e.g. HPC, Desktop, Cloud...]
+ - Executor: [e.g. slurm, local, awsbatch...]
+ - OS: [e.g. CentOS Linux, macOS, Linux Mint...]
+ - Version [e.g. 7, 10.13.6, 18.3...]
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Version [e.g. 22]
+#### Nextflow Installation:
+ - Version: [e.g. 0.31.0]
 
-**Additional context**
+#### Container engine:
+ - Engine: [e.g. Conda, Docker or Singularity]
+ - version: [e.g. 1.0.0]
+ - Image tag: [e.g. nfcore/coproid:1.0.0]
+
+#### Additional context
 Add any other context about the problem here.
