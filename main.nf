@@ -214,7 +214,7 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
 
 
 // Stage config files
-ch_multiqc_config = Channel.fromPath(params.multiqc_config)
+ch_multiqc_config = file(params.multiqc_config, checkIfExists: true)
 ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 // Report template channel
 report_template_ch = file(report_template)
@@ -316,12 +316,10 @@ sp_sources = file(params.sp_sources, checkIfExists: true)
 /*******************
 Logging parameters
 ********************/
-
-log.info "================================================================"
+log.info nfcoreHeader()
 log.info " coproID: Coprolite Identification"
-log.info " Homepage / Documentation: https://github.com/maxibor/coproid"
+log.info " Homepage / Documentation: https://github.com/nf-core/coproid"
 log.info " Author: Maxime Borry <borry@shh.mpg.de>"
-log.info " Version ${workflow.manifest.version}"
 log.info "================================================================"
 def summary = [:]
 if (params.reads) {
@@ -455,19 +453,19 @@ if (params.collapse == true && params.singleEnd == false){
             col_out = name+".trimmed.fastq"
             settings = name+".settings"
             """
-            AdapterRemoval --basename $name \
-                           --file1 ${reads[0]} \
-                           --file2 ${reads[1]} \
-                           --trimns \
-                           --trimqualities \
-                           --collapse \
-                           --minquality 20 \
-                           --minlength 30 \
-                           --output1 $out1 \
-                           --output2 $out2 \
-                           --outputcollapsed $col_out \
-                           --threads ${task.cpus} \
-                           --qualitybase ${params.phred} \
+            AdapterRemoval --basename $name \\
+                           --file1 ${reads[0]} \\
+                           --file2 ${reads[1]} \\
+                           --trimns \\
+                           --trimqualities \\
+                           --collapse \\
+                           --minquality 20 \\
+                           --minlength 30 \\
+                           --output1 $out1 \\
+                           --output2 $out2 \\
+                           --outputcollapsed $col_out \\
+                           --threads ${task.cpus} \\
+                           --qualitybase ${params.phred} \\
                            --settings $settings
             """
     }
@@ -491,30 +489,30 @@ if (params.collapse == true && params.singleEnd == false){
             settings = name+".settings"
             if (params.singleEnd == false) {
                 """
-                AdapterRemoval --basename $name \
-                               --file1 ${reads[0]} \
-                               --file2 ${reads[1]} \
-                               --trimns \
-                               --trimqualities \
-                               --minquality 20 \
-                               --minlength 30 \
-                               --output1 $out1 \
-                               --output2 $out2 \
-                               --threads ${task.cpus} \
-                               --qualitybase ${params.phred} \
+                AdapterRemoval --basename $name \\
+                               --file1 ${reads[0]} \\
+                               --file2 ${reads[1]} \\
+                               --trimns \\
+                               --trimqualities \\
+                               --minquality 20 \\
+                               --minlength 30 \\
+                               --output1 $out1 \\
+                               --output2 $out2 \\
+                               --threads ${task.cpus} \\
+                               --qualitybase ${params.phred} \\
                                --settings $settings
                 """
             } else {
                 """
-                AdapterRemoval --basename $name \
-                               --file1 ${reads[0]} \
-                               --trimns \
-                               --trimqualities \
-                               --minquality 20 \
-                               --minlength 30 \
-                               --output1 $se_out \
-                               --threads ${task.cpus} \
-                               --qualitybase ${params.phred} \
+                AdapterRemoval --basename $name \\
+                               --file1 ${reads[0]} \\
+                               --trimns \\
+                               --trimqualities \\
+                               --minquality 20 \\
+                               --minlength 30 \\
+                               --output1 $se_out \\
+                               --threads ${task.cpus} \\
+                               --qualitybase ${params.phred} \\
                                --settings $settings
                 """
             }
@@ -796,17 +794,17 @@ process kraken2 {
         kreport = name+".kreport"
         if (pairedEnd && params.collapse == false){
             """
-            kraken2 --db ${krakendb} \
-                    --threads ${task.cpus} \
-                    --output $out \
-                    --report $kreport \
+            kraken2 --db ${krakendb} \\
+                    --threads ${task.cpus} \\
+                    --output $out \\
+                    --report $kreport \\
                     --paired ${reads[0]} ${reads[1]}
             """    
         } else {
             """
-            kraken2 --db ${krakendb} \
-                    --threads ${task.cpus} \
-                    --output $out \
+            kraken2 --db ${krakendb} \\
+                    --threads ${task.cpus} \\
+                    --output $out \\
                     --report $kreport ${reads[0]}
             """
         }
@@ -866,12 +864,12 @@ process sourcepredict {
         outfile = "prediction.sourcepredict.csv"
         embed_out = "sourcepredict_embedding.csv"
         """
-        sourcepredict -di ${params.sp_dim} \
-                      -k ${params.sp_kfold} \
-                      -l ${sp_labels} \
-                      -s ${sp_sources} \
-                      -t ${task.cpus} \
-                      -o $outfile \
+        sourcepredict -di ${params.sp_dim} \\
+                      -k ${params.sp_kfold} \\
+                      -l ${sp_labels} \\
+                      -s ${sp_sources} \\
+                      -t ${task.cpus} \\
+                      -o $outfile \\
                       -e $embed_out $otu_table 
         """
 }
@@ -902,19 +900,19 @@ if (params.name3 == ''){
         """
         samtools index $bam1
         samtools index $bam2
-        normalizedReadCount -n $name \
-                            -b1 $bam1 \
-                            -b2 $bam2 \
-                            -g1 $genome1 \
-                            -g2 $genome2 \
-                            -r1 $organame1 \
-                            -r2 $organame2 \
-                            -i ${params.identity} \
-                            -o $outfile \
-                            -ob1 $obam1 \
-                            -ob2 $obam2 \
-                            -ed1 ${params.endo1} \
-                            -ed2 ${params.endo2} \
+        normalizedReadCount -n $name \\
+                            -b1 $bam1 \\
+                            -b2 $bam2 \\
+                            -g1 $genome1 \\
+                            -g2 $genome2 \\
+                            -r1 $organame1 \\
+                            -r2 $organame2 \\
+                            -i ${params.identity} \\
+                            -o $outfile \\
+                            -ob1 $obam1 \\
+                            -ob2 $obam2 \\
+                            -ed1 ${params.endo1} \\
+                            -ed2 ${params.endo2} \\
                             -p ${task.cpus}
         """
     }
@@ -949,24 +947,24 @@ if (params.name3 == ''){
         samtools index $bam1
         samtools index $bam2
         samtools index $bam3
-        normalizedReadCount -n $name \
-                            -b1 $bam1 \
-                            -b2 $bam2 \
-                            -b3 $bam3 \
-                            -g1 $genome1 \
-                            -g2 $genome2 \
-                            -g3 $genome3 \
-                            -r1 $organame1 \
-                            -r2 $organame2 \
-                            -r3 $organame3 \
-                            -i ${params.identity} \
-                            -o $outfile \
-                            -ob1 $obam1 \
-                            -ob2 $obam2 \
-                            -ob3 $obam3 \
-                            -ed1 ${params.endo1} \
-                            -ed2 ${params.endo2} \
-                            -ed3 ${params.endo3} \
+        normalizedReadCount -n $name \\
+                            -b1 $bam1 \\
+                            -b2 $bam2 \\
+                            -b3 $bam3 \\
+                            -g1 $genome1 \\
+                            -g2 $genome2 \\
+                            -g3 $genome3 \\
+                            -r1 $organame1 \\
+                            -r2 $organame2 \\
+                            -r3 $organame3 \\
+                            -i ${params.identity} \\
+                            -o $outfile \\
+                            -ob1 $obam1 \\
+                            -ob2 $obam2 \\
+                            -ob3 $obam3 \\
+                            -ed1 ${params.endo1} \\
+                            -ed2 ${params.endo2} \\
+                            -ed3 ${params.endo3} \\
                             -p ${task.cpus}
         """
     }
@@ -1109,13 +1107,13 @@ if (params.adna) {
             script:
                 """
                 echo ${workflow.manifest.version} > version.txt
-                jupyter nbconvert \
-                        --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \
-                        --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \
-                        --TemplateExporter.exclude_input_prompt=True \
-                        --TemplateExporter.exclude_output_prompt=True \
-                        --ExecutePreprocessor.timeout=200 \
-                        --execute \
+                jupyter nbconvert \\
+                        --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \\
+                        --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \\
+                        --TemplateExporter.exclude_input_prompt=True \\
+                        --TemplateExporter.exclude_output_prompt=True \\
+                        --ExecutePreprocessor.timeout=200 \\
+                        --execute \\
                         --to html $report
                 """
         }
@@ -1137,13 +1135,13 @@ if (params.adna) {
             script:
                 """
                 echo ${workflow.manifest.version} > version.txt
-                jupyter nbconvert \
-                        --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \
-                        --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \
-                        --TemplateExporter.exclude_input_prompt=True \
-                        --TemplateExporter.exclude_output_prompt=True \
-                        --ExecutePreprocessor.timeout=200 \
-                        --execute \
+                jupyter nbconvert \\
+                        --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \\
+                        --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \\
+                        --TemplateExporter.exclude_input_prompt=True \\
+                        --TemplateExporter.exclude_output_prompt=True \\
+                        --ExecutePreprocessor.timeout=200 \\
+                        --execute \\
                         --to html $report
                 """
         }
@@ -1164,13 +1162,13 @@ if (params.adna) {
         script:
             """
             echo ${workflow.manifest.version} > version.txt
-            jupyter nbconvert \
-                    --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \
-                    --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \
-                    --TemplateExporter.exclude_input_prompt=True \
-                    --TemplateExporter.exclude_output_prompt=True \
-                    --ExecutePreprocessor.timeout=200 \
-                    --execute \
+            jupyter nbconvert \\
+                    --TagRemovePreprocessor.remove_input_tags='{"remove_cell"}' \\
+                    --TagRemovePreprocessor.remove_all_outputs_tags='{"remove_output"}' \\
+                    --TemplateExporter.exclude_input_prompt=True \\
+                    --TemplateExporter.exclude_output_prompt=True \\
+                    --ExecutePreprocessor.timeout=200 \\
+                    --execute \\
                     --to html $report
             """
     }
