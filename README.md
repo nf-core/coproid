@@ -3,7 +3,7 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
 
-# ![logo](docs/source/_static/img/coproid_logo_small.jpg)
+# ![logo_coproid](docs/source/_static/img/coproid_logo_small.jpg) ![logo_nf_core](assets/img/coproID_nf-core_logo_small.png) 
 
 ## Documentation
 

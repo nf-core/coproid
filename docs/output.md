@@ -2,7 +2,7 @@
 
 This document describes the output produced by the coproID pipeline.
 
-## `multiqc_report.html`
+## multiqc_report.html
 
 ### FastQC
 
@@ -26,7 +26,7 @@ This plot shows the number of reads aligning to the reference in different ways.
 [DamageProfiler](https://github.com/Integrative-Transcriptomics/DamageProfiler) calculates damage profiles of mapped reads.
 These plots represents the damage patterns and read length distribution.
 
-## `coproID_report.html`
+## coproID_report.html
 
 ### coproID summary table
 
@@ -41,22 +41,22 @@ This interactive plot shows the embedding of the microbiome samples by [sourcepr
 
 These plots represents the damage patterns computed by DamageProfiler
 
-## `coproID_result.csv`
+## coproID_result.csv
 
 This table summarizes the read ratios and microbiome source proportions as computed by coproID and sourcepredict.
 
-## `kraken`
+## kraken
 
 This directory contains the merged OTU count for all samples of the run, as counted by [Kraken2](https://ccb.jhu.edu/software/kraken2/)
 
-## `damageprofiler`
+## damageprofiler
 
 This directory contains all of the output files of DamageProfiler (see multiqc section above)
 
-## `alignments`
+## alignments
 
 This directory contains the alignment `.bam` files for aligned and aligned sequences to each target genome.
 
-## `pmdtools`
+## pmdtools
 
 This directory contains the alignment `.bam` files for aligned and aligned **ancient DNA** sequences to each target genome, according to [PMDTools](https://github.com/pontussk/PMDtools).
