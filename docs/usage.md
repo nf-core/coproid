@@ -1,3 +1,5 @@
+# nf-core/coproid: Usage
+
 <!-- vscode-markdown-toc -->
 * [Table of contents](#Tableofcontents)
 * [Introduction](#Introduction)
@@ -61,7 +63,7 @@
 	numbering=false
 	autoSave=true
 	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc --># nf-core/coproid: Usage
+<!-- /vscode-markdown-toc -->
 
 ## <a name='Tableofcontents'></a>Table of contents
 
