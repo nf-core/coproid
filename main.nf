@@ -215,7 +215,7 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
 
 // Stage config files
 ch_multiqc_config = file(params.multiqc_config, checkIfExists: true)
-ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
+ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 // Report template channel
 report_template_ch = file(report_template)
 
