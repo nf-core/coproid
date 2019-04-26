@@ -79,7 +79,6 @@ DEFAULT VARIABLE VALUES SETUP
 
 bowtie_setting = ''
 collapse_setting = ''
-multiqc_conf = "$baseDir/conf/.multiqc_config.yaml"
 report_template = "$baseDir/templates/coproID_report.ipynb"
 
 
@@ -1195,57 +1194,6 @@ if (params.adna) {
     }
 } 
 
-// 9:     MultiQC
-process multiqc {
-
-    label 'ristretto'
-
-    errorStrategy 'ignore'
-
-    publishDir "${params.outdir}", mode: 'copy'
-
-    input:
-        file (ar:'adapter_removal/*') from adapter_removal_results.collect()
-        file (al1: 'alignment/*') from align1_multiqc.collect()
-        file ('fastqc/*') from fastqc_results.collect()
-        file ('DamageProfiler/*') from dmgProf1_ch.collect()
-        file ('DamageProfiler/*') from dmgProf2_ch.collect()
-        file ('software_versions/*') from software_versions_yaml.collect()
-        // file ('DamageProfiler/*') dmgProf3_ch.collect()
-    output:
-        file 'multiqc_report.html' into multiqc_report
-
-    script:
-        """
-        multiqc -f -d adapter_removal alignment fastqc DamageProfiler software_versions software_versions -c $multiqc_conf
-        """
-}
-
-// Header log info
-log.info nfcoreHeader()
-log.info summary.collect { k,v -> "${k.padRight(25)}: $v" }.join("\n")
-log.info "\033[2m----------------------------------------------------\033[0m"
-
-// Check the hostnames against configured profiles
-checkHostname()
-
-def create_workflow_summary(summary) {
-    def yaml_file = workDir.resolve('workflow_summary_mqc.yaml')
-    yaml_file.text  = """
-    id: 'nf-core-coproid-summary'
-    description: " - this information is collected when the pipeline is started."
-    section_name: 'nf-core/coproid Workflow Summary'
-    section_href: 'https://github.com/nf-core/coproid'
-    plot_type: 'html'
-    data: |
-        <dl class=\"dl-horizontal\">
-${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }.join("\n")}
-        </dl>
-    """.stripIndent()
-
-   return yaml_file
-}
-
 
 /*
  * Parse software version numbers
@@ -1268,8 +1216,60 @@ process get_software_versions {
     echo $workflow.nextflow.version > v_nextflow.txt
     fastqc --version > v_fastqc.txt
     multiqc --version > v_multiqc.txt
+    sourcepredict -h  > v_sourcepredict.txt
+    samtools --version > v_samtools.txt
+    bedtools --version > v_bedtools.txt
+    kraken2 --version > v_kraken2.txt
+    bowtie2 --version > v_bowtie2.txt
+    AdapterRemoval --version 2> v_adapterremoval.txt
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
+}
+
+// 9:     MultiQC
+process multiqc {
+
+    label 'ristretto'
+
+    errorStrategy 'ignore'
+
+    publishDir "${params.outdir}", mode: 'copy'
+
+    input:
+        file (ar:'adapter_removal/*') from adapter_removal_results.collect()
+        file (al1: 'alignment/*') from align1_multiqc.collect()
+        file ('fastqc/*') from fastqc_results.collect()
+        file ('DamageProfiler/*') from dmgProf1_ch.collect()
+        file ('DamageProfiler/*') from dmgProf2_ch.collect()
+        file ('software_versions/*') from software_versions_yaml.collect()
+        file(multiqc_conf) from ch_multiqc_config
+    output:
+        file 'multiqc_report.html' into multiqc_report
+
+    script:
+        """
+        multiqc -f -d adapter_removal alignment fastqc DamageProfiler software_versions software_versions -c $multiqc_conf
+        """
+}
+
+// Check the hostnames against configured profiles
+checkHostname()
+
+def create_workflow_summary(summary) {
+    def yaml_file = workDir.resolve('workflow_summary_mqc.yaml')
+    yaml_file.text  = """
+    id: 'nf-core-coproid-summary'
+    description: " - this information is collected when the pipeline is started."
+    section_name: 'nf-core/coproid Workflow Summary'
+    section_href: 'https://github.com/nf-core/coproid'
+    plot_type: 'html'
+    data: |
+        <dl class=\"dl-horizontal\">
+${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }.join("\n")}
+        </dl>
+    """.stripIndent()
+
+   return yaml_file
 }
 
 
