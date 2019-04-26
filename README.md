@@ -1,9 +1,9 @@
-# ![logo](docs/source/\_static/img/coproid_logo_small.jpg)  
-
 [![Build Status](https://travis-ci.com/nf-core/coproid.svg?branch=master)](https://travis-ci.com/nf-core/coproid)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
+
+# ![logo](docs/source/_static/img/coproid_logo_small.jpg)
 
 ## Documentation
 

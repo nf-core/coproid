@@ -1,7 +1,7 @@
-name: nf-core-coproid-1.0dev
+name: nf-core-coproid-1.0
 channels:
-  - conda-forge
   - bioconda
+  - conda-forge
   - maxibor
   - etetoolkit
   - defaults
@@ -23,15 +23,13 @@ dependencies:
   - bioconda::nextflow=19.01.0
   - bioconda::pmdtools=0.60 
   - bioconda::pysam=0.15.2
-  - maxibor::samtools=1.9
+  - bioconda::samtools=1.9
   - conda-forge::scikit-bio=0.5.5
   - anaconda::scikit-learn=0.20.2
   - maxibor::sourcepredict=0.32
   - conda-forge::umap-learn=0.3.7
-  - pip:
-    - numpy==1.16.3
-    - pandas==0.24.2
-    - scipy==1.2.1
-    - networkx==2.3
-    - multiqc==1.7
-
+  - anaconda::numpy=1.16.3
+  - anaconda::pandas=0.24.2
+  - anaconda::scipy=1.2.1
+  - bioconda::multiqc=1.7
+  - conda-forge::r-markdown=0.9
