@@ -1,15 +1,10 @@
 Installation
 ============
 
-## Requirements
+The installation guidelines are commong to all nf-core pipelines
 
-- **OS:** Unix based operating system such as Ubuntu or Mac OS X
-- **conda:** Install miniconda using the appropriated installers (no root permission required) [conda.io/miniconda.html](https://conda.io/miniconda.html)
-- **Nextflow:** Install nextflow with conda by issuing the following command in your terminal: `conda install -c bioconda nextflow`
-
-## Installation
-
-Install **coproID** by issuing the following command in your terminal:
-```
-nextflow pull maxibor/coproid
-```
+1. [Installation](https://nf-co.re/usage/installation)
+2. Pipeline configuration
+    * [Local installation](https://nf-co.re/usage/local_installation)
+    * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
+    * [Reference genomes](https://nf-co.re/usage/reference_genomes)

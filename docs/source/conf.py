@@ -22,12 +22,10 @@ source_parsers = {
     '.md': CommonMarkParser,
 }
 
-source_suffix = ['.rst', '.md']
-
 # -- Project information -----------------------------------------------------
 
-project = 'coproID'
-copyright = '2018, Maxime Borry'
+project = 'coproid'
+copyright = '2019, Maxime Borry'
 author = 'Maxime Borry'
 
 # The short X.Y version
@@ -46,7 +44,15 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -56,7 +62,7 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
@@ -109,7 +115,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'coproIDdoc'
+htmlhelp_basename = 'coproiddoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -136,7 +142,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'coproID.tex', 'coproID Documentation',
+    (master_doc, 'coproid.tex', 'coproid Documentation',
      'Maxime Borry', 'manual'),
 ]
 
@@ -146,7 +152,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'coproid', 'coproID Documentation',
+    (master_doc, 'coproid', 'coproid Documentation',
      [author], 1)
 ]
 
@@ -157,10 +163,41 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'coproID', 'coproID Documentation',
-     author, 'coproID', 'One line description of project.',
+    (master_doc, 'coproid', 'coproid Documentation',
+     author, 'coproid', 'One line description of project.',
      'Miscellaneous'),
 ]
 
 
+# -- Options for Epub output -------------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
+
+
 # -- Extension configuration -------------------------------------------------
+
+# -- Options for intersphinx extension ---------------------------------------
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
+
+# -- Options for todo extension ----------------------------------------------
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = True

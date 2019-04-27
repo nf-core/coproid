@@ -46,6 +46,22 @@ def get_args():
         help='Organism name. Example: "Homo_sapiens". Default = None'
     )
     parser.add_argument(
+        '-b3',
+        dest='bam3',
+        default=None,
+        help="Bam aligment file on genome. Default = None")
+    parser.add_argument(
+        '-g3',
+        dest="genome3",
+        default=None,
+        help="Fasta file of genome. Default = None")
+    parser.add_argument(
+        '-r3',
+        dest='organism3',
+        default=None,
+        help='Organism name. Example: "Homo_sapiens". Default = None'
+    )
+    parser.add_argument(
         '-n',
         dest='name',
         default=None,
@@ -76,6 +92,30 @@ def get_args():
         help="Output bam 2 filename. Default = {BAM2_INPUT}.filtered.bam"
     )
     parser.add_argument(
+        '-ob3',
+        dest="output_bam3",
+        default=None,
+        help="Output bam 3 filename. Default = {BAM2_INPUT}.filtered.bam"
+    )
+    parser.add_argument(
+        '-ed1',
+        dest="endo_dna1",
+        default=0.01,
+        help="Proportion of endogenous DNA in microbiome for organism 1. Default = 0.05"
+    )
+    parser.add_argument(
+        '-ed2',
+        dest="endo_dna2",
+        default=0.01,
+        help="Proportion of endogenous DNA in microbiome for organism 2. Default = 0.05"
+    )
+    parser.add_argument(
+        '-ed3',
+        dest="endo_dna3",
+        default=0.01,
+        help="Proportion of endogenous DNA in microbiome for organism 3. Default = 0.05"
+    )
+    parser.add_argument(
         '-p',
         dest="processes",
         default=4,
@@ -90,14 +130,40 @@ def get_args():
     bam2 = args.bam2
     genome2 = args.genome2
     organame2 = args.organism2
+    bam3 = args.bam3
+    genome3 = args.genome3
+    organame3 = args.organism3
     sname = args.name
     identity = float(str(args.identity))
     outfile = args.output
     obam1 = args.output_bam1
     obam2 = args.output_bam2
+    obam3 = args.output_bam3
+    endo1 = float(str(args.endo_dna1))
+    endo2 = float(str(args.endo_dna2))
+    endo3 = float(str(args.endo_dna3))
+
     processes = int(args.processes)
 
-    return(bam1, genome1, organame1, bam2, genome2, organame2, sname, identity, processes, outfile, obam1, obam2)
+    return(bam1,
+           genome1,
+           organame1,
+           bam2,
+           genome2,
+           organame2,
+           bam3,
+           genome3,
+           organame3,
+           sname,
+           identity,
+           processes,
+           outfile,
+           obam1,
+           obam2,
+           obam3,
+           endo1,
+           endo2,
+           endo3)
 
 
 def getBasename(file_name):
@@ -195,16 +261,27 @@ def writeBam(inbam, outbam, commonReads):
             o.write("Error writing this BAM file, input bam file was erroneous")
 
 
-def getCommonReads(readsBam1, readsBam2):
+def getCommonReads(readsBam1, readsBam2, readsBam3=None):
     reads1 = set(readsBam1)
     reads2 = set(readsBam2)
-    res = list(reads1.intersection(reads2))
+    if not readsBam3:
+        res = list(reads1.intersection(reads2))
+    else:
+        reads3 = set(readsBam3)
+        res = list(reads1.intersection(reads2).intersection(reads3))
     return(res)
 
 
+def check_endo(endo_dna, organism):
+    if endo_dna >= 0 and endo_dna <= 1:
+        return True
+    else:
+        print(f"{endo_dna} is not valid: proportion of endogenous DNA for {organism} should be between 0 and 1. ")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    # bam1, genome1, organame1, bam2, genome2, organame2, sname, identity, processes, outfile, obam1, obam2
-    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2 = get_args()
+    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3, ENDO1, ENDO2, ENDO3 = get_args()
 
     if BAM1 is None:
         print("Missing BAM file")
@@ -215,29 +292,54 @@ if __name__ == "__main__":
 
     bam_basename1 = getBasename(BAM1)
     bam_basename2 = getBasename(BAM2)
+    check_endo(ENDO1, ORGANAME1)
+    check_endo(ENDO2, ORGANAME2)
+
+    if BAM3:
+        bam_basename3 = getBasename(BAM3)
+        check_endo(ENDO3, ORGANAME3)
 
     if not OUTFILE:
         OUTFILE = SNAME + ".out"
 
     gs1 = computeGenomeSize(GENOME1)
     gs2 = computeGenomeSize(GENOME2)
+    if BAM3:
+        gs3 = computeGenomeSize(GENOME3)
 
     bam1_res = getNumberMappedReadsMultiprocess(
         bam=BAM1, processes=PROCESSES, id=ID)
     bam2_res = getNumberMappedReadsMultiprocess(
         bam=BAM2, processes=PROCESSES, id=ID)
+    if BAM3:
+        bam3_res = getNumberMappedReadsMultiprocess(
+            bam=BAM3, processes=PROCESSES, id=ID)
 
     print("nb1_first", bam1_res["bpCnt"])
     print("nb2_first", bam2_res["bpCnt"])
+    if BAM3:
+        print("nb3_first", bam3_res["bpCnt"])
 
     reads1 = bam1_res["mappedReads"]
     reads2 = bam2_res["mappedReads"]
-    commonReads = getCommonReads(readsBam1=reads1, readsBam2=reads2)
+    if BAM3:
+        reads3 = bam3_res["mappedReads"]
+    if not BAM3:
+        commonReads = getCommonReads(readsBam1=reads1, readsBam2=reads2)
+    else:
+        commonReads = getCommonReads(
+            readsBam1=reads1, readsBam2=reads2, readsBam3=reads3)
 
     nb1 = getNumberMappedReadsMultiprocess(
         bam=BAM1, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
+    nnbp1 = (nb1 + 1) / gs1
     nb2 = getNumberMappedReadsMultiprocess(
         bam=BAM2, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
+    nnbp2 = (nb2 + 1) / gs2
+    if BAM3:
+        nb3 = getNumberMappedReadsMultiprocess(
+            bam=BAM3, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
+        nnbp3 = (nb3 + 1) / gs3
 
     if OBAM1 is None:
         outbam1 = bam_basename1 + ".filtered.bam"
@@ -247,14 +349,36 @@ if __name__ == "__main__":
         outbam2 = bam_basename2 + ".filtered.bam"
     else:
         outbam2 = OBAM2
+    if OBAM3 is None and BAM3:
+        outbam3 = bam_basename3 + ".filtered.bam"
+    else:
+        outbam3 = OBAM3
 
     writeBam(inbam=BAM1, outbam=outbam1, commonReads=commonReads)
     writeBam(inbam=BAM2, outbam=outbam2, commonReads=commonReads)
+    if OBAM3:
+        writeBam(inbam=BAM3, outbam=outbam3, commonReads=commonReads)
 
-    NormalizedReadRatio = log2((nb1 + 1 / gs1) / (nb2 + 1 / gs2))
+    # Two genomes
+    NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) * ENDO1
+    NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) * ENDO2
+    if BAM3:
+        # Three genomes
+        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3)) * ENDO1
+        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3)) * ENDO2
+        NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3)) * ENDO3
 
-    # Template output file structure
-    # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,NormalizedReadRatio
-    with open(OUTFILE, 'w') as w:
-        w.write(SNAME + "," + ORGANAME1 + "," + ORGANAME2 + "," + str(gs1) + "," +
-                str(gs2) + "," + str(nb1) + "," + str(nb2) + "," + str(NormalizedReadRatio) + "\n")
+    # sourcepredict
+
+    if not BAM3:
+        # Template output file structure
+        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2
+        with open(OUTFILE, 'w') as w:
+            w.write(
+                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{nb1},{nb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1},{NormalizedReadRatio_2}\n")
+    else:
+        # Template output file structure
+        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3
+        with open(OUTFILE, 'w') as w:
+            w.write(
+                f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{nb1},{nb2},{nb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1},{NormalizedReadRatio_2},{NormalizedReadRatio_3}\n")
