@@ -1,75 +1,6 @@
-# nf-core/coproid: Usage
+# Usage
 
-<!-- vscode-markdown-toc -->
-* [Table of contents](#Tableofcontents)
-* [Introduction](#Introduction)
-* [Running the pipeline](#Runningthepipeline)
-	* [Updating the pipeline](#Updatingthepipeline)
-	* [Reproducibility](#Reproducibility)
-* [Main arguments](#Mainarguments)
-	* [`-profile`](#-profile)
-	* [`--reads`](#--reads)
-	* [`--singleEnd`](#--singleEnd)
-	* [`--name1`](#--name1)
-	* [`--name2`](#--name2)
-	* [`--krakenDB`](#--krakenDB)
-* [Reference genomes](#Referencegenomes)
-	* [`--genome1` (using iGenomes)](#--genome1usingiGenomes)
-	* [`--fasta1`](#--fasta1)
-	* [`--fasta2`](#--fasta2)
-	* [`--genome2`](#--genome2)
-	* [`--igenomesIgnore`](#--igenomesIgnore)
-* [Settings](#Settings)
-	* [`--adna`](#--adna)
-	* [`--phred`](#--phred)
-	* [`--collapse`](#--collapse)
-	* [`--identity`](#--identity)
-	* [`--pmdscore`](#--pmdscore)
-	* [`--library`](#--library)
-	* [`--bowtie`](#--bowtie)
-	* [`--minKraken`](#--minKraken)
-	* [`--endo1`](#--endo1)
-	* [`--endo2`](#--endo2)
-	* [`--endo3`](#--endo3)
-* [Other coproID parameters](#OthercoproIDparameters)
-	* [`--name3`](#--name3)
-	* [`--fasta3`](#--fasta3)
-	* [`--genome3`](#--genome3)
-	* [`--index1`](#--index1)
-	* [`--index2`](#--index2)
-	* [`--index3`](#--index3)
-* [Job resources](#Jobresources)
-	* [Automatic resubmission](#Automaticresubmission)
-	* [Custom resource requests](#Customresourcerequests)
-* [AWS Batch specific parameters](#AWSBatchspecificparameters)
-	* [`--awsqueue`](#--awsqueue)
-	* [`--awsregion`](#--awsregion)
-* [Other command line parameters](#Othercommandlineparameters)
-	* [`--outdir`](#--outdir)
-	* [`--email`](#--email)
-	* [`-name`](#-name)
-	* [`-resume`](#-resume)
-	* [`-c`](#-c)
-	* [`--custom_config_version`](#--custom_config_version)
-	* [`--custom_config_base`](#--custom_config_base)
-	* [`--max_memory`](#--max_memory)
-	* [`--max_time`](#--max_time)
-	* [`--max_cpus`](#--max_cpus)
-	* [`--plaintext_email`](#--plaintext_email)
-	* [`--monochrome_logs`](#--monochrome_logs)
-	* [`--multiqc_config`](#--multiqc_config)
-
-<!-- vscode-markdown-toc-config
-	numbering=false
-	autoSave=true
-	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc -->
-
-## <a name='Tableofcontents'></a>Table of contents
-
-
-
-## <a name='Introduction'></a>Introduction
+## Introduction
 
 Nextflow handles job submissions on SLURM or other environments, and supervises running the jobs. Thus the Nextflow process must run until the pipeline is finished. We recommend that you put the process running in the background through `screen` / `tmux` or similar tool. Alternatively you can run nextflow within a cluster job submitted your job scheduler.
 
@@ -79,7 +10,7 @@ It is recommended to limit the Nextflow Java virtual machines memory. We recomme
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
 
-## <a name='Runningthepipeline'></a>Running the pipeline
+## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
@@ -98,7 +29,7 @@ results         # Finished results (configurable, see below)
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
 
-### <a name='Updatingthepipeline'></a>Updating the pipeline
+### Updating the pipeline
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
@@ -106,7 +37,7 @@ When you run the above command, Nextflow automatically pulls the pipeline code f
 nextflow pull nf-core/coproid
 ```
 
-### <a name='Reproducibility'></a>Reproducibility
+### Reproducibility
 
 It's a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
@@ -114,9 +45,9 @@ First, go to the [nf-core/coproid releases page](https://github.com/nf-core/copr
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
 
-## <a name='Mainarguments'></a>Main arguments
+## Main arguments
 
-### <a name='-profile'></a>`-profile`
+### `-profile`
 
 Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. Note that multiple profiles can be loaded, for example: `-profile docker` - the order of arguments is important!
 
@@ -137,7 +68,7 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
     -   A profile with a complete configuration for automated testing
     -   Includes links to test data so needs no other parameters
 
-### <a name='--reads'></a>`--reads`
+### `--reads`
 
 Use this to specify the location of your input FastQ files. For example:
 
@@ -153,7 +84,7 @@ Please note the following requirements:
 
 If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
-### <a name='--singleEnd'></a>`--singleEnd`
+### `--singleEnd`
 
 By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--singleEnd` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--reads`. For example:
 
@@ -163,23 +94,23 @@ By default, the pipeline expects paired-end data. If you have single-end data, y
 
 It is not possible to run a mixture of single-end and paired-end files in one run.
 
-### <a name='--name1'></a>`--name1`
+### `--name1`
 
 Name of the first candidate species. Example : `"Homo_sapiens"`
 
-### <a name='--name2'></a>`--name2`
+### `--name2`
 
 Name of the second candidate species. Example : `"Canis_familiaris"`
 
-### <a name='--krakenDB'></a>`--krakenDB`
+### `--krakenDB`
 
 Path to Path to Kraken2 MiniKraken2_v2_8GB Database. Can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
 
-## <a name='Referencegenomes'></a>Reference genomes
+## Reference genomes
 
 The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
 
-### <a name='--genome1usingiGenomes'></a>`--genome1` (using iGenomes)
+### `--genome1` (using iGenomes)
 
 There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
 
@@ -244,7 +175,7 @@ params {
 }
 ```
 
-### <a name='--fasta1'></a>`--fasta1`
+### `--fasta1`
 
 If you prefer, you can specify the full path to your reference genome when you run the pipeline:
 
@@ -252,7 +183,7 @@ If you prefer, you can specify the full path to your reference genome when you r
 --fasta1 'path/to/fasta/reference.fa'
 ```
 
-### <a name='--fasta2'></a>`--fasta2`
+### `--fasta2`
 
 If you prefer, you can specify the full path to your reference genome when you run the pipeline:
 
@@ -260,7 +191,7 @@ If you prefer, you can specify the full path to your reference genome when you r
 --fasta2 'path/to/fasta/reference.fa'
 ```
 
-### <a name='--genome2'></a>`--genome2` (using iGenomes)
+### `--genome2` (using iGenomes)
 
 Name of iGenomes reference for candidate organism 3. Must be provided if fasta2 is not provided
 
@@ -268,13 +199,13 @@ Name of iGenomes reference for candidate organism 3. Must be provided if fasta2 
 --genome2 'CanFam3.1'
 ```
 
-### <a name='--igenomesIgnore'></a>`--igenomesIgnore`
+### `--igenomesIgnore`
 
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
-## <a name='Settings'></a>Settings
+## Settings
 
-### <a name='--adna'></a>`--adna`
+### `--adna`
 
 Specified if data is modern (false) or ancient DNA (true). Default = true
 
@@ -288,7 +219,7 @@ or
 --adna false
 ```
 
-### <a name='--phred'></a>`--phred`
+### `--phred`
 
 Specifies the fastq quality encoding (33 | 64). Defaults to 33
 
@@ -302,7 +233,7 @@ or
 --phred 64
 ```
 
-### <a name='--collapse'></a>`--collapse`
+### `--collapse`
 
 Specifies if AdapterRemoval should merge the paired-end sequences or not. Default = true
 
@@ -316,7 +247,7 @@ or
 --collapse false
 ```
 
-### <a name='--identity'></a>`--identity`
+### `--identity`
 
 Identity threshold to retain read alignment. Default = 0.95
 
@@ -324,7 +255,7 @@ Identity threshold to retain read alignment. Default = 0.95
 --identity 0.95
 ```
 
-### <a name='--pmdscore'></a>`--pmdscore`
+### `--pmdscore`
 
 Minimum PMDscore to retain read alignment. Default = 3
 
@@ -332,7 +263,7 @@ Minimum PMDscore to retain read alignment. Default = 3
 --pmdscore 3
 ```
 
-### <a name='--library'></a>`--library`
+### `--library`
 
 DNA preparation library type ( classic | UDGhalf). Default = classic
 
@@ -346,7 +277,7 @@ or
 --library UDGhalf
 ```
 
-### <a name='--bowtie'></a>`--bowtie`
+### `--bowtie`
 
 Bowtie settings for sensivity (very-fast | very-sensitive). Default = very-sensitive
 
@@ -360,7 +291,7 @@ or
 --bowtie very-sensitive
 ```
 
-### <a name='--minKraken'></a>`--minKraken`
+### `--minKraken`
 
 Minimum number of Kraken hits per Taxonomy ID to report. Default = 50
 
@@ -368,7 +299,7 @@ Minimum number of Kraken hits per Taxonomy ID to report. Default = 50
 --minKraken 50
 ```
 
-### <a name='--endo1'></a>`--endo1`
+### `--endo1`
 
 Proportion of Endogenous DNA in organism 1 target microbiome. Must be between 0 and 1. Default = 0.01
 
@@ -376,7 +307,7 @@ Proportion of Endogenous DNA in organism 1 target microbiome. Must be between 0 
 --endo1 0.01
 ```
 
-### <a name='--endo2'></a>`--endo2`
+### `--endo2`
 
 Proportion of Endogenous DNA in organism 2 target microbiome. Must be between 0 and 1. Default = 0.01
 
@@ -384,7 +315,7 @@ Proportion of Endogenous DNA in organism 2 target microbiome. Must be between 0 
 --endo2 0.01
 ```
 
-### <a name='--endo3'></a>`--endo3`
+### `--endo3`
 
 Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 and 1. Default = 0.01
 
@@ -392,13 +323,13 @@ Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 
 --endo3 0.01
 ```
 
-## <a name='OthercoproIDparameters'></a>Other coproID parameters
+## Other coproID parameters
 
-### <a name='--name3'></a>`--name3`
+### `--name3`
 
 Name of candidate 1. Example: "Sus_scrofa"
 
-### <a name='--fasta3'></a>`--fasta3`
+### `--fasta3`
 
 Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if ### \`genome3 is not provided
 
@@ -406,7 +337,7 @@ Path to canidate organism 3 genome fasta file (must be surrounded with quotes). 
 --fasta3 'path/to/fasta/reference.fa'
 ```
 
-### <a name='--genome3'></a>`--genome3` (using iGenomes)
+### `--genome3` (using iGenomes)
 
 Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta3 is not provided
 
@@ -414,7 +345,7 @@ Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta
 --genome3 'Sscrofa10.2'
 ```
 
-### <a name='--index1'></a>`--index1`
+### `--index1`
 
 Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 
@@ -422,7 +353,7 @@ Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 --index1 'path/to/bt_index/basename*'
 ```
 
-### <a name='--index2'></a>`--index2`
+### `--index2`
 
 Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 
@@ -430,7 +361,7 @@ Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 --index2 'path/to/bt_index/basename*'
 ```
 
-### <a name='--index3'></a>`--index3`
+### `--index3`
 
 Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
 
@@ -438,13 +369,13 @@ Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
 --index3 'path/to/bt_index/basename*'
 ```
 
-## <a name='Jobresources'></a>Job resources
+## Job resources
 
-### <a name='Automaticresubmission'></a>Automatic resubmission
+### Automatic resubmission
 
 Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with an error code of `143` (exceeded requested resources) it will automatically resubmit with higher requests (2 x original, then 3 x original). If it still fails after three times then the pipeline is stopped.
 
-### <a name='Customresourcerequests'></a>Custom resource requests
+### Custom resource requests
 
 Wherever process-specific requirements are set in the pipeline, the default value can be changed by creating a custom config file. See the files hosted at [`nf-core/configs`](https://github.com/nf-core/configs/tree/master/conf) for examples.
 
@@ -452,31 +383,31 @@ If you are likely to be running `nf-core` pipelines regularly it may be a good i
 
 If you have any questions or issues please send us a message on [Slack](https://nf-core-invite.herokuapp.com/).
 
-## <a name='AWSBatchspecificparameters'></a>AWS Batch specific parameters
+## AWS Batch specific parameters
 
 Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use the `-awsbatch` profile and then specify all of the following parameters.
 
-### <a name='--awsqueue'></a>`--awsqueue`
+### `--awsqueue`
 
 The JobQueue that you intend to use on AWS Batch.
 
-### <a name='--awsregion'></a>`--awsregion`
+### `--awsregion`
 
 The AWS region to run your job in. Default is set to `eu-west-1` but can be adjusted to your needs.
 
 Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't.
 
-## <a name='Othercommandlineparameters'></a>Other command line parameters
+## Other command line parameters
 
-### <a name='--outdir'></a>`--outdir`
+### `--outdir`
 
 The output directory where the results will be saved.
 
-### <a name='--email'></a>`--email`
+### `--email`
 
 Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.
 
-### <a name='-name'></a>`-name`
+### `-name`
 
 Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic.
 
@@ -484,7 +415,7 @@ This is used in the MultiQC report (if not default) and in the summary HTML / e-
 
 **NB:** Single hyphen (core Nextflow option)
 
-### <a name='-resume'></a>`-resume`
+### `-resume`
 
 Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
 
@@ -492,7 +423,7 @@ You can also supply a run name to resume a specific run: `-resume [run-name]`. U
 
 **NB:** Single hyphen (core Nextflow option)
 
-### <a name='-c'></a>`-c`
+### `-c`
 
 Specify the path to a specific config file (this is a core NextFlow command).
 
@@ -500,7 +431,7 @@ Specify the path to a specific config file (this is a core NextFlow command).
 
 Note - you can use this to override pipeline defaults.
 
-### <a name='--custom_config_version'></a>`--custom_config_version`
+### `--custom_config_version`
 
 Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default is set to `master`.
 
@@ -509,7 +440,7 @@ Provide git commit id for custom Institutional configs hosted at `nf-core/config
 --custom_config_version d52db660777c4bf36546ddb188ec530c3ada1b96
 ```
 
-### <a name='--custom_config_base'></a>`--custom_config_base`
+### `--custom_config_base`
 
 If you're running offline, nextflow will not be able to fetch the institutional config files
 from the internet. If you don't need them, then this is not a problem. If you do need them,
@@ -530,29 +461,29 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 > Note that the nf-core/tools helper package has a `download` command to download all required pipeline
 > files + singularity containers + institutional configs in one go for you, to make this process easier.
 
-### <a name='--max_memory'></a>`--max_memory`
+### `--max_memory`
 
 Use to set a top-limit for the default memory requirement for each process.
 Should be a string in the format integer-unit. eg. `--max_memory '8.GB'`
 
-### <a name='--max_time'></a>`--max_time`
+### `--max_time`
 
 Use to set a top-limit for the default time requirement for each process.
 Should be a string in the format integer-unit. eg. `--max_time '2.h'`
 
-### <a name='--max_cpus'></a>`--max_cpus`
+### `--max_cpus`
 
 Use to set a top-limit for the default CPU requirement for each process.
 Should be a string in the format integer-unit. eg. `--max_cpus 1`
 
-### <a name='--plaintext_email'></a>`--plaintext_email`
+### `--plaintext_email`
 
 Set to receive plain-text e-mails instead of HTML formatted.
 
-### <a name='--monochrome_logs'></a>`--monochrome_logs`
+### `--monochrome_logs`
 
 Set to disable colourful command line output and live life in monochrome.
 
-### <a name='--multiqc_config'></a>`--multiqc_config`
+### `--multiqc_config`
 
 Specify a path to a custom MultiQC configuration file.

@@ -3,7 +3,6 @@ from __future__ import print_function
 from collections import OrderedDict
 import re
 
-# TODO nf-core: Add additional regexes for new tools in process get_software_versions
 regexes = {
     'nf-core/coproid': ['v_pipeline.txt', r"(\S+)"],
     'Nextflow': ['v_nextflow.txt', r"(\S+)"],
@@ -14,7 +13,8 @@ regexes = {
     'Kraken2': ['v_kraken2.txt', r"Kraken\sversion\s(\S+)"],
     'MultiQC': ['v_multiqc.txt', r"multiqc, version (\S+)"],
     'Sourcepredict': ['v_sourcepredict.txt', r"SourcePredict\sv(\d*\.\d*)"],
-    'Samtools': ['v_samtools.txt', r"samtools\s(\S+)"]
+    'Samtools': ['v_samtools.txt', r"samtools\s(\S+)"],
+    'Python': ['v_python.txt', r'Python\s(\S+)']
 }
 results = OrderedDict()
 results['nf-core/coproid'] = '<span style="color:#999999;\">N/A</span>'

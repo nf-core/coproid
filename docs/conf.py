@@ -22,16 +22,17 @@ source_parsers = {
     '.md': CommonMarkParser,
 }
 
+
 # -- Project information -----------------------------------------------------
 
-project = 'coproid'
+project = 'nf-core/coproID'
 copyright = '2019, Maxime Borry'
 author = 'Maxime Borry'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = ''
+release = '1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -48,9 +49,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
-    'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
 ]
@@ -61,8 +60,8 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
 source_suffix = ['.rst', '.md']
+# source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -77,7 +76,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -88,6 +87,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+# html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -115,7 +115,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'coproiddoc'
+htmlhelp_basename = 'coproIDdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -142,7 +142,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'coproid.tex', 'coproid Documentation',
+    (master_doc, 'coproID.tex', 'coproID Documentation',
      'Maxime Borry', 'manual'),
 ]
 
@@ -152,7 +152,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'coproid', 'coproid Documentation',
+    (master_doc, 'coproid', 'coproID Documentation',
      [author], 1)
 ]
 
@@ -163,8 +163,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'coproid', 'coproid Documentation',
-     author, 'coproid', 'One line description of project.',
+    (master_doc, 'coproID', 'coproID Documentation',
+     author, 'coproID', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -201,3 +201,13 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# doc_root = "file:///Users/borry/Documents/GitHub/coproID/docs/_build/html/"
+
+
+# def setup(app):
+#     app.add_config_value('recommonmark_config', {
+#         'url_resolver': lambda url: doc_root + url,
+#         'auto_toc_tree_section': 'Contents',
+#     }, True)
+#     app.add_transform(AutoStructify)
