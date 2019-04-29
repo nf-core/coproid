@@ -80,6 +80,7 @@ DEFAULT VARIABLE VALUES SETUP
 bowtie_setting = ''
 collapse_setting = ''
 report_template = "$baseDir/templates/coproID_report.ipynb"
+coproid_logo = file("$baseDir/assets/img/coproid_logo_small.jpg")
 
 
 // Show help message
@@ -1210,7 +1211,6 @@ process get_software_versions {
     file "software_versions.csv"
 
     script:
-    // TODO nf-core: Get all tools to print their version number here
     """
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
@@ -1243,6 +1243,7 @@ process multiqc {
         file ('DamageProfiler/*') from dmgProf2_ch.collect()
         file ('software_versions/*') from software_versions_yaml.collect()
         file(multiqc_conf) from ch_multiqc_config
+        file logo from coproid_logo
     output:
         file 'multiqc_report.html' into multiqc_report
 
