@@ -7,3 +7,6 @@ tests/test_data
 *.ipynb_checkpoints
 docs/build/
 test/
+_build
+_static
+_templates
