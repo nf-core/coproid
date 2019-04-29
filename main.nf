@@ -1221,6 +1221,7 @@ process get_software_versions {
     bedtools --version > v_bedtools.txt
     kraken2 --version > v_kraken2.txt
     bowtie2 --version > v_bowtie2.txt
+    python --version > v_python.txt
     AdapterRemoval --version 2> v_adapterremoval.txt
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
