@@ -4,7 +4,7 @@
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
 [![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest)
 
-# ![logo_coproid](assets/img/coproid_logo_small.jpg) ![logo_nf_core](assets/img/coproID_nf-core_logo.svg)
+![logo_nf_core](assets/img/coproID_nf-core_logo.svg)
 
 ## Documentation
 
