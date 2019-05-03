@@ -1,6 +1,6 @@
 # nf-core/coproid: Documentation
 
-![logo](source/_static/img/coproid_logo_small.jpg) ![nf-core-logo](../assets/img/coproID_nf-core_logo_small.png)
+![nf-core-logo](../assets/img/coproID_nf-core_logo.svg)
 
 **coproID** (**CO**prolite **ID**entification) is a tool developed at the
 [Max Planck insitute for the Science of Human History](http://www.shh.mpg.de/en)
