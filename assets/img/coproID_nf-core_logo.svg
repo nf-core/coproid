@@ -12,8 +12,8 @@
    viewBox="0 0 1456.7841 522.44342"
    xml:space="preserve"
    id="svg2"
-   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
-   sodipodi:docname="coproID_nf-core_logo.svg"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="EmptyName_logo.svg"
    width="1456.7842"
    height="522.44342"><sodipodi:namedview
      pagecolor="#ffffff"
@@ -24,15 +24,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1440"
-     inkscape:window-height="855"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
      id="namedview75"
      showgrid="false"
-     inkscape:zoom="0.5"
-     inkscape:cx="530.08412"
-     inkscape:cy="536.1142"
-     inkscape:window-x="0"
-     inkscape:window-y="1"
+     inkscape:zoom="0.35757767"
+     inkscape:cx="253.20897"
+     inkscape:cy="13.773735"
+     inkscape:window-x="1920"
+     inkscape:window-y="724"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer3"
      fit-margin-left="62.25"
@@ -49,7 +49,7 @@
          inkscape:connector-curvature="0" /></clipPath><linearGradient
        id="f"
        x2="1"
-       gradientTransform="matrix(40.061559,41.02596,-31.299183,52.511398,315.5315,166.05758)"
+       gradientTransform="matrix(37.935819,29.638391,-29.638391,37.935819,295.72019,166.19562)"
        gradientUnits="userSpaceOnUse"><stop
          stop-color="#0c542a"
          offset="0"
@@ -159,7 +159,7 @@
        font-size="209.87px"
        font-weight="bold"
        id="text53"
-       style="font-weight:bold;font-size:209.86999512px;line-height:0%;font-family:'Maven Pro'"><tspan
+       style="font-weight:bold;font-size:209.86999512px;font-family:'Maven Pro'"><tspan
          class="st0 st1 st2"
          x="48.898899"
          y="241.24541"
@@ -175,7 +175,7 @@
        font-size="209.87px"
        font-weight="bold"
        id="text69"
-       style="font-weight:bold;font-size:209.86999512px;line-height:0%;font-family:'Maven Pro'"><tspan
+       style="font-weight:bold;font-size:209.86999512px;font-family:'Maven Pro'"><tspan
          class="st0 st1 st2"
          x="357.14139"
          y="241.24541"
@@ -190,7 +190,7 @@
        y="457.04541"
        font-weight="bold"
        id="text59"
-       style="font-weight:bold;line-height:0%;font-family:'Maven Pro'"><tspan
+       style="font-weight:bold;font-family:'Maven Pro'"><tspan
          class="st1 st2"
          x="47.849564"
          y="457.04541"
@@ -199,7 +199,7 @@
          id="tspan61"
          style="font-weight:bold;font-size:209.86720276px;font-family:'Maven Pro'">coproID</tspan></text>
 <path
-       d="m 320.51287,165.94668 -22.73881,29.92176 h 64.51478 v -29.92176 z"
+       d="m 300.43725,166.1155 -21.53224,21.61638 61.0915,0 0,-21.61638 -39.55926,0 z"
        id="path67"
        inkscape:connector-curvature="0"
-       style="fill:url(#f);stroke-width:1.2090416" /></g></svg>
+       style="fill:url(#f)" /></g></svg>
