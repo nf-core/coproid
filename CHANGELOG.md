@@ -1,5 +1,9 @@
 # nf-core/coproid: Changelog
 
+## v1.0.1dev
+
+Update logo to match font [#13](https://github.com/nf-core/coproid/pull/13)
+
 ## v1.0 - 2019-04-26
 
 Initial release of nf-core/coproid, created with the [nf-core](http://nf-co.re/) template.
