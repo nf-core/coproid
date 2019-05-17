@@ -1,4 +1,4 @@
-name: nf-core-coproid-1.0
+name: nf-core-coproid-1.1dev
 channels:
   - bioconda
   - conda-forge
