@@ -1180,9 +1180,9 @@ process concatenateRatios {
     script:
         outfile = "coproID_result.csv"
         """
-        ls -1 *.bpc.csv | head -1 | xargs head -1 > coproid_bp.csv
-        tail -q -n +2 *.bpc.csv >> coproid_bp.csv
-        merge_bp_sp.py -c coproid_bp.csv -s $sp -o $outfile
+        ls -1 *.bpc.csv | head -1 | xargs head -1 > coproID_bp.csv
+        tail -q -n +2 *.bpc.csv >> coproID_bp.csv
+        merge_bp_sp.py -c coproID_bp.csv -s $sp -o $outfile
         """
 }
 
