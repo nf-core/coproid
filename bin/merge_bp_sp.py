@@ -54,83 +54,14 @@ def compute_coproba(indic, nrr, sp):
 if __name__ == "__main__":
     CF, SP, OUTPUT = get_args()
 
-    # dcf = pd.read_csv(CF, index_col=0, header=None)
     dcf = pd.read_csv(CF, index_col=0)
     print(dcf.shape)
-    # if dcf.shape[1] == 10:
-    # dcf.columns = ['Organism_name1',
-    #                'Organism_name2',
-    #                'Genome1_size',
-    #                'Genome2_size',
-    #                'nb_bp_aligned_genome1',
-    #                'nb_bp_aligned_genome2',
-    #                'normalized_nb_bp_aligned_genome1',
-    #                'normalized_nb_bp_aligned_genome2',
-    #                'NormalizedReadRatio_1',
-    #                'NormalizedReadRatio_2']
     orga1 = dcf['Organism_name1'][0]
     orga2 = dcf['Organism_name2'][0]
     try:
         orga3 = dcf['Organism_name3'][0]
     except:
         orga3 = None
-    # elif dcf.shape[1] == 15:
-    #     # dcf.columns = ['Organism_name1',
-    #     #                'Organism_name2',
-    #     #                'Organism_name3',
-    #     #                'Genome1_size',
-    #     #                'Genome2_size',
-    #     #                'Genome3_size',
-    #     #                'nb_bp_aligned_genome1',
-    #     #                'nb_bp_aligned_genome2',
-    #     #                'nb_bp_aligned_genome3',
-    #     #                'normalized_nb_bp_aligned_genome1',
-    #     #                'normalized_nb_bp_aligned_genome2',
-    #     #                'normalized_nb_bp_aligned_genome3',
-    #     #                'NormalizedReadRatio_1',
-    #     #                'NormalizedReadRatio_2',
-    #     #                'NormalizedReadRatio_3']
-    #     orga1 = dcf['Organism_name1'][0]
-    #     orga2 = dcf['Organism_name2'][0]
-    #     orga3 = dcf['Organism_name3'][0]
-    # elif dcf.shape[1] == 12:
-    #     # dcf.columns = ['Organism_name1',
-    #     #                'Organism_name2',
-    #     #                'Genome1_size',
-    #     #                'Genome2_size',
-    #     #                'nb_bp_aligned_genome1',
-    #     #                'nb_bp_aligned_genome2',
-    #     #                'nb_ancient_bp_aligned_genome1',
-    #     #                'nb_ancient_bp_aligned_genome2',
-    #     #                'normalized_nb_ancient_bp_aligned_genome1',
-    #     #                'normalized_nb_ancient_bp_aligned_genome2',
-    #     #                'NormalizedReadRatio_1',
-    #     #                'NormalizedReadRatio_2']
-    #     orga1 = dcf['Organism_name1'][0]
-    #     orga2 = dcf['Organism_name2'][0]
-    #     orga3 = None
-    # elif dcf.shape[1] == 19:
-    #     # dcf.columns = ['Organism_name1',
-    #     #                'Organism_name2',
-    #     #                'Organism_name3',
-    #     #                'Genome1_size',
-    #     #                'Genome2_size',
-    #     #                'Genome3_size',
-    #     #                'nb_bp_aligned_genome1',
-    #     #                'nb_bp_aligned_genome2',
-    #     #                'nb_bp_aligned_genome3',
-    #     #                'nb_ancient_bp_aligned_genome1',
-    #     #                'nb_ancient_bp_aligned_genome2',
-    #     #                'nb_ancient_bp_aligned_genome3',
-    #     #                'normalized_nb_ancient_bp_aligned_genome1',
-    #     #                'normalized_nb_ancient_bp_aligned_genome2',
-    #     #                'normalized_nb_ancient_bp_aligned_genome3',
-    #     #                'NormalizedReadRatio_1',
-    #     #                'NormalizedReadRatio_2',
-    #     #                'NormalizedReadRatio_3']
-    #     orga1 = dcf['Organism_name1'][0]
-    #     orga2 = dcf['Organism_name2'][0]
-    #     orga3 = dcf['Organism_name3'][0]
 
     dsp = pd.read_csv(SP, index_col=0).T
 
