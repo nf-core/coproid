@@ -14,52 +14,67 @@ def get_args():
         prog='normalizedReadCount',
         description='Counts reads aligned to genome, and normalize by genome size')
     parser.add_argument(
+        '-ab1',
+        dest='abam1',
+        default=None,
+        help="PMDTools Bam aligment file on genome 1. Default = None")
+    parser.add_argument(
         '-b1',
         dest='bam1',
         default=None,
-        help="Bam aligment file on genome. Default = None")
+        help="Bam aligment file on genome 1. Default = None")
     parser.add_argument(
         '-g1',
         dest="genome1",
         default=None,
-        help="Fasta file of genome. Default = None")
+        help="Fasta file of genome 1. Default = None")
     parser.add_argument(
         '-r1',
         dest='organism1',
         default=None,
-        help='Organism name. Example: "Homo_sapiens". Default = None'
+        help='Organism 1 name. Example: "Homo_sapiens". Default = None'
     )
+    parser.add_argument(
+        '-ab2',
+        dest='abam2',
+        default=None,
+        help="PMDTools Bam aligment file on genome 2. Default = None")
     parser.add_argument(
         '-b2',
         dest='bam2',
         default=None,
-        help="Bam aligment file on genome. Default = None")
+        help="Bam aligment file on genome 2  . Default = None")
     parser.add_argument(
         '-g2',
         dest="genome2",
         default=None,
-        help="Fasta file of genome. Default = None")
+        help="Fasta file of genome 2. Default = None")
     parser.add_argument(
         '-r2',
         dest='organism2',
         default=None,
-        help='Organism name. Example: "Homo_sapiens". Default = None'
+        help='Organism 2 name. Example: "Homo_sapiens". Default = None'
     )
+    parser.add_argument(
+        '-ab3',
+        dest='abam3',
+        default=None,
+        help="PMDTools Bam aligment file on genome 3. Default = None")
     parser.add_argument(
         '-b3',
         dest='bam3',
         default=None,
-        help="Bam aligment file on genome. Default = None")
+        help="Bam aligment file on genome 3. Default = None")
     parser.add_argument(
         '-g3',
         dest="genome3",
         default=None,
-        help="Fasta file of genome. Default = None")
+        help="Fasta file of genome 3. Default = None")
     parser.add_argument(
         '-r3',
         dest='organism3',
         default=None,
-        help='Organism name. Example: "Homo_sapiens". Default = None'
+        help='Organism 3 name. Example: "Homo_sapiens". Default = None'
     )
     parser.add_argument(
         '-n',
@@ -86,16 +101,34 @@ def get_args():
         help="Output bam 1 filename. Default = {BAM1_INPUT}.filtered.bam"
     )
     parser.add_argument(
+        '-aob1',
+        dest="output_abam1",
+        default=None,
+        help="Output PMDtools bam 1 filename. Default = {BAM1_INPUT}.ancient.filtered.bam"
+    )
+    parser.add_argument(
         '-ob2',
         dest="output_bam2",
         default=None,
         help="Output bam 2 filename. Default = {BAM2_INPUT}.filtered.bam"
     )
     parser.add_argument(
+        '-aob2',
+        dest="output_abam2",
+        default=None,
+        help="Output PMDtools bam 2 filename. Default = {BAM2_INPUT}.ancient.filtered.bam"
+    )
+    parser.add_argument(
         '-ob3',
         dest="output_bam3",
         default=None,
         help="Output bam 3 filename. Default = {BAM2_INPUT}.filtered.bam"
+    )
+    parser.add_argument(
+        '-aob3',
+        dest="output_abam3",
+        default=None,
+        help="Output PMDtools bam 3 filename. Default = {BAM2_INPUT}.ancient.filtered.bam"
     )
     parser.add_argument(
         '-ed1',
@@ -124,12 +157,15 @@ def get_args():
 
     args = parser.parse_args()
 
+    abam1 = args.abam1
     bam1 = args.bam1
     genome1 = args.genome1
     organame1 = args.organism1
+    abam2 = args.abam2
     bam2 = args.bam2
     genome2 = args.genome2
     organame2 = args.organism2
+    abam3 = args.abam3
     bam3 = args.bam3
     genome3 = args.genome3
     organame3 = args.organism3
@@ -137,20 +173,26 @@ def get_args():
     identity = float(str(args.identity))
     outfile = args.output
     obam1 = args.output_bam1
+    aobam1 = args.output_abam1
     obam2 = args.output_bam2
+    aobam2 = args.output_abam2
     obam3 = args.output_bam3
+    aobam3 = args.output_abam3
     endo1 = float(str(args.endo_dna1))
     endo2 = float(str(args.endo_dna2))
     endo3 = float(str(args.endo_dna3))
 
     processes = int(args.processes)
 
-    return(bam1,
+    return(abam1,
+           bam1,
            genome1,
            organame1,
+           abam2,
            bam2,
            genome2,
            organame2,
+           abam3,
            bam3,
            genome3,
            organame3,
@@ -159,8 +201,11 @@ def get_args():
            processes,
            outfile,
            obam1,
+           aobam1,
            obam2,
+           aobam2,
            obam3,
+           aobam3,
            endo1,
            endo2,
            endo3)
@@ -201,8 +246,6 @@ def getNumberMappedReads(bam, id):
 
 def perChromosome(chr, bam, id, commonReads=[]):
     resdic = {}
-    resdic["bpCnt"] = 0
-    resdic["mappedReads"] = []
     min_identity = id
     bamfile = pysam.AlignmentFile(bam, "rb")
     reads = bamfile.fetch(chr, multiple_iterators=True)
@@ -213,24 +256,12 @@ def perChromosome(chr, bam, id, commonReads=[]):
             readLen = read.query_length
             identity = (alnLen - mismatch) / readLen
             if identity >= min_identity:
-                resdic["bpCnt"] += (alnLen - mismatch)
-                resdic["mappedReads"].append(read.query_name)
-    else:
-        for read in reads:
-            mismatch = read.get_tag("NM")
-            alnLen = read.query_alignment_length
-            readLen = read.query_length
-            identity = (alnLen - mismatch) / readLen
-            if identity >= min_identity and (read.query_name not in(commonReads)):
-                resdic["bpCnt"] += (alnLen - mismatch)
-                resdic["mappedReads"].append(read.query_name)
+                resdic[read.query_name] = alnLen - mismatch
     return(resdic)
 
 
 def getNumberMappedReadsMultiprocess(bam, processes, id, commonReads=[]):
     resdic = {}
-    resdic["bpCnt"] = 0
-    resdic["mappedReads"] = []
     try:
         bamfile = pysam.AlignmentFile(bam, "rb")
     except ValueError:
@@ -244,8 +275,7 @@ def getNumberMappedReadsMultiprocess(bam, processes, id, commonReads=[]):
     p.close()
     p.join()
     for i in result:
-        resdic["bpCnt"] += i["bpCnt"]
-        resdic["mappedReads"].extend(list(i["mappedReads"]))
+        resdic.update(i)
     return(resdic)
 
 
@@ -272,6 +302,14 @@ def getCommonReads(readsBam1, readsBam2, readsBam3=None):
     return(res)
 
 
+def get_total_bp(bamres, common):
+    bp_cnt = 0
+    for i in bamres.keys():
+        if i not in common:
+            bp_cnt += bamres[i]
+    return(bp_cnt)
+
+
 def check_endo(endo_dna, organism):
     if endo_dna >= 0 and endo_dna <= 1:
         return True
@@ -281,7 +319,7 @@ def check_endo(endo_dna, organism):
 
 
 if __name__ == "__main__":
-    BAM1, GENOME1, ORGANAME1, BAM2, GENOME2, ORGANAME2, BAM3, GENOME3, ORGANAME3, SNAME, ID, PROCESSES, OUTFILE, OBAM1, OBAM2, OBAM3, ENDO1, ENDO2, ENDO3 = get_args()
+    ABAM1, BAM1, GENOME1, ORGANAME1, ABAM2, BAM2, GENOME2, ORGANAME2, ABAM3, BAM3, GENOME3, ORGANAME3, SNAME, ID, PROCESSES, OUTFILE, OBAM1, AOBAM1, OBAM2, AOBAM2, OBAM3, AOBAM3, ENDO1, ENDO2, ENDO3 = get_args()
 
     if BAM1 is None:
         print("Missing BAM file")
@@ -315,70 +353,150 @@ if __name__ == "__main__":
         bam3_res = getNumberMappedReadsMultiprocess(
             bam=BAM3, processes=PROCESSES, id=ID)
 
-    print("nb1_first", bam1_res["bpCnt"])
-    print("nb2_first", bam2_res["bpCnt"])
-    if BAM3:
-        print("nb3_first", bam3_res["bpCnt"])
+    if ABAM1 and ABAM2:
+        abam1_res = getNumberMappedReadsMultiprocess(
+            bam=ABAM1, processes=PROCESSES, id=ID)
+        abam2_res = getNumberMappedReadsMultiprocess(
+            bam=ABAM2, processes=PROCESSES, id=ID)
+    if ABAM3:
+        abam3_res = getNumberMappedReadsMultiprocess(
+            bam=ABAM3, processes=PROCESSES, id=ID)
 
-    reads1 = bam1_res["mappedReads"]
-    reads2 = bam2_res["mappedReads"]
+    reads1 = list(bam1_res.keys())
+    reads2 = list(bam2_res.keys())
     if BAM3:
-        reads3 = bam3_res["mappedReads"]
+        reads3 = list(bam3_res.keys())
     if not BAM3:
         commonReads = getCommonReads(readsBam1=reads1, readsBam2=reads2)
     else:
         commonReads = getCommonReads(
             readsBam1=reads1, readsBam2=reads2, readsBam3=reads3)
 
-    nb1 = getNumberMappedReadsMultiprocess(
-        bam=BAM1, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
-    nnbp1 = (nb1 + 1) / gs1
-    nb2 = getNumberMappedReadsMultiprocess(
-        bam=BAM2, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
-    nnbp2 = (nb2 + 1) / gs2
-    if BAM3:
-        nb3 = getNumberMappedReadsMultiprocess(
-            bam=BAM3, processes=PROCESSES, id=ID, commonReads=commonReads)["bpCnt"]
-        nnbp3 = (nb3 + 1) / gs3
+    if ABAM1 and ABAM2:
+        areads1 = list(abam1_res.keys())
+        areads2 = list(abam2_res.keys())
+        if ABAM3:
+            areads3 = list(abam3_res.keys())
+        if not ABAM3:
+            acommonReads = getCommonReads(readsBam1=areads1, readsBam2=areads2)
+        else:
+            acommonReads = getCommonReads(
+                readsBam1=areads1, readsBam2=areads2, readsBam3=areads3)
 
     if OBAM1 is None:
         outbam1 = bam_basename1 + ".filtered.bam"
     else:
         outbam1 = OBAM1
+    if AOBAM1 is None and ABAM1:
+        aoutbam1 = bam_basename1 + ".ancient.filtered.bam"
+    elif ABAM1:
+        aoutbam1 = AOBAM1
+
     if OBAM2 is None:
         outbam2 = bam_basename2 + ".filtered.bam"
     else:
         outbam2 = OBAM2
+    if AOBAM2 is None and ABAM2:
+        aoutbam2 = bam_basename2 + ".ancient.filtered.bam"
+    elif ABAM2:
+        aoutbam2 = AOBAM2
+
     if OBAM3 is None and BAM3:
         outbam3 = bam_basename3 + ".filtered.bam"
     else:
         outbam3 = OBAM3
+    if AOBAM3 is None and ABAM3:
+        aoutbam3 = bam_basename3 + ".ancient.filtered.bam"
+    elif ABAM3:
+        aoutbam3 = AOBAM3
 
     writeBam(inbam=BAM1, outbam=outbam1, commonReads=commonReads)
     writeBam(inbam=BAM2, outbam=outbam2, commonReads=commonReads)
     if OBAM3:
         writeBam(inbam=BAM3, outbam=outbam3, commonReads=commonReads)
 
-    # Two genomes
-    NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) * ENDO1
-    NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) * ENDO2
+    if ABAM1 and ABAM2:
+        writeBam(inbam=ABAM1, outbam=aoutbam1, commonReads=acommonReads)
+        writeBam(inbam=ABAM2, outbam=aoutbam2, commonReads=acommonReads)
+        if OBAM3:
+            writeBam(inbam=ABAM3, outbam=aoutbam3, commonReads=acommonReads)
+
+    nb1 = get_total_bp(bam1_res, commonReads)
+    nb2 = get_total_bp(bam2_res, commonReads)
     if BAM3:
-        # Three genomes
-        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3)) * ENDO1
-        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3)) * ENDO2
-        NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3)) * ENDO3
+        nb3 = get_total_bp(bam3_res, commonReads)
 
-    # sourcepredict
+    print("nb1_all", nb1)
+    print("nb2_all", nb2)
+    if BAM3:
+        print("nb3_all", nb3)
 
-    if not BAM3:
-        # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2
-        with open(OUTFILE, 'w') as w:
-            w.write(
-                f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{nb1},{nb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1},{NormalizedReadRatio_2}\n")
+    if ABAM1 and ABAM2:
+        # Two genomes
+        anb1 = get_total_bp(abam1_res, acommonReads)
+        nnbp1 = (anb1 + 1) / gs1
+        anb2 = get_total_bp(abam2_res, acommonReads)
+        nnbp2 = (anb2 + 1) / gs2
+        print("nb1_ancient", anb1)
+        print("nb2_ancient", anb2)
+
+        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) * ENDO1
+        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) * ENDO2
+        if BAM3:
+            # Three genomes
+            anb3 = get_total_bp(abam3_res, acommonReads)
+            nnbp3 = (anb3 + 1) / gs3
+
+            print("nb3_ancient", anb3)
+
+            NormalizedReadRatio_1 = (
+                nnbp1 / (nnbp1 + nnbp2 + nnbp3)) * ENDO1
+            NormalizedReadRatio_2 = (
+                nnbp2 / (nnbp1 + nnbp2 + nnbp3)) * ENDO2
+            NormalizedReadRatio_3 = (
+                nnbp3 / (nnbp1 + nnbp2 + nnbp3)) * ENDO3
     else:
-        # Template output file structure
-        # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3
-        with open(OUTFILE, 'w') as w:
-            w.write(
-                f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{nb1},{nb2},{nb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1},{NormalizedReadRatio_2},{NormalizedReadRatio_3}\n")
+        # Two genomes
+        nnbp1 = (nb1 + 1) / gs1
+        nnbp2 = (nb2 + 1) / gs2
+
+        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) * ENDO1
+        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) * ENDO2
+        if BAM3:
+            # Three genomes
+            nnbp3 = (nb3 + 1) / gs3
+
+            NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3)) * ENDO1
+            NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3)) * ENDO2
+            NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3)) * ENDO3
+
+    if ABAM1 and ABAM2:
+        if not BAM3 and not ABAM3:
+            # Template output file structure
+            # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_ancient_bp_aligned_genome1,nb_ancient_bp_aligned_genome2,normalized_nb_ancient_bp_aligned_genome1,normalized_nb_ancient_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2
+            with open(OUTFILE, 'w') as w:
+                w.write("Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_ancient_bp_aligned_genome1,nb_ancient_bp_aligned_genome2,normalized_nb_ancient_bp_aligned_genome1,normalized_nb_ancient_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2\n")
+                w.write(
+                    f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{nb1},{nb2},{anb1},{anb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1},{NormalizedReadRatio_2}\n")
+        else:
+            # Template output file structure
+            # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,nb_ancient_bp_aligned_genome1,nb_ancient_bp_aligned_genome2,nb_ancient_bp_aligned_genome3,normalized_nb_ancient_bp_aligned_genome1,normalized_nb_ancient_bp_aligned_genome2,normalized_nb_ancient_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3
+            with open(OUTFILE, 'w') as w:
+                w.write("Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,nb_ancient_bp_aligned_genome1,nb_ancient_bp_aligned_genome2,nb_ancient_bp_aligned_genome3,normalized_nb_ancient_bp_aligned_genome1,normalized_nb_ancient_bp_aligned_genome2,normalized_nb_ancient_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3\n")
+                w.write(
+                    f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{nb1},{nb2},{nb3},{anb1},{anb2},{anb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1},{NormalizedReadRatio_2},{NormalizedReadRatio_3}\n")
+    else:
+        if not BAM3:
+            # Template output file structure
+            # Sample_name,Organism_name1,Organism_name2,Genome1_size,Genome2_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,NormalizedReadRatio_1,NormalizedReadRatio_2
+            with open(OUTFILE, 'w') as w:
+                w.write("Sample_name, Organism_name1, Organism_name2, Genome1_size, Genome2_size, nb_bp_aligned_genome1, nb_bp_aligned_genome2, normalized_nb_bp_aligned_genome1, normalized_nb_bp_aligned_genome2, NormalizedReadRatio_1, NormalizedReadRatio_2\n")
+                w.write(
+                    f"{SNAME},{ORGANAME1},{ORGANAME2},{gs1},{gs2},{nb1},{nb2},{nnbp1},{nnbp2},{NormalizedReadRatio_1},{NormalizedReadRatio_2}\n")
+        else:
+            # Template output file structure
+            # Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3
+            with open(OUTFILE, 'w') as w:
+                w.write("Sample_name,Organism_name1,Organism_name2,Organism_name3,Genome1_size,Genome2_size,Genome3_size,nb_bp_aligned_genome1,nb_bp_aligned_genome2,nb_bp_aligned_genome3,normalized_nb_bp_aligned_genome1,normalized_nb_bp_aligned_genome2,normalized_nb_bp_aligned_genome3,NormalizedReadRatio_1,NormalizedReadRatio_2,NormalizedReadRatio_3\n")
+                w.write(
+                    f"{SNAME},{ORGANAME1},{ORGANAME2},{ORGANAME3},{gs1},{gs2},{gs3},{nb1},{nb2},{nb3},{nnbp1},{nnbp2},{nnbp3},{NormalizedReadRatio_1},{NormalizedReadRatio_2},{NormalizedReadRatio_3}\n")
