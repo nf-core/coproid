@@ -1,8 +1,10 @@
 # nf-core/coproid: Changelog
 
-## v1.0.1dev
+## v1.1dev
 
-Update logo to match font [#13](https://github.com/nf-core/coproid/pull/13)
+-   Update mapped basepair count to be quicker and include it in report [#14](https://github.com/nf-core/coproid/pull/14)
+-   Remove outdated scripts [#14](https://github.com/nf-core/coproid/pull/14)
+-   Update logo to match font [#13](https://github.com/nf-core/coproid/pull/13)
 
 ## v1.0 - 2019-04-26
 

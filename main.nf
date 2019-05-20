@@ -329,6 +329,11 @@ sp_sources = file(params.sp_sources, checkIfExists: true)
 
 
 /*******************
+coproID logo channel
+********************/
+logo = file("$baseDir/assets/img/coproID_nf-core_logo_small.png")
+
+/*******************
 Logging parameters
 ********************/
 log.info nfcoreHeader()
@@ -574,7 +579,7 @@ process AlignToGenome1 {
         set val(name), file(reads) from trimmed_reads_genome1
         file(index) from bt1_ch
     output:
-        set val(name), file("*.aligned.sorted.bam") into alignment_genome1
+        set val(name), file("*.aligned.sorted.bam") into alignment_genome1, alignment_genome1_pmd
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome1
         set val(name), file("*.stats.txt") into align1_multiqc
     script:
@@ -675,7 +680,7 @@ process AlignToGenome2 {
         set val(name), file(reads) from trimmed_reads_genome2
         file(index) from bt2_ch
     output:
-        set val(name), file("*.aligned.sorted.bam") into alignment_genome2
+        set val(name), file("*.aligned.sorted.bam") into alignment_genome2, alignment_genome2_pmd
         set val(name), file("*.unaligned.sorted.bam") into unaligned_genome2
         set val(name), file("*.stats.txt") into align2_multiqc
     script:
@@ -712,7 +717,7 @@ if (params.name3) {
             set val(name), file(reads) from trimmed_reads_genome3
             file(index) from bt3_ch
         output:
-            set val(name), file("*.aligned.sorted.bam") into alignment_genome3
+            set val(name), file("*.aligned.sorted.bam") into alignment_genome3, alignment_genome3_pmd
             set val(name), file("*.unaligned.sorted.bam") into unaligned_genome3
             set val(name), file("*.stats.txt") into align3_multiqc
         script:
@@ -747,7 +752,7 @@ if (params.adna){
     publishDir "${params.outdir}/pmdtools/${params.name1}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
     input:
-        set val(name), file(bam1) from alignment_genome1
+        set val(name), file(bam1) from alignment_genome1_pmd
     output:
         set val(name), file("*.pmd_filtered.bam") into pmd_aligned1
     script:
@@ -765,7 +770,7 @@ if (params.adna){
         publishDir "${params.outdir}/pmdtools/${params.name2}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
         input:
-            set val(name), file(bam2) from alignment_genome2
+            set val(name), file(bam2) from alignment_genome2_pmd
         output:
             set val(name), file("*.pmd_filtered.bam") into pmd_aligned2
         script:
@@ -784,7 +789,7 @@ if (params.adna){
         publishDir "${params.outdir}/pmdtools/${params.name3}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
         input:
-            set val(name), file(bam3) from alignment_genome3
+            set val(name), file(bam3) from alignment_genome3_pmd
         output:
             set val(name), file("*.pmd_filtered.bam") into pmd_aligned3
         script:
@@ -905,37 +910,68 @@ if (params.name3 == ''){
 
     input:
 
-        set val(name), file(bam1), file(bam2) from ( params.adna ? pmd_aligned1.join(pmd_aligned2) : alignment_genome1.join(alignment_genome2))
+        set val(name), file(abam1), file(abam2), file(bam1), file(bam2) from ( (params.adna ? pmd_aligned1.join(pmd_aligned2) : alignment_genome1_pmd.join(alignment_genome2_pmd)).join(alignment_genome1).join(alignment_genome2))
         file(genome1) from genome1Size
         file(genome2) from genome2Size
     output:
         set val(name), file("*.bpc.csv") into bp_count
-        set val(name), file("*"+params.name1+".filtered.bam") into filtered_bam1
-        set val(name), file("*"+params.name2+".filtered.bam") into filtered_bam2
+        set val(name), file("*"+params.name1+".ancient.filtered.bam") optional true into ancient_filtered_bam1
+        set val(name), file("*"+params.name2+".ancient.filtered.bam") optional true into ancient_filtered_bam2
     script:
         outfile = name+".bpc.csv"
         organame1 = params.name1
         organame2 = params.name2
         obam1 = name+"_"+organame1+".filtered.bam"
         obam2 = name+"_"+organame2+".filtered.bam"
-        """
-        samtools index $bam1
-        samtools index $bam2
-        normalizedReadCount -n $name \\
-                            -b1 $bam1 \\
-                            -b2 $bam2 \\
-                            -g1 $genome1 \\
-                            -g2 $genome2 \\
-                            -r1 $organame1 \\
-                            -r2 $organame2 \\
-                            -i ${params.identity} \\
-                            -o $outfile \\
-                            -ob1 $obam1 \\
-                            -ob2 $obam2 \\
-                            -ed1 ${params.endo1} \\
-                            -ed2 ${params.endo2} \\
-                            -p ${task.cpus}
-        """
+        if (params.adna) {
+            aobam1 = name+"_"+organame1+".ancient.filtered.bam"
+            aobam2 = name+"_"+organame2+".ancient.filtered.bam" 
+            """
+            samtools index $bam1
+            samtools index $bam2
+            samtools index $abam1
+            samtools index $abam2
+            normalizedReadCount -n $name \\
+                                -b1 $bam1 \\
+                                -ab1 $abam1 \\
+                                -b2 $bam2 \\
+                                -ab2 $abam2 \\
+                                -g1 $genome1 \\
+                                -g2 $genome2 \\
+                                -r1 $organame1 \\
+                                -r2 $organame2 \\
+                                -i ${params.identity} \\
+                                -o $outfile \\
+                                -ob1 $obam1 \\
+                                -aob1 $aobam1 \\
+                                -ob2 $obam2 \\
+                                -aob2 $aobam2 \\
+                                -ed1 ${params.endo1} \\
+                                -ed2 ${params.endo2} \\
+                                -p ${task.cpus}
+            """
+        }
+        else {
+            """
+            samtools index $bam1
+            samtools index $bam2
+            normalizedReadCount -n $name \\
+                                -b1 $bam1 \\
+                                -b2 $bam2 \\
+                                -g1 $genome1 \\
+                                -g2 $genome2 \\
+                                -r1 $organame1 \\
+                                -r2 $organame2 \\
+                                -i ${params.identity} \\
+                                -o $outfile \\
+                                -ob1 $obam1 \\
+                                -ob2 $obam2 \\
+                                -ed1 ${params.endo1} \\
+                                -ed2 ${params.endo2} \\
+                                -p ${task.cpus}
+            """
+        }
+        
     }
 } else {
     process countBp3genomes{
@@ -947,47 +983,88 @@ if (params.name3 == ''){
 
     input:
 
-        set val(name), file(bam1), file(bam2), file(bam3) from ( params.adna ? pmd_aligned1.join(pmd_aligned2).join(pmd_aligned3) : alignment_genome1.join(alignment_genome2).join(alignment_genome3))
+        set val(name), file(abam1), file(abam2), file(abam3), file(bam1), file(bam2), file(bam3) from ( (params.adna ? pmd_aligned1.join(pmd_aligned2).join(pmd_aligned3) : alignment_genome1_pmd.join(alignment_genome2_pmd).join(alignment_genome3_pmd)).join(alignment_genome1).join(alignment_genome2).join(alignment_genome3))
         file(genome1) from genome1Size
         file(genome2) from genome2Size
         file(genome3) from genome3Size
     output:
         set val(name), file("*.bpc.csv") into bp_count
-        set val(name), file("*"+params.name1+".filtered.bam") into filtered_bam1
-        set val(name), file("*"+params.name2+".filtered.bam") into filtered_bam2
-        set val(name), file("*"+params.name3+".filtered.bam") into filtered_bam3
+        set val(name), file("*"+params.name1+".ancient.filtered.bam") optional true into ancient_filtered_bam1
+        set val(name), file("*"+params.name2+".ancient.filtered.bam") optional true into ancient_filtered_bam2
+        set val(name), file("*"+params.name3+".ancient.filtered.bam") optional true into ancient_filtered_bam3
     script:
         outfile = name+".bpc.csv"
         organame1 = params.name1
         organame2 = params.name2
         organame3 = params.name3
+
         obam1 = name+"_"+organame1+".filtered.bam"
         obam2 = name+"_"+organame2+".filtered.bam"
         obam3 = name+"_"+organame3+".filtered.bam"
-        """
-        samtools index $bam1
-        samtools index $bam2
-        samtools index $bam3
-        normalizedReadCount -n $name \\
-                            -b1 $bam1 \\
-                            -b2 $bam2 \\
-                            -b3 $bam3 \\
-                            -g1 $genome1 \\
-                            -g2 $genome2 \\
-                            -g3 $genome3 \\
-                            -r1 $organame1 \\
-                            -r2 $organame2 \\
-                            -r3 $organame3 \\
-                            -i ${params.identity} \\
-                            -o $outfile \\
-                            -ob1 $obam1 \\
-                            -ob2 $obam2 \\
-                            -ob3 $obam3 \\
-                            -ed1 ${params.endo1} \\
-                            -ed2 ${params.endo2} \\
-                            -ed3 ${params.endo3} \\
-                            -p ${task.cpus}
-        """
+        if (params.adna) {
+            aobam1 = name+"_"+organame1+".ancient.filtered.bam"
+            aobam2 = name+"_"+organame2+".ancient.filtered.bam"
+            aobam3 = name+"_"+organame3+".ancient.filtered.bam"
+            """
+            samtools index $bam1
+            samtools index $bam2
+            samtools index $bam3
+            samtools index $abam1
+            samtools index $abam2
+            samtools index $abam3
+            normalizedReadCount -n $name \\
+                                -b1 $bam1 \\
+                                -ab1 $abam1 \\
+                                -b2 $bam2 \\
+                                -ab2 $abam2 \\
+                                -b3 $bam3 \\
+                                -ab3 $abam3 \\
+                                -g1 $genome1 \\
+                                -g2 $genome2 \\
+                                -g3 $genome3 \\
+                                -r1 $organame1 \\
+                                -r2 $organame2 \\
+                                -r3 $organame3 \\
+                                -i ${params.identity} \\
+                                -o $outfile \\
+                                -ob1 $obam1 \\
+                                -aob1 $aobam1 \\
+                                -ob2 $obam2 \\
+                                -aob2 $aobam2 \\
+                                -ob3 $obam3 \\
+                                -aob3 $aobam3 \\
+                                -ed1 ${params.endo1} \\
+                                -ed2 ${params.endo2} \\
+                                -ed3 ${params.endo3} \\
+                                -p ${task.cpus}
+            """
+
+        } else {
+            """
+            samtools index $bam1
+            samtools index $bam2
+            samtools index $bam3
+            normalizedReadCount -n $name \\
+                                -b1 $bam1 \\
+                                -b2 $bam2 \\
+                                -b3 $bam3 \\
+                                -g1 $genome1 \\
+                                -g2 $genome2 \\
+                                -g3 $genome3 \\
+                                -r1 $organame1 \\
+                                -r2 $organame2 \\
+                                -r3 $organame3 \\
+                                -i ${params.identity} \\
+                                -o $outfile \\
+                                -ob1 $obam1 \\
+                                -ob2 $obam2 \\
+                                -ob3 $obam3 \\
+                                -ed1 ${params.endo1} \\
+                                -ed2 ${params.endo2} \\
+                                -ed3 ${params.endo3} \\
+                                -p ${task.cpus}
+            """
+        }
     }
 }
 
@@ -1005,7 +1082,7 @@ if (params.adna){
     publishDir "${params.outdir}/damageprofiler/${params.name1}", mode: 'copy'
 
     input:
-        set val(name), file(align) from filtered_bam1
+        set val(name), file(align) from ancient_filtered_bam1
         file(fasta) from genome1damageprofiler
     output:
         file("*_freq.txt") into damage_result_genome1
@@ -1034,7 +1111,7 @@ if (params.adna){
         publishDir "${params.outdir}/damageprofiler/${params.name2}", mode: 'copy'
 
         input:
-            set val(name), file(align) from filtered_bam2
+            set val(name), file(align) from ancient_filtered_bam2
             file(fasta) from genome2damageprofiler
         output:
             file("*_freq.txt") into damage_result_genome2
@@ -1064,7 +1141,7 @@ if (params.adna){
         publishDir "${params.outdir}/damageprofiler/${params.name3}", mode: 'copy'
 
         input:
-            set val(name), file(align) from filtered_bam3
+            set val(name), file(align) from ancient_filtered_bam3
             file(fasta) from genome3damageprofiler
         output:
             file("*_freq.txt") into damage_result_genome3
@@ -1092,18 +1169,20 @@ process concatenateRatios {
 
     label 'ristretto'
 
-    publishDir "${params.outdir}", mode: 'copy', pattern: 'coproID_result.csv'
+    publishDir "${params.outdir}", mode: 'copy', pattern: '*.csv'
 
     input:
         file(count) from bp_count.collect()
         file(sp) from sourcepredict_out
     output:
         file("coproID_result.csv") into coproid_res
+        file("coproID_bp.csv") into coproid_bp_count
     script:
         outfile = "coproID_result.csv"
         """
-        cat *.bpc.csv > coproid_bp.csv
-        merge_bp_sp.py -c coproid_bp.csv -s $sp -o $outfile
+        ls -1 *.bpc.csv | head -1 | xargs head -1 > coproID_bp.csv
+        tail -q -n +2 *.bpc.csv >> coproID_bp.csv
+        merge_bp_sp.py -c coproID_bp.csv -s $sp -o $outfile
         """
 }
 
@@ -1118,6 +1197,7 @@ if (params.adna) {
 
             input:
                 file(copro_csv) from coproid_res
+                file(thelogo) from logo 
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
                 file(dplot3) from damage_result_genome3.collect().ifEmpty([])
@@ -1135,7 +1215,7 @@ if (params.adna) {
                         --TemplateExporter.exclude_output_prompt=True \\
                         --ExecutePreprocessor.timeout=200 \\
                         --execute \\
-                        --to html $report
+                        --to html_embed $report
                 """
         }
     } else {
@@ -1147,6 +1227,7 @@ if (params.adna) {
 
             input:
                 file(copro_csv) from coproid_res
+                file(thelogo) from logo
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
                 file(umap) from  sourcepredict_embed_out
@@ -1163,7 +1244,7 @@ if (params.adna) {
                         --TemplateExporter.exclude_output_prompt=True \\
                         --ExecutePreprocessor.timeout=200 \\
                         --execute \\
-                        --to html $report
+                        --to html_embed $report
                 """
         }
     }
@@ -1190,7 +1271,7 @@ if (params.adna) {
                     --TemplateExporter.exclude_output_prompt=True \\
                     --ExecutePreprocessor.timeout=200 \\
                     --execute \\
-                    --to html $report
+                    --to html_embed $report
             """
     }
 } 

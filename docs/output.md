@@ -28,6 +28,8 @@ These plots represents the damage patterns and read length distribution.
 
 ## coproID_report.html
 
+This file contains the coproID report
+
 ### coproID summary table
 
 This table summarizes the read ratios and microbiome source proportions as computed by coproID and sourcepredict.
@@ -39,11 +41,15 @@ This interactive plot shows the embedding of the microbiome samples by [sourcepr
 
 ### Damage plots
 
-These plots represents the damage patterns computed by DamageProfiler
+These plots represent the damage patterns computed by DamageProfiler
 
 ## coproID_result.csv
 
 This table summarizes the read ratios and microbiome source proportions as computed by coproID and sourcepredict.
+
+## coproID_bp.csv
+
+This table contains the mapped base pair counts (ancient and modern reads) for each sample.
 
 ## kraken
 
@@ -51,7 +57,7 @@ This directory contains the merged OTU count for all samples of the run, as coun
 
 ## damageprofiler
 
-This directory contains all of the output files of DamageProfiler (see multiqc section above)
+This directory contains all the output files of DamageProfiler (see multiqc section above)
 
 ## alignments
 
