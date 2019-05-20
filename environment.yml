@@ -1,4 +1,4 @@
-name: nf-core-coproid-1.0
+name: nf-core-coproid-1.1dev
 channels:
   - bioconda
   - conda-forge
@@ -33,3 +33,4 @@ dependencies:
   - anaconda::scipy=1.2.1
   - bioconda::multiqc=1.7
   - conda-forge::r-markdown=0.9
+  - conda-forge::jupyter_contrib_nbextensions=0.5.1
