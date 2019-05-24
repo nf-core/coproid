@@ -607,8 +607,6 @@ process bam2fq {
 
     label 'intenso'
 
-    errorStrategy 'ignore'
-
     input:
         set val(name), file(bam) from unaligned_genome1
     output:
@@ -1069,15 +1067,13 @@ if (params.name3 == ''){
 }
 
 
-// 5:     MapDamage
+// 5:     damageprofiler
 
 if (params.adna){
     process damageprofilerGenome1 {
     tag "$name"
 
     label 'ristretto'
-
-    errorStrategy 'ignore'
 
     publishDir "${params.outdir}/damageprofiler/${params.name1}", mode: 'copy'
 
@@ -1106,8 +1102,6 @@ if (params.adna){
 
         label 'ristretto'
 
-        errorStrategy 'ignore'
-
         publishDir "${params.outdir}/damageprofiler/${params.name2}", mode: 'copy'
 
         input:
@@ -1135,8 +1129,6 @@ if (params.adna){
         tag "$name"
 
         label 'ristretto'
-
-        errorStrategy 'ignore'
 
         publishDir "${params.outdir}/damageprofiler/${params.name3}", mode: 'copy'
 
@@ -1312,8 +1304,6 @@ process get_software_versions {
 process multiqc {
 
     label 'ristretto'
-
-    errorStrategy 'ignore'
 
     publishDir "${params.outdir}", mode: 'copy'
 
