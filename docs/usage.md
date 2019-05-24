@@ -350,7 +350,7 @@ Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta
 Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 
 ```bash
---index1 'path/to/bt_index/basename*'
+--index1 'path/to/bt_index/basename'
 ```
 
 ### `--index2`
@@ -358,7 +358,7 @@ Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 
 ```bash
---index2 'path/to/bt_index/basename*'
+--index2 'path/to/bt_index/basename'
 ```
 
 ### `--index3`
@@ -366,7 +366,7 @@ Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
 
 ```bash
---index3 'path/to/bt_index/basename*'
+--index3 'path/to/bt_index/basename'
 ```
 
 ## Job resources
