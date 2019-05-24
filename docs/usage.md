@@ -104,7 +104,12 @@ Name of the second candidate species. Example : `"Canis_familiaris"`
 
 ### `--krakenDB`
 
-Path to Path to Kraken2 MiniKraken2_v2_8GB Database. Can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
+Path to the directory containing the Kraken2 MiniKraken2_v2_8GB database files.
+The MiniKraken2_v2_8GB database can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
+
+```bash
+--krakendb "path/to/kraken2_db_dir"
+```
 
 ## Reference genomes
 
