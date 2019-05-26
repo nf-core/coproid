@@ -434,41 +434,38 @@ if __name__ == "__main__":
     if ABAM1 and ABAM2:
         # Two genomes
         anb1 = get_total_bp(abam1_res, acommonReads)
-        nnbp1 = (anb1 + 1) / gs1
+        nnbp1 = ((anb1 + 1) / gs1) * (1/ENDO1)
         anb2 = get_total_bp(abam2_res, acommonReads)
-        nnbp2 = (anb2 + 1) / gs2
+        nnbp2 = ((anb2 + 1) / gs2) * (1/ENDO2)
         print("nb1_ancient", anb1)
         print("nb2_ancient", anb2)
 
-        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) * ENDO1
-        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) * ENDO2
+        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) 
+        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) 
         if BAM3:
             # Three genomes
             anb3 = get_total_bp(abam3_res, acommonReads)
-            nnbp3 = (anb3 + 1) / gs3
+            nnbp3 = ((anb3 + 1) / gs3) * (1/ENDO3)
 
             print("nb3_ancient", anb3)
 
-            NormalizedReadRatio_1 = (
-                nnbp1 / (nnbp1 + nnbp2 + nnbp3)) * ENDO1
-            NormalizedReadRatio_2 = (
-                nnbp2 / (nnbp1 + nnbp2 + nnbp3)) * ENDO2
-            NormalizedReadRatio_3 = (
-                nnbp3 / (nnbp1 + nnbp2 + nnbp3)) * ENDO3
+            NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3))
+            NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3))
+            NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3))
     else:
         # Two genomes
-        nnbp1 = (nb1 + 1) / gs1
-        nnbp2 = (nb2 + 1) / gs2
+        nnbp1 = ((nb1 + 1) / gs1) * (1/ENDO1)
+        nnbp2 = ((nb2 + 1) / gs2) * (1/ENDO2)
 
-        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2)) * ENDO1
-        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2)) * ENDO2
+        NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2))
+        NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2))
         if BAM3:
             # Three genomes
-            nnbp3 = (nb3 + 1) / gs3
+            nnbp3 = ((nb3 + 1) / gs3) * (1/ENDO3)
 
-            NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3)) * ENDO1
-            NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3)) * ENDO2
-            NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3)) * ENDO3
+            NormalizedReadRatio_1 = (nnbp1 / (nnbp1 + nnbp2 + nnbp3))
+            NormalizedReadRatio_2 = (nnbp2 / (nnbp1 + nnbp2 + nnbp3))
+            NormalizedReadRatio_3 = (nnbp3 / (nnbp1 + nnbp2 + nnbp3))
 
     if ABAM1 and ABAM2:
         if not BAM3 and not ABAM3:
