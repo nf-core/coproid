@@ -66,13 +66,21 @@ ggplotly(g)
 ```{r, echo=FALSE, results='asis'}
 files <- list.files(pattern = "\\_freq.txt$")
 
+samp_names = c()
 for (i in seq(1, length(files))){
   # print(files[i])
   afile = files[i]
   spt = strsplit(as.character(afile), "[.]")
   samp_name = spt[[1]][1]
+  samp_names = append(samp_names, samp_name)
+}
+samp_names = unique(samp_names)
+
+for (i in seq(1, length(samp_names))){
+  samp_name = samp_names[i]
+  print(samp_name)
   cat('\n')  
-  cat("# ", samp_name, "\n")
+  cat("### Sample: ", strsplit(samp_name, "_otu_")[[1]][1]," - species: ", strsplit(samp_name, "_otu_")[[1]][2], "\n")
   fwd = paste(append(samp_name, "5pCtoT_freq.txt"), collapse = ".")
   fwd = read.csv(fwd, skip=3, sep="\t", col.names = c('pos','X5pCtoT'))
   rev = paste(append(samp_name, "3pGtoA_freq.txt"), collapse = ".")
@@ -80,8 +88,8 @@ for (i in seq(1, length(files))){
   rever$pos = rev(rever$pos * -1)
   rever$X3pGtoA = rev(rever$X3pGtoA)
   
-  f = ggplot(fwd, aes(x=pos,y=X5pCtoT)) + geom_line() + labs(title='5p')
-  r = ggplot(rever, aes(x=pos,y=X3pGtoA)) + geom_line() + labs(title='3p')
+  f = ggplot(fwd, aes(x=pos,y=X5pCtoT)) + geom_line() + labs(title='5pC>t', y="")
+  r = ggplot(rever, aes(x=pos,y=X3pGtoA)) + geom_line() + labs(title='3pG>A', y = "")
   grid.arrange(f, r, nrow = 1)
   cat('\n')  
 }
