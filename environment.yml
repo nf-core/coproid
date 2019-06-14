@@ -31,7 +31,8 @@ dependencies:
   - anaconda::numpy=1.16.3
   - anaconda::pandas=0.24.2
   - anaconda::scipy=1.2.1
-  - bioconda::multiqc=1.7=py_3
+  - conda-forge::matplotlib=2.2.3
+  - bioconda::multiqc=1.7
   - conda-forge::r-markdown=0.9
   - conda-forge::jupyter_contrib_nbextensions=0.5.1
-  - conda-forge::plotnine=0.5.1
+  - conda-forge::plotnine=0.4.0
