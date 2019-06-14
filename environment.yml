@@ -34,3 +34,4 @@ dependencies:
   - bioconda::multiqc=1.7=py_3
   - conda-forge::r-markdown=0.9
   - conda-forge::jupyter_contrib_nbextensions=0.5.1
+  - conda-forge::plotnine=0.5.1
