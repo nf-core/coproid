@@ -607,8 +607,6 @@ process bam2fq {
 
     label 'intenso'
 
-    errorStrategy 'ignore'
-
     input:
         set val(name), file(bam) from unaligned_genome1
     output:
@@ -876,7 +874,7 @@ process kraken_merge {
 
 process sourcepredict {
 
-    label 'intenso'
+    label 'elephanto'
 
     input:
         file(otu_table) from kraken_merged
@@ -1069,15 +1067,13 @@ if (params.name3 == ''){
 }
 
 
-// 5:     MapDamage
+// 5:     damageprofiler
 
 if (params.adna){
     process damageprofilerGenome1 {
     tag "$name"
 
     label 'ristretto'
-
-    errorStrategy 'ignore'
 
     publishDir "${params.outdir}/damageprofiler/${params.name1}", mode: 'copy'
 
@@ -1106,8 +1102,6 @@ if (params.adna){
 
         label 'ristretto'
 
-        errorStrategy 'ignore'
-
         publishDir "${params.outdir}/damageprofiler/${params.name2}", mode: 'copy'
 
         input:
@@ -1135,8 +1129,6 @@ if (params.adna){
         tag "$name"
 
         label 'ristretto'
-
-        errorStrategy 'ignore'
 
         publishDir "${params.outdir}/damageprofiler/${params.name3}", mode: 'copy'
 
@@ -1313,8 +1305,6 @@ process multiqc {
 
     label 'ristretto'
 
-    errorStrategy 'ignore'
-
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
@@ -1471,10 +1461,10 @@ workflow.onComplete {
     c_green = params.monochrome_logs ? '' : "\033[0;32m";
     c_red = params.monochrome_logs ? '' : "\033[0;31m";
 
-    if (workflow.stats.ignoredCountFmt > 0 && workflow.success) {
+    if (workflow.stats.ignoredCount > 0 && workflow.success) {
       log.info "${c_purple}Warning, pipeline completed, but with errored process(es) ${c_reset}"
-      log.info "${c_red}Number of ignored errored process(es) : ${workflow.stats.ignoredCountFmt} ${c_reset}"
-      log.info "${c_green}Number of successfully ran process(es) : ${workflow.stats.succeedCountFmt} ${c_reset}"
+      log.info "${c_red}Number of ignored errored process(es) : ${workflow.stats.ignoredCount} ${c_reset}"
+      log.info "${c_green}Number of successfully ran process(es) : ${workflow.stats.succeedCount} ${c_reset}"
     }
 
     if(workflow.success){

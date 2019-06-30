@@ -104,7 +104,12 @@ Name of the second candidate species. Example : `"Canis_familiaris"`
 
 ### `--krakenDB`
 
-Path to Path to Kraken2 MiniKraken2_v2_8GB Database. Can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
+Path to the directory containing the Kraken2 MiniKraken2_v2_8GB database files.
+The MiniKraken2_v2_8GB database can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
+
+```bash
+--krakendb "path/to/kraken2_db_dir"
+```
 
 ## Reference genomes
 
@@ -350,7 +355,7 @@ Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta
 Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 
 ```bash
---index1 'path/to/bt_index/basename*'
+--index1 'path/to/bt_index/basename'
 ```
 
 ### `--index2`
@@ -358,7 +363,7 @@ Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 
 ```bash
---index2 'path/to/bt_index/basename*'
+--index2 'path/to/bt_index/basename'
 ```
 
 ### `--index3`
@@ -366,7 +371,7 @@ Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
 Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
 
 ```bash
---index3 'path/to/bt_index/basename*'
+--index3 'path/to/bt_index/basename'
 ```
 
 ## Job resources
