@@ -328,6 +328,27 @@ Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 
 --endo3 0.01
 ```
 
+
+### `sp_embed`
+
+SourcePredict embedding algorithm. One of mds, tsne, umap. Default to mds
+
+```
+--sp_embed mds
+```
+
+More information is available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
+
+### `sp_neighbors`
+
+Sourcepredict numbers of neighbors for KNN ML. Integer or all. Default = all
+
+```
+--sp_neighbors all
+```
+
+More information is available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
+
 ## Other coproID parameters
 
 ### `--name3`
