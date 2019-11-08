@@ -6,6 +6,12 @@
 -   Remove outdated scripts [#14](https://github.com/nf-core/coproid/pull/14)
 -   Update logo to match font [#13](https://github.com/nf-core/coproid/pull/13)
 
+- Update Sourcepredict to version 0.4 and reflect new parameters in coproID [#19](https://github.com/nf-core/coproid/pull/19) [e4afca7](https://github.com/nf-core/coproid/commit/e4afca7059c00ebbc753dd02d4aed3f3a1b3b7b8)
+- Changed bedtools bamtofastq to samtools fastq [e4afca7](https://github.com/nf-core/coproid/commit/e4afca7059c00ebbc753dd02d4aed3f3a1b3b7b8)
+- Fixed column names in report (PC* to DIM* ) [e4afca7](https://github.com/nf-core/coproid/commit/63a6bc6998c240b77791916c243d538b2268b5d5)
+- Update README to inlude Zenodo badge, Quick start, contributor section, and tools references. [9874ae8](https://github.com/nf-core/coproid/commit/9874ae87c88842d75c29088672aa81023408d4e7) [e85988b](https://github.com/nf-core/coproid/commit/e85988b883539aa51461e749bc14ec6563f62fc8)
+- Update documentation [bedfdde](https://github.com/nf-core/coproid/commit/bedfddec8500adac8e0cb9cc8e0df2dc6a784f15)
+
 ## v1.0 - 2019-04-26
 
 Initial release of nf-core/coproid, created with the [nf-core](http://nf-co.re/) template.
