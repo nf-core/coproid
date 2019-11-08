@@ -264,8 +264,8 @@ if( ! nextflow.version.matches(workflow.manifest.nextflowVersion) ){
 // Check sourcepredict parameters
 
 if (params.sp_embed != 'mds' && params.sp_embed != 'tsne' && params.sp_embed != 'umap'){
-    println "${params.sp_embed} is not a valid method for SourcePredict embedding"
-    println "Available methods are: mds, tsne, umap"
+    println "${params.sp_embed} is not a valid method for SourcePredict embedding (--sp_embed)"
+    println """Available methods are: 'mds', 'tsne', 'umap' """
     exit(1)
 }
 
