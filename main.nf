@@ -43,14 +43,16 @@ def helpMessage() {
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
-      --library                     DNA preparation library type ( classic | UDGhalf). Default = ${params.library}
-      --bowtie                      Bowtie settings for sensivity (very-fast | very-sensitive). Default = ${params.bowtie}
+      --library                     DNA preparation library type ( 'classic' | 'UDGhalf'). Default = ${params.library}
+      --bowtie                      Bowtie settings for sensivity ('very-fast' | 'very-sensitive'). Default = ${params.bowtie}
       --minKraken                   Minimum number of Kraken hits per Taxonomy ID to report. Default = ${params.minKraken}
       --endo1                       Proportion of Endogenous DNA in organism 1 target microbiome. Default = ${params.endo1}
       --endo2                       Proportion of Endogenous DNA in organism 2 target microbiome. Default = ${params.endo1}
       --endo3                       Proportion of Endogenous DNA in organism 3 target microbiome. Default = ${params.endo1}
-      --sp_embed                    SourcePredict embedding algorithm. One of mds, tsne, umap. Default = ${params.sp_embed}    
-      --sp_neighbors                Sourcepredict numbers of neighbors for KNN ML. Integer or all. Default = ${params.sp_neighbors}
+      --sp_norm                     Sourcepredict normalization method.  One of 'rle', 'gmpr', 'subsample'. Default = ${params.sp_norm}
+      --sp_embed                    SourcePredict embedding algorithm. One of 'mds', 'tsne', 'umap'. Default = ${params.sp_embed}    
+      --sp_neighbors                Sourcepredict numbers of neighbors for KNN ML. Integer or 'all'. Default = ${params.sp_neighbors}
+      
 
     Options:
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
@@ -266,6 +268,11 @@ if( ! nextflow.version.matches(workflow.manifest.nextflowVersion) ){
 if (params.sp_embed != 'mds' && params.sp_embed != 'tsne' && params.sp_embed != 'umap'){
     println "${params.sp_embed} is not a valid method for SourcePredict embedding (--sp_embed)"
     println """Available methods are: 'mds', 'tsne', 'umap' """
+    exit(1)
+}
+if (params.sp_norm != 'rle' && params.sp_norm != 'gmpr' && params.sp_norm != 'subsample'){
+    println "${params.sp_norm} is not a valid method for SourcePredict normalization method (--sp_norm)"
+    println """Available methods are: 'rle', 'gmpr', 'subsample' """
     exit(1)
 }
 
@@ -626,7 +633,7 @@ process bam2fq {
             out1 = name+"_"+params.name1+".unaligned_R1.fastq"
             out2 = name+"_"+params.name1+".unaligned_R2.fastq"
             """
-            samtools fastq -1 $out1 -2 $out2 $bam
+            samtools fastq -1 $out1 -2 $out2 -0 /dev/null -s /dev/null -n -F 0x900 $bam
             """
         } else {
             out = name+"_"+params.name1+".unaligned.fastq"
@@ -901,6 +908,7 @@ process sourcepredict {
         sourcepredict -di ${params.sp_dim} \\
                       -kne ${params.sp_neighbors} \\
                       -me ${params.sp_embed} \\
+                      -n ${params.sp_norm} \\
                       -l ${sp_labels} \\
                       -s ${sp_sources} \\
                       -t ${task.cpus} \\

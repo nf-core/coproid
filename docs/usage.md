@@ -339,6 +339,16 @@ SourcePredict embedding algorithm. One of mds, tsne, umap. Default to mds
 
 More information is available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
 
+### `sp_norm`
+
+Sourcepredict normalization method. One of 'rle', 'gmpr', 'subsample'. Default = 'gmpr'
+
+```
+--sp_norm 'gmpr'
+```
+
+More informations are available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
+
 ### `sp_neighbors`
 
 Sourcepredict numbers of neighbors for KNN ML. Integer or all. Default = all
@@ -347,7 +357,7 @@ Sourcepredict numbers of neighbors for KNN ML. Integer or all. Default = all
 --sp_neighbors all
 ```
 
-More information is available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
+More informations are available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
 
 ## Other coproID parameters
 
