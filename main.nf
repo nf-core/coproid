@@ -256,8 +256,8 @@ if (params.library == 'classic'){
     library = '--UDGhalf'
 }
 
-if( ! nextflow.version.matches(">= 19.04.0") ){
-    println "Your version of Nextflow is too old, please update to Nextflow >= 0.30"
+if( ! nextflow.version.matches(workflow.manifest.nextflowVersion) ){
+    println "Your version of Nextflow is too old, please use Nextflow "+workflow.manifest.nextflowVersion.toString()
     exit(1)
 }
 
