@@ -49,6 +49,8 @@ def helpMessage() {
       --endo1                       Proportion of Endogenous DNA in organism 1 target microbiome. Default = ${params.endo1}
       --endo2                       Proportion of Endogenous DNA in organism 2 target microbiome. Default = ${params.endo1}
       --endo3                       Proportion of Endogenous DNA in organism 3 target microbiome. Default = ${params.endo1}
+      --sp_embed                    SourcePredict embedding algorithm. One of mds, tsne, umap. Default = ${params.sp_embed}    
+      --sp_neighbors                Sourcepredict numbers of neighbors for KNN ML. Integer or all. Default = ${params.sp_neighbors}
 
     Options:
       --name3                       Name of candidate 1. Example: "Sus_scrofa"
@@ -256,6 +258,14 @@ if (params.library == 'classic'){
 
 if( ! nextflow.version.matches(">= 0.30") ){
     println "Your version of Nextflow is too old, please update to Nextflow >= 0.30"
+    exit(1)
+}
+
+// Check sourcepredict parameters
+
+if (params.sp_embed != 'mds' && params.sp_embed != 'tsne' && params.sp_embed != 'umap'){
+    println "${params.sp_embed} is not a valid method for SourcePredict embedding"
+    println "Available methods are: mds, tsne, umap"
     exit(1)
 }
 
@@ -616,12 +626,12 @@ process bam2fq {
             out1 = name+"_"+params.name1+".unaligned_R1.fastq"
             out2 = name+"_"+params.name1+".unaligned_R2.fastq"
             """
-            bedtools bamtofastq -i $bam -fq $out1 -fq2 $out2
+            samtools fastq -1 $out1 -2 $out2 $bam
             """
         } else {
             out = name+"_"+params.name1+".unaligned.fastq"
             """
-            bedtools bamtofastq -i $bam -fq $out
+            samtools fastq $bam > $out
             """
         }
 }   
@@ -889,7 +899,8 @@ process sourcepredict {
         embed_out = "sourcepredict_embedding.csv"
         """
         sourcepredict -di ${params.sp_dim} \\
-                      -k ${params.sp_kfold} \\
+                      -kne ${params.sp_neighbors} \\
+                      -me ${params.sp_embed} \\
                       -l ${sp_labels} \\
                       -s ${sp_sources} \\
                       -t ${task.cpus} \\
