@@ -2,7 +2,10 @@
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
-[![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest) 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2653756.svg)](https://doi.org/10.5281/zenodo.2653756)
+
+
 
 ![logo_nf_core](assets/img/coproID_nf-core_logo.svg)
 
