@@ -4,7 +4,7 @@ name: nf-core CI
 on: [push, pull_request]
 
 jobs:
-  test:
+  nf_core_ci:
     env:
       NXF_VER: ${{ matrix.nxf_ver }}
       NXF_ANSI_LOG: false
