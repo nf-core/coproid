@@ -13,7 +13,7 @@ c2d4164 ](https://github.com/nf-core/coproid/pull/20/commits/c2d4164bf068ed4fc92
 - Update documentation [bedfdde](https://github.com/nf-core/coproid/commit/bedfddec8500adac8e0cb9cc8e0df2dc6a784f15)
 - Update Nextflow minimum version to 19.04.0 [44999fd](https://github.com/nf-core/coproid/commit/44999fd4d38b21d53f970621dbf3587c044da8d1)
 - Update travis for more recent nextflow requirements [1e3e454](https://github.com/nf-core/coproid/commit/1e3e454e72f1bc8eb43aaa1e5165981cb77a56dc)
-
+- Adapt coproID to nf-core tools 1.8 release [#21](https://github.com/nf-core/coproid/pull/21) 
 
 ## v1.0 - 2019-04-26
 
