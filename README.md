@@ -2,7 +2,6 @@
 
 **Coprolite Identification**.
 
-[![Build Status](https://travis-ci.com/nf-core/coproid.svg?branch=master)](https://travis-ci.com/nf-core/coproid)
 [![GitHub Actions CI Status](https://github.com/nf-core/coproid/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/coproid/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/coproid/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/coproid/actions)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
