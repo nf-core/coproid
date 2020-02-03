@@ -51,7 +51,14 @@ This version number will be logged in reports when you run the pipeline, so that
 
 Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. Note that multiple profiles can be loaded, for example: `-profile docker` - the order of arguments is important!
 
-If `-profile` is not specified at all the pipeline will be run locally and expects all software to be installed and available on the `PATH`.
+Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Conda) - see below.
+
+The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
+
+Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
+They are loaded in sequence, so later profiles can overwrite earlier profiles.
+
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
 -   `awsbatch`
     -   A generic configuration profile to be used with AWS Batch.
@@ -84,12 +91,12 @@ Please note the following requirements:
 
 If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
-### `--singleEnd`
+### `--single_end`
 
-By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--singleEnd` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--reads`. For example:
+By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--reads`. For example:
 
 ```bash
---singleEnd --reads '*.fastq'
+--single_end --reads '*.fastq'
 ```
 
 It is not possible to run a mixture of single-end and paired-end files in one run.
@@ -204,7 +211,7 @@ Name of iGenomes reference for candidate organism 3. Must be provided if fasta2 
 --genome2 'CanFam3.1'
 ```
 
-### `--igenomesIgnore`
+### `--igenomes_ignore`
 
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
@@ -417,11 +424,11 @@ Wherever process-specific requirements are set in the pipeline, the default valu
 
 If you are likely to be running `nf-core` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition below). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
 
-If you have any questions or issues please send us a message on [Slack](https://nf-core-invite.herokuapp.com/).
+If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack).
 
 ## AWS Batch specific parameters
 
-Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use the `-awsbatch` profile and then specify all of the following parameters.
+Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use [`-profile awsbatch`](https://github.com/nf-core/configs/blob/master/conf/awsbatch.config) and then specify all of the following parameters.
 
 ### `--awsqueue`
 
@@ -429,7 +436,11 @@ The JobQueue that you intend to use on AWS Batch.
 
 ### `--awsregion`
 
-The AWS region to run your job in. Default is set to `eu-west-1` but can be adjusted to your needs.
+The AWS region in which to run your job. Default is set to `eu-west-1` but can be adjusted to your needs.
+
+### `--awscli`
+
+The [AWS CLI](https://www.nextflow.io/docs/latest/awscloud.html#aws-cli-installation) path in your custom AMI. Default: `/home/ec2-user/miniconda/bin/aws`.
 
 Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't.
 
@@ -442,6 +453,14 @@ The output directory where the results will be saved.
 ### `--email`
 
 Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.
+
+### `--email_on_fail`
+
+This works exactly as with `--email`, except emails are only sent if the workflow is not successful.
+
+### `--max_multiqc_email_size`
+
+Threshold size for MultiQC report to be attached in notification email. If file generated by pipeline exceeds the threshold, it will not be attached (Default: 25MB).
 
 ### `-name`
 
@@ -470,6 +489,7 @@ Note - you can use this to override pipeline defaults.
 ### `--custom_config_version`
 
 Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default is set to `master`.
+
 
 ```bash
 ## Download and use config file with following git commid id

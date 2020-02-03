@@ -33,3 +33,5 @@ Adapting [CoproID](https://github.com/maxibor/coproID/tree/dev) to nf-core templ
 -   Major redefinition of the channels creation to adapt to iGenomes and profiles
 -   Added and adapted all the nf-core boilerplate code for support of configs and containers
 -   Improved documentation
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
