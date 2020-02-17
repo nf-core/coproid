@@ -1,5 +1,11 @@
-[![Build Status](https://travis-ci.com/nf-core/coproid.svg?branch=master)](https://travis-ci.com/nf-core/coproid)
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
+# ![nf-core/coproid](docs/images/nf-core-coproid_logo.png)
+
+**Coprolite Identification**.
+
+[![GitHub Actions CI Status](https://github.com/nf-core/coproid/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/coproid/actions)
+[![GitHub Actions Linting Status](https://github.com/nf-core/coproid/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/coproid/actions)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
+
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
 [![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest) 
@@ -17,32 +23,29 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 ## Quick Start
 
-1. Install [`nextflow`](https://nf-co.re/usage/installation)
+i. Install [`nextflow`](https://nf-co.re/usage/installation)
 
-2. Install one of [`docker`](https://docs.docker.com/engine/installation/), [`singularity`](https://www.sylabs.io/guides/3.0/user-guide/) or [`conda`](https://conda.io/miniconda.html)
+ii. Install one of [`docker`](https://docs.docker.com/engine/installation/), [`singularity`](https://www.sylabs.io/guides/3.0/user-guide/) or [`conda`](https://conda.io/miniconda.html)
 
-3. Download the EAGER pipeline
-
-```bash
-nextflow pull nf-core/coproid
-```
-
-4. Test the pipeline using the provided test data
+iii. Download the pipeline and test it on a minimal dataset with a single command
 
 ```bash
-nextflow run nf-core/coproid -profile <docker/singularity/conda>,test
+nextflow run nf-core/coproid -profile test,<docker/singularity/conda/institute>
 ```
 
-5. Run with it with you own data
+> Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile institute` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
 
+iv. Start running your own analysis!
+
+```bash
 nextflow run nf-core/coproid --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
+```
 
-NB. You can see an overview of the run in the MultiQC report located at `<OUTPUT_DIR>/MultiQC/multiqc_report.html`
-
-Modifications to the default pipeline are easily made using various options
-as described in the documentation.
+See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
 
 ## Documentation
+
+The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
 The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory and at the following address: [coproid.readthedocs.io](https://coproid.readthedocs.io)
 
@@ -58,6 +61,12 @@ The nf-core/coproid pipeline comes with documentation about the pipeline, found 
 ## Credits
 
 nf-core/coproid was written by [Maxime Borry](https://github.com/maxibor).
+
+## Contributions and Support
+
+If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+
+For further information or help, don't hesitate to get in touch on [Slack](https://nfcore.slack.com/channels/coproid) (you can join with [this invite](https://nf-co.re/join/slack)).
 
 ## Contributors
 

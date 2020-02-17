@@ -39,7 +39,7 @@ def helpMessage() {
     Settings:
       --adna                        Specified if data is modern (false) or ancient DNA (true). Default = ${params.adna}
       --phred                       Specifies the fastq quality encoding (33 | 64). Defaults to ${params.phred}
-      --singleEnd                   Specified if reads are single-end (true | false). Default = ${params.singleEnd}
+      --single_end                  Specified if reads are single-end. Default = ${params.single_end}
       --collapse                    Specifies if AdapterRemoval should merge the paired-end sequences or not (true | false). Default = ${params.collapse}
       --identity                    Identity threshold to retain read alignment. Default = ${params.identity}
       --pmdscore                    Minimum PMDscore to retain read alignment. Default = ${params.pmdscore}
@@ -70,8 +70,9 @@ def helpMessage() {
       --help  --h                   Shows this help page
 
     AWSBatch options:
-      --awsqueue                    The AWSBatch JobQueue that needs to be set when running on AWSBatch
-      --awsregion                   The AWS Region for your AWS Batch job to run on
+      --awsqueue [str]                The AWSBatch JobQueue that needs to be set when running on AWSBatch
+      --awsregion [str]               The AWS Region for your AWS Batch job to run on
+      --awscli [str]                  Path to the AWS CLI tool
     """.stripIndent()
 }
 
@@ -213,8 +214,8 @@ if (params.name3) {
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
 custom_runName = params.name
-if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
-  custom_runName = workflow.runName
+if (!(workflow.runName ==~ /[a-z]+_[a-z]+/)) {
+    custom_runName = workflow.runName
 }
 
 
@@ -239,11 +240,11 @@ if (params.bowtie == 'very-fast'){
     exit(1)
 }
 
-// singleEnd or pairedEnd Check
-if (params.singleEnd == false) {
-    pairedEnd = true
-} else if (params.singleEnd == true) {
-    pairedEnd = false
+// single_end or paired_end Check
+if (params.single_end == false) {
+    paired_end = true
+} else if (params.single_end == true) {
+    paired_end = false
 }
 
 //Library setting check
@@ -297,24 +298,24 @@ READS CHANNEL CREATION
 
 // Creating reads channel
 if(params.readPaths){
-    if(params.singleEnd){
+    if(params.single_end){
         Channel
             .from(params.readPaths)
-            .map { row -> [ row[0], [file(row[1][0])]] }
+            .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { read_files_fastqc; read_files_trimming }
+            .into { ch_read_files_fastqc; ch_read_files_trimming }
     } else {
         Channel
             .from(params.readPaths)
-            .map { row -> [ row[0], [file(row[1][0]), file(row[1][1])]] }
+            .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true), file(row[1][1], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { read_files_fastqc; read_files_trimming }
+            .into { ch_read_files_fastqc; ch_read_files_trimming }
     }
 } else {
     Channel
-        .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
-        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --singleEnd on the command line." }
-        .into { read_files_fastqc; read_files_trimming }
+        .fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
+        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
+        .into { ch_read_files_fastqc; ch_read_files_trimming }
 }
 
 /****************
@@ -359,7 +360,7 @@ log.info " Homepage / Documentation: https://github.com/nf-core/coproid"
 log.info " Author: Maxime Borry <borry@shh.mpg.de>"
 log.info "================================================================"
 def summary = [:]
-if(workflow.revision) summary['Pipeline Release'] = workflow.revision
+if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
 if (params.reads) {
     summary['Reads'] = params.reads
@@ -370,7 +371,7 @@ summary['phred quality'] = params.phred
 summary['identity threshold'] = params.identity
 summary['collapse'] = params.collapse
 summary['Ancient DNA'] = params.adna
-summary['singleEnd'] = params.singleEnd
+summary['single_end'] = params.single_end
 summary['bowtie setting'] = params.bowtie
 if (params.genome1) summary['Genome1'] = params.genome1
 if (params.index1) summary["Genome1 BT2 index"] = params.index1
@@ -394,17 +395,19 @@ summary['Launch dir']       = workflow.launchDir
 summary['Working dir']      = workflow.workDir
 summary['Script dir']       = workflow.projectDir
 summary['User']             = workflow.userName
-if(workflow.profile == 'awsbatch'){
-   summary['AWS Region']    = params.awsregion
-   summary['AWS Queue']     = params.awsqueue
+if (workflow.profile.contains('awsbatch')) {
+    summary['AWS Region']   = params.awsregion
+    summary['AWS Queue']    = params.awsqueue
+    summary['AWS CLI']      = params.awscli
 }
 summary['Config Profile'] = workflow.profile
-if(params.config_profile_description) summary['Config Description'] = params.config_profile_description
-if(params.config_profile_contact)     summary['Config Contact']     = params.config_profile_contact
-if(params.config_profile_url)         summary['Config URL']         = params.config_profile_url
-if(params.email) {
-  summary['E-mail Address']  = params.email
-  summary['MultiQC maxsize'] = params.maxMultiqcEmailFileSize
+if (params.config_profile_description) summary['Config Description'] = params.config_profile_description
+if (params.config_profile_contact)     summary['Config Contact']     = params.config_profile_contact
+if (params.config_profile_url)         summary['Config URL']         = params.config_profile_url
+if (params.email || params.email_on_fail) {
+    summary['E-mail Address']    = params.email
+    summary['E-mail on failure'] = params.email_on_fail
+    summary['MultiQC maxsize']   = params.max_multiqc_email_size
 }
 log.info summary.collect { k,v -> "${k.padRight(25)}: $v" }.join("\n")
 log.info "\033[2m----------------------------------------------------\033[0m"
@@ -414,12 +417,8 @@ log.info "\033[2m----------------------------------------------------\033[0m"
 process fastqc {
     tag "$name"
 
-    // conda "bioconda::fastqc'
-
-    label 'ristretto'
-
     input:
-        set val(name), file(reads) from read_files_fastqc
+        set val(name), file(reads) from ch_read_files_fastqc
 
     output:
         file '*_fastqc.{zip,html}' into fastqc_results
@@ -432,7 +431,6 @@ process fastqc {
 
 // 0.1    Rename reference genome fasta files
 process renameGenome1 {
-    label 'ristretto'
 
     input:
         file (genome) from fasta1
@@ -446,7 +444,6 @@ process renameGenome1 {
 }
 
 process renameGenome2 {
-    label 'ristretto'
 
     input:
         file (genome) from fasta2
@@ -461,7 +458,6 @@ process renameGenome2 {
 
 if (params.name3){
     process renameGenome3 {
-        label 'ristretto'
 
         input:
             file (genome) from fasta3
@@ -477,14 +473,14 @@ if (params.name3){
 
 
 // 1.1:   AdapterRemoval: Adapter trimming, quality filtering, and read merging
-if (params.collapse == true && params.singleEnd == false){
+if (params.collapse == true && params.single_end == false){
     process AdapterRemovalCollapse {
         tag "$name"
 
-        label 'expresso'
+        label 'process_low'
 
         input:
-            set val(name), file(reads) from read_files_trimming
+            set val(name), file(reads) from ch_read_files_trimming
 
         output:
             set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3, trimmed_reads_kraken
@@ -512,14 +508,14 @@ if (params.collapse == true && params.singleEnd == false){
                            --settings $settings
             """
     }
-} else if (params.collapse == false || params.singleEnd == true) {
+} else if (params.collapse == false || params.single_end == true) {
     process AdapterRemovalNoCollapse {
         tag "$name"
 
-        label 'expresso'
+        label 'process_low'
 
         input:
-            set val(name), file(reads) from read_files_trimming
+            set val(name), file(reads) from ch_read_files_trimming
 
         output:
             set val(name), file('*.trimmed.fastq') into trimmed_reads_genome1, trimmed_reads_genome2, trimmed_reads_genome3
@@ -530,7 +526,7 @@ if (params.collapse == true && params.singleEnd == false){
             out2 = name+".pair2.trimmed.fastq"
             se_out = name+".trimmed.fastq"
             settings = name+".settings"
-            if (params.singleEnd == false) {
+            if (params.single_end == false) {
                 """
                 AdapterRemoval --basename $name \\
                                --file1 ${reads[0]} \\
@@ -562,7 +558,7 @@ if (params.collapse == true && params.singleEnd == false){
             
     }
 } else {
-    println "Problem with --collapse. If --singleEnd is set to true, you have to set --collapse to false"
+    println "Problem with --collapse. If --single_end is set to true, you have to set --collapse to false"
     exit(1)
 }
 
@@ -571,7 +567,7 @@ if (!params.index1){
     process BowtieIndexGenome1 {
         tag "${params.name1}"
 
-        label 'intenso'
+        label 'process_medium'
 
         input:
             file(fasta) from genome1Fasta
@@ -588,7 +584,7 @@ if (!params.index1){
 process AlignToGenome1 {
     tag "$name"
 
-    label 'intenso'
+    label 'process_medium'
 
     publishDir "${params.outdir}/alignments/${params.name1}", mode: 'copy', pattern: '*.sorted.bam'
 
@@ -604,7 +600,7 @@ process AlignToGenome1 {
         fstat = name+"_"+params.name1+".stats.txt"
         outfile = name+"_"+params.name1+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name1+".unaligned.sorted.bam"
-        if (params.collapse == true || params.singleEnd == true) {
+        if (params.collapse == true || params.single_end == true) {
             """
             bowtie2 -x $bt1_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
@@ -622,14 +618,14 @@ process AlignToGenome1 {
 process bam2fq {
     tag "$name"
 
-    label 'intenso'
+    label 'process_medium'
 
     input:
         set val(name), file(bam) from unaligned_genome1
     output:
         set val(name), file("*.fastq") into unmapped_humans_reads
     script:
-        if (pairedEnd && params.collapse == false){
+        if (paired_end && params.collapse == false){
             out1 = name+"_"+params.name1+".unaligned_R1.fastq"
             out2 = name+"_"+params.name1+".unaligned_R2.fastq"
             """
@@ -649,7 +645,7 @@ if (!params.index2){
     process BowtieIndexGenome2 {
         tag "${params.name2}"
 
-        label 'intenso'
+        label 'process_medium'
 
         input:
             file(fasta) from genome2Fasta
@@ -668,7 +664,7 @@ if (params.name3 && !params.index3) {
     process BowtieIndexGenome3 {
         tag "${params.name2}"
 
-        label 'intenso'
+        label 'process_medium'
 
         input:
             file(fasta) from genome3Fasta
@@ -687,7 +683,7 @@ if (params.name3 && !params.index3) {
 process AlignToGenome2 {
     tag "$name"
 
-    label 'intenso'
+    label 'process_medium'
 
     publishDir "${params.outdir}/alignments/${params.name2}", mode: 'copy', pattern: '*.sorted.bam'
 
@@ -703,7 +699,7 @@ process AlignToGenome2 {
         fstat = name+"_"+params.name2+".stats.txt"
         outfile = name+"_"+params.name2+".aligned.sorted.bam"
         outfile_unalign = name+"_"+params.name2+".unaligned.sorted.bam"
-        if (params.collapse == true || params.singleEnd == true) {
+        if (params.collapse == true || params.single_end == true) {
             """
             bowtie2 -x $bt2_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
             samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
@@ -724,7 +720,7 @@ if (params.name3) {
     process AlignToGenome3 {
         tag "$name"
 
-        label 'intenso'
+        label 'process_medium'
 
         publishDir "${params.outdir}/alignments/${params.name1}", mode: 'copy', pattern: '*.sorted.bam'
 
@@ -740,7 +736,7 @@ if (params.name3) {
             fstat = name+"_"+params.name3+".stats.txt"
             outfile = name+"_"+params.name3+".aligned.sorted.bam"
             outfile_unalign = name+"_"+params.name3+".unaligned.sorted.bam"
-            if (params.collapse == true || params.singleEnd == true) {
+            if (params.collapse == true || params.single_end == true) {
                 """
                 bowtie2 -x $bt3_index -U ${reads[0]} $bowtie_setting --threads ${task.cpus} > $samfile 2> $fstat
                 samtools view -S -b -F 4 -@ ${task.cpus} $samfile | samtools sort -@ ${task.cpus} -o $outfile
@@ -762,8 +758,6 @@ if (params.adna){
     process pmdtoolsgenome1 {
     tag "$name"
 
-    label 'ristretto'
-
     publishDir "${params.outdir}/pmdtools/${params.name1}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
     input:
@@ -779,8 +773,6 @@ if (params.adna){
 
     process pmdtoolsgenome2 {
         tag "$name"
-
-        label 'ristretto'
 
         publishDir "${params.outdir}/pmdtools/${params.name2}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
@@ -798,8 +790,6 @@ if (params.adna){
     if (params.name3 != ''){
         process pmdtoolsgenome3 {
         tag "$name"
-
-        label 'ristretto'
 
         publishDir "${params.outdir}/pmdtools/${params.name3}", mode: 'copy', pattern: '*.pmd_filtered.bam'
 
@@ -819,7 +809,7 @@ if (params.adna){
 process kraken2 {
     tag "$name"
 
-    label 'intenso'
+    label 'process_medium'
 
     input:
         set val(name), file(reads) from unmapped_humans_reads
@@ -833,7 +823,7 @@ process kraken2 {
     script:
         out = name+".kraken.out"
         kreport = name+".kreport"
-        if (pairedEnd && params.collapse == false){
+        if (paired_end && params.collapse == false){
             """
             kraken2 --db ${krakendb} \\
                     --threads ${task.cpus} \\
@@ -855,8 +845,6 @@ process kraken2 {
 process kraken_parse {
     tag "$name"
 
-    label 'ristretto'
-
     input:
         set val(name), file(kraken_r) from kraken_report
 
@@ -871,8 +859,6 @@ process kraken_parse {
 }
 
 process kraken_merge {
-
-    label 'ristretto'
 
     publishDir "${params.outdir}/kraken", mode: 'copy'
 
@@ -891,7 +877,7 @@ process kraken_merge {
 
 process sourcepredict {
 
-    label 'elephanto'
+    label 'process_high'
 
     input:
         file(otu_table) from kraken_merged
@@ -923,7 +909,7 @@ if (params.name3 == ''){
     process countBp2genomes{
     tag "$name"
 
-    label 'expresso'
+    label 'process_low'
 
     input:
 
@@ -994,7 +980,7 @@ if (params.name3 == ''){
     process countBp3genomes{
     tag "$name"
 
-    label 'expresso'
+    label 'process_low'
 
     echo true
 
@@ -1092,8 +1078,6 @@ if (params.adna){
     process damageprofilerGenome1 {
     tag "$name"
 
-    label 'ristretto'
-
     publishDir "${params.outdir}/damageprofiler/${params.name1}", mode: 'copy'
 
     input:
@@ -1118,8 +1102,6 @@ if (params.adna){
 
     process damageprofilerGenome2 {
         tag "$name"
-
-        label 'ristretto'
 
         publishDir "${params.outdir}/damageprofiler/${params.name2}", mode: 'copy'
 
@@ -1146,8 +1128,6 @@ if (params.adna){
     if (params.name3 != ""){
         process damageprofilerGenome3 {
         tag "$name"
-
-        label 'ristretto'
 
         publishDir "${params.outdir}/damageprofiler/${params.name3}", mode: 'copy'
 
@@ -1178,8 +1158,6 @@ if (params.adna){
 
 process concatenateRatios {
 
-    label 'ristretto'
-
     publishDir "${params.outdir}", mode: 'copy', pattern: '*.csv'
 
     input:
@@ -1201,8 +1179,6 @@ process concatenateRatios {
 if (params.adna) {
     if (params.name3) {
         process generate_report_adna_3_genomes {
-
-            label 'ristretto'
 
             publishDir "${params.outdir}", mode: 'copy'
 
@@ -1232,8 +1208,6 @@ if (params.adna) {
     } else {
         process generate_report_adna_2_genomes {
 
-            label 'ristretto'
-
             publishDir "${params.outdir}", mode: 'copy'
 
             input:
@@ -1261,8 +1235,6 @@ if (params.adna) {
     }
 } else {
     process generate_report {
-
-        label 'ristretto'
 
         publishDir "${params.outdir}", mode: 'copy', pattern: '*.html'
 
@@ -1293,13 +1265,13 @@ if (params.adna) {
  */
 process get_software_versions {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
-    saveAs: {filename ->
-        if (filename.indexOf(".csv") > 0) filename
-        else null
-    }
+        saveAs: { filename ->
+                      if (filename.indexOf(".csv") > 0) filename
+                      else null
+                }
 
     output:
-    file 'software_versions_mqc.yaml' into software_versions_yaml
+    file 'software_versions_mqc.yaml' into ch_software_versions_yaml
     file "software_versions.csv"
 
     script:
@@ -1322,8 +1294,6 @@ process get_software_versions {
 // 9:     MultiQC
 process multiqc {
 
-    label 'ristretto'
-
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
@@ -1332,7 +1302,7 @@ process multiqc {
         file ('fastqc/*') from fastqc_results.collect()
         file ('DamageProfiler/*') from dmgProf1_ch.collect()
         file ('DamageProfiler/*') from dmgProf2_ch.collect()
-        file ('software_versions/*') from software_versions_yaml.collect()
+        file ('software_versions/*') from ch_software_versions_yaml.collect()
         file(multiqc_conf) from ch_multiqc_config
         file logo from coproid_logo
     output:
@@ -1364,8 +1334,6 @@ ${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style
    return yaml_file
 }
 
-
-
 /*
  * STEP 3 - Output Description HTML
  */
@@ -1384,8 +1352,6 @@ process output_documentation {
     """
 }
 
-
-
 /*
  * Completion e-mail notification
  */
@@ -1393,8 +1359,8 @@ workflow.onComplete {
 
     // Set up the e-mail variables
     def subject = "[nf-core/coproid] Successful: $workflow.runName"
-    if(!workflow.success){
-      subject = "[nf-core/coproid] FAILED: $workflow.runName"
+    if (!workflow.success) {
+        subject = "[nf-core/coproid] FAILED: $workflow.runName"
     }
     def email_fields = [:]
     email_fields['version'] = workflow.manifest.version
@@ -1412,10 +1378,9 @@ workflow.onComplete {
     email_fields['summary']['Date Completed'] = workflow.complete
     email_fields['summary']['Pipeline script file path'] = workflow.scriptFile
     email_fields['summary']['Pipeline script hash ID'] = workflow.scriptId
-    if(workflow.repository) email_fields['summary']['Pipeline repository Git URL'] = workflow.repository
-    if(workflow.commitId) email_fields['summary']['Pipeline repository Git Commit'] = workflow.commitId
-    if(workflow.revision) email_fields['summary']['Pipeline Git branch/tag'] = workflow.revision
-    if(workflow.container) email_fields['summary']['Docker image'] = workflow.container
+    if (workflow.repository) email_fields['summary']['Pipeline repository Git URL'] = workflow.repository
+    if (workflow.commitId) email_fields['summary']['Pipeline repository Git Commit'] = workflow.commitId
+    if (workflow.revision) email_fields['summary']['Pipeline Git branch/tag'] = workflow.revision
     email_fields['summary']['Nextflow Version'] = workflow.nextflow.version
     email_fields['summary']['Nextflow Build'] = workflow.nextflow.build
     email_fields['summary']['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
@@ -1424,14 +1389,20 @@ workflow.onComplete {
     def mqc_report = null
     try {
         if (workflow.success) {
-            mqc_report = multiqc_report.getVal()
-            if (mqc_report.getClass() == ArrayList){
+            mqc_report = ch_multiqc_report.getVal()
+            if (mqc_report.getClass() == ArrayList) {
                 log.warn "[nf-core/coproid] Found multiple reports from process 'multiqc', will use only one"
                 mqc_report = mqc_report[0]
             }
         }
     } catch (all) {
         log.warn "[nf-core/coproid] Could not attach MultiQC report to summary email"
+    }
+
+    // Check if we are only sending emails on failure
+    email_address = params.email
+    if (!params.email && params.email_on_fail && !workflow.success) {
+        email_address = params.email_on_fail
     }
 
     // Render the TXT template
@@ -1446,39 +1417,39 @@ workflow.onComplete {
     def email_html = html_template.toString()
 
     // Render the sendmail template
-    def smail_fields = [ email: params.email, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$baseDir", mqcFile: mqc_report, mqcMaxSize: params.maxMultiqcEmailFileSize.toBytes() ]
+    def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$baseDir", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
     def sf = new File("$baseDir/assets/sendmail_template.txt")
     def sendmail_template = engine.createTemplate(sf).make(smail_fields)
     def sendmail_html = sendmail_template.toString()
 
     // Send the HTML e-mail
-    if (params.email) {
+    if (email_address) {
         try {
-          if( params.plaintext_email ){ throw GroovyException('Send plaintext e-mail, not HTML') }
-          // Try to send HTML e-mail using sendmail
-          [ 'sendmail', '-t' ].execute() << sendmail_html
-          log.info "[nf-core/coproid] Sent summary e-mail to $params.email (sendmail)"
+            if (params.plaintext_email) { throw GroovyException('Send plaintext e-mail, not HTML') }
+            // Try to send HTML e-mail using sendmail
+            [ 'sendmail', '-t' ].execute() << sendmail_html
+            log.info "[nf-core/coproid] Sent summary e-mail to $email_address (sendmail)"
         } catch (all) {
-          // Catch failures and try with plaintext
-          [ 'mail', '-s', subject, params.email ].execute() << email_txt
-          log.info "[nf-core/coproid] Sent summary e-mail to $params.email (mail)"
+            // Catch failures and try with plaintext
+            [ 'mail', '-s', subject, email_address ].execute() << email_txt
+            log.info "[nf-core/coproid] Sent summary e-mail to $email_address (mail)"
         }
     }
 
     // Write summary e-mail HTML to a file
-    def output_d = new File( "${params.outdir}/pipeline_info/" )
-    if( !output_d.exists() ) {
-      output_d.mkdirs()
+    def output_d = new File("${params.outdir}/pipeline_info/")
+    if (!output_d.exists()) {
+        output_d.mkdirs()
     }
-    def output_hf = new File( output_d, "pipeline_report.html" )
+    def output_hf = new File(output_d, "pipeline_report.html")
     output_hf.withWriter { w -> w << email_html }
-    def output_tf = new File( output_d, "pipeline_report.txt" )
+    def output_tf = new File(output_d, "pipeline_report.txt")
     output_tf.withWriter { w -> w << email_txt }
 
-    c_reset = params.monochrome_logs ? '' : "\033[0m";
-    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
     c_green = params.monochrome_logs ? '' : "\033[0;32m";
+    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
     c_red = params.monochrome_logs ? '' : "\033[0;31m";
+    c_reset = params.monochrome_logs ? '' : "\033[0m";
 
     if (workflow.stats.ignoredCount > 0 && workflow.success) {
       log.info "${c_purple}Warning, pipeline completed, but with errored process(es) ${c_reset}"
@@ -1486,49 +1457,49 @@ workflow.onComplete {
       log.info "${c_green}Number of successfully ran process(es) : ${workflow.stats.succeedCount} ${c_reset}"
     }
 
-    if(workflow.success){
-        log.info "${c_purple}[nf-core/coproid]${c_green} Pipeline completed successfully${c_reset}"
+    if (workflow.success) {
+        log.info "-${c_purple}[nf-core/coproid]${c_green} Pipeline completed successfully${c_reset}-"
     } else {
         checkHostname()
-        log.info "${c_purple}[nf-core/coproid]${c_red} Pipeline completed with errors${c_reset}"
+        log.info "-${c_purple}[nf-core/coproid]${c_red} Pipeline completed with errors${c_reset}-"
     }
 
 }
 
 
-def nfcoreHeader(){
+def nfcoreHeader() {
     // Log colors ANSI codes
-    c_reset = params.monochrome_logs ? '' : "\033[0m";
-    c_dim = params.monochrome_logs ? '' : "\033[2m";
     c_black = params.monochrome_logs ? '' : "\033[0;30m";
-    c_green = params.monochrome_logs ? '' : "\033[0;32m";
-    c_yellow = params.monochrome_logs ? '' : "\033[0;33m";
     c_blue = params.monochrome_logs ? '' : "\033[0;34m";
-    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
     c_cyan = params.monochrome_logs ? '' : "\033[0;36m";
+    c_dim = params.monochrome_logs ? '' : "\033[2m";
+    c_green = params.monochrome_logs ? '' : "\033[0;32m";
+    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
+    c_reset = params.monochrome_logs ? '' : "\033[0m";
     c_white = params.monochrome_logs ? '' : "\033[0;37m";
+    c_yellow = params.monochrome_logs ? '' : "\033[0;33m";
 
-    return """    ${c_dim}----------------------------------------------------${c_reset}
+    return """    -${c_dim}--------------------------------------------------${c_reset}-
                                             ${c_green},--.${c_black}/${c_green},-.${c_reset}
     ${c_blue}        ___     __   __   __   ___     ${c_green}/,-._.--~\'${c_reset}
     ${c_blue}  |\\ | |__  __ /  ` /  \\ |__) |__         ${c_yellow}}  {${c_reset}
     ${c_blue}  | \\| |       \\__, \\__/ |  \\ |___     ${c_green}\\`-._,-`-,${c_reset}
                                             ${c_green}`._,._,\'${c_reset}
     ${c_purple}  nf-core/coproid v${workflow.manifest.version}${c_reset}
-    ${c_dim}----------------------------------------------------${c_reset}
+    -${c_dim}--------------------------------------------------${c_reset}-
     """.stripIndent()
 }
 
-def checkHostname(){
+def checkHostname() {
     def c_reset = params.monochrome_logs ? '' : "\033[0m"
     def c_white = params.monochrome_logs ? '' : "\033[0;37m"
     def c_red = params.monochrome_logs ? '' : "\033[1;91m"
     def c_yellow_bold = params.monochrome_logs ? '' : "\033[1;93m"
-    if(params.hostnames){
+    if (params.hostnames) {
         def hostname = "hostname".execute().text.trim()
         params.hostnames.each { prof, hnames ->
             hnames.each { hname ->
-                if(hostname.contains(hname) && !workflow.profile.contains(prof)){
+                if (hostname.contains(hname) && !workflow.profile.contains(prof)) {
                     log.error "====================================================\n" +
                             "  ${c_red}WARNING!${c_reset} You are running with `-profile $workflow.profile`\n" +
                             "  but your machine hostname is ${c_white}'$hostname'${c_reset}\n" +
