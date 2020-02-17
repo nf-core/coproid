@@ -2,7 +2,7 @@
 work/
 results/
 .DS_Store
-tests/test_data
+test*
 *.pyc
 *.ipynb_checkpoints
 docs/build/
@@ -10,3 +10,4 @@ test/
 _build
 _static
 _templates
+.vscode
