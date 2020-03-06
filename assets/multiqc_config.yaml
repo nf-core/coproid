@@ -13,8 +13,10 @@ custom_logo_url: 'https://github.com/nf-core/coproid'
 custom_logo_title: 'github.com/nf-core/coproid'
 
 report_section_order:
-    nf-core/coproid-software-versions:
+    software_versions:
         order: -1000
+    nf-core-coproid-summary:
+        order: -1001
 
 top_modules:
     - 'fastqc'

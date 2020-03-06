@@ -63,7 +63,7 @@ This directory contains the merged OTU count for all samples of the run, as coun
 
 This directory contains all the output files of DamageProfiler (see multiqc section above)
 
-## multiqc_report.html
+## MultiQC
 
 [MultiQC](http://multiqc.info) is a visualisation tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in within the report data directory.
 
