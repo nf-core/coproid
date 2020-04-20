@@ -16,6 +16,7 @@ c2d4164](https://github.com/nf-core/coproid/pull/20/commits/c2d4164bf068ed4fc92d
 - Adapt coproID to nf-core tools 1.8 release [#21](https://github.com/nf-core/coproid/pull/21) 
 - Add social preview image [#22](https://github.com/nf-core/coproid/pull/22)
 - Fix Kraken2 segmentation error [#26](https://github.com/nf-core/coproid/pull/26)
+- Update to nf-core tools 1.9 release, and doc for new version of sphinx
 
 ## v1.0 - 2019-04-26
 
