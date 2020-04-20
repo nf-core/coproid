@@ -8,9 +8,8 @@
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
-[![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest) 
+[![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2653756.svg)](https://doi.org/10.5281/zenodo.2653756)
-
 
 ## Introduction
 
@@ -46,14 +45,14 @@ The nf-core/coproid pipeline comes with documentation about the pipeline, found 
 
 The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory and at the following address: [coproid.readthedocs.io](https://coproid.readthedocs.io)
 
-1.  [Installation](https://nf-co.re/usage/installation)
-2.  Pipeline configuration
-    -   [Local installation](https://nf-co.re/usage/local_installation)
-    -   [Adding your own system config](https://nf-co.re/usage/adding_own_config)
-    -   [Reference genomes](https://nf-co.re/usage/reference_genomes)
-3.  [Running the pipeline](docs/usage.md)
-4.  [Output and how to interpret the results](docs/output.md)
-5.  [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+1. [Installation](https://nf-co.re/usage/installation)
+2. [Pipeline configuration
+    - [Local installation](https://nf-co.re/usage/local_installation)
+    - [Adding your own system config](https://nf-co.re/usage/adding_own_config)
+    - [Reference genomes](https://nf-co.re/usage/reference_genomes)
+3. [Running the pipeline](docs/usage.md)
+4. [Output and how to interpret the results](docs/output.md)
+5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
 ## Credits
 
@@ -64,6 +63,28 @@ nf-core/coproid was written by [Maxime Borry](https://github.com/maxibor).
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 For further information or help, don't hesitate to get in touch on [Slack](https://nfcore.slack.com/channels/coproid) (you can join with [this invite](https://nf-co.re/join/slack)).
+
+## Citing
+
+coproID has been published in [peerJ](https://peerj.com/articles/9001), the bibtex citation is available below:
+
+```bibtex
+@article{borry_coproid_2020,
+ title = {{CoproID} predicts the source of coprolites and paleofeces using microbiome composition and host {DNA} content},
+ volume = {8},
+ issn = {2167-8359},
+ url = {https://peerj.com/articles/9001},
+ doi = {10.7717/peerj.9001},
+ language = {en},
+ urldate = {2020-04-20},
+ journal = {PeerJ},
+ author = {Borry, Maxime and Cordova, Bryan and Perri, Angela and Wibowo, Marsha and Honap, Tanvi Prasad and Ko, Jada and Yu, Jie and Britton, Kate and Girdland-Flink, Linus and Power, Robert C. and Stuijts, Ingelise and Salazar-García, Domingo C. and Hofman, Courtney and Hagan, Richard and Kagoné, Thérèse Samdapawindé and Meda, Nicolas and Carabin, Helene and Jacobson, David and Reinhard, Karl and Lewis, Cecil and Kostic, Aleksandar and Jeong, Choongwon and Herbig, Alexander and Hübner, Alexander and Warinner, Christina},
+ month = apr,
+ year = {2020},
+ note = {Publisher: PeerJ Inc.},
+ pages = {e9001}
+}
+```
 
 ## Contributors
 
