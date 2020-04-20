@@ -66,7 +66,7 @@ For further information or help, don't hesitate to get in touch on [Slack](https
 
 ## Citing
 
-coproID has been published in [peerJ](https://peerj.com/articles/9001), the bibtex citation is available below:
+coproID has been published in [peerJ](https://peerj.com/articles/9001). The bibtex citation is available below:
 
 ```bibtex
 @article{borry_coproid_2020,
