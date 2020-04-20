@@ -86,9 +86,9 @@ Use this to specify the location of your input FastQ files. For example:
 
 Please note the following requirements:
 
-1.  The path must be enclosed in quotes
-2.  The path must have at least one `*` wildcard character
-3.  When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
+1. The path must be enclosed in quotes
+2. The path must have at least one `*` wildcard character
+3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
 
 If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
@@ -129,10 +129,10 @@ There are 31 different species supported in the iGenomes references. To run the 
 
 You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
 
--   Human
-    -   `--genome GRCh37`
--   Dog
-    -   `--genome CanFam3.1`
+* Human
+  * `--genome GRCh37`
+* Dog
+  * `--genome CanFam3.1`
 
 > There are numerous others - check the config file for more.
 
@@ -336,12 +336,11 @@ Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 
 --endo3 0.01
 ```
 
-
 ### `sp_embed`
 
 SourcePredict embedding algorithm. One of mds, tsne, umap. Default to mds
 
-```
+```bash
 --sp_embed mds
 ```
 
@@ -351,7 +350,7 @@ More information is available in the [Sourcepredict documentation](https://sourc
 
 Sourcepredict normalization method. One of 'rle', 'gmpr', 'subsample'. Default = 'gmpr'
 
-```
+```bash
 --sp_norm 'gmpr'
 ```
 
@@ -361,7 +360,7 @@ More informations are available in the [Sourcepredict documentation](https://sou
 
 Sourcepredict numbers of neighbors for KNN ML. Integer or all. Default = all
 
-```
+```bash
 --sp_neighbors all
 ```
 
@@ -490,7 +489,6 @@ Note - you can use this to override pipeline defaults.
 ### `--custom_config_version`
 
 Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default: `master`.
-
 
 ```bash
 ## Download and use config file with following git commid id
