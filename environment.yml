@@ -20,7 +20,6 @@ dependencies:
   - bioconda::kraken2=2.0.8_beta
   - conda-forge::notebook=6.0.3
   - conda-forge::nbconvert=5.6.1
-  - bioconda::nextflow=20.01.0
   - bioconda::pmdtools=0.60
   - bioconda::pysam=0.15.3
   - bioconda::samtools=1.10
