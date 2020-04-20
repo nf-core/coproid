@@ -9,3 +9,8 @@ RUN conda env export --name nf-core-coproid-1.1dev > nf-core-coproid-1.1dev.yml
 ENV PATH /opt/conda/envs/nf-core-coproid-1.1dev/bin:$PATH
 
 # Dump the details of the installed packages to a file for posterity
+RUN conda env export --name nf-core-coproid-1.1dev > nf-core-coproid-1.1dev.yml
+
+# Numba cache dir patch
+ENV NUMBA_CACHE_DIR /tmp
+ENV HOME /tmp
