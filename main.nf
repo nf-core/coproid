@@ -339,12 +339,6 @@ SOURCEPREDICT SOURCES AND LABELS
 sp_labels = file(params.sp_labels, checkIfExists: true)
 sp_sources = file(params.sp_sources, checkIfExists: true)
 
-
-/*******************
-coproID logo channel
-********************/
-logo = file("$baseDir/assets/img/coproID_nf-core_logo_small.png")
-
 /*******************
 Logging parameters
 ********************/
@@ -1178,7 +1172,7 @@ if (params.adna) {
 
             input:
                 file(copro_csv) from coproid_res
-                file(thelogo) from logo 
+                file(thelogo) from  
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
                 file(dplot3) from damage_result_genome3.collect().ifEmpty([])
@@ -1206,7 +1200,7 @@ if (params.adna) {
 
             input:
                 file(copro_csv) from coproid_res
-                file(thelogo) from logo
+                file(thelogo) from coproid_logo
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
                 file(umap) from  sourcepredict_embed_out
