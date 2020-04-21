@@ -5,13 +5,13 @@
 [![GitHub Actions CI Status](https://github.com/nf-core/coproid/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/coproid/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/coproid/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/coproid/actions)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
+[![install with bioconda](https://img.shields.io/badge/install%20with-conda-brightgreen.svg)](https://docs.conda.io/en/latest)
 [![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
 ![Singularity Container available](https://img.shields.io/badge/singularity-available-7E4C74.svg)
 [![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2653756.svg)](https://doi.org/10.5281/zenodo.2653756)
 [![Joins us on Slack](https://img.shields.io/badge/slack-nfcore/coproid-blue.svg)](https://nfcore.slack.com/channels/coproid)
-[![Published in PeerJ](https://img.shields.io/badge/peerj-published-%2300B2FF)](https://peerj.com/articles/9001)
+[![Published in PeerJ](https://img.shields.io/badge/PeerJ-published-%2300B2FF)](https://peerj.com/articles/9001)
 
 ## Introduction
 
