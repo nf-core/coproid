@@ -79,7 +79,7 @@ DEFAULT VARIABLE VALUES SETUP
 bowtie_setting = ''
 collapse_setting = ''
 report_template = "$baseDir/templates/coproID_report.ipynb"
-coproid_logo = file("$baseDir/assets/img/coproid_logo_small.jpg")
+coproid_logo = file("$baseDir/assets/img/coproid_logo.png")
 
 
 // Show help message
