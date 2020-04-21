@@ -8,7 +8,7 @@ report_comment: >
 
 export_plots: true
 
-custom_logo: 'coproid_logo_small.jpg'
+custom_logo: 'coproid_logo.png'
 custom_logo_url: 'https://github.com/nf-core/coproid'
 custom_logo_title: 'github.com/nf-core/coproid'
 
