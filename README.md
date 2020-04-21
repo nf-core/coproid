@@ -1,6 +1,6 @@
 # ![nf-core/coproid](assets/img/coproid_logo.png)
 
-**A fully reproducible pipeline for COPROlite and paleofeces host IDentification**
+## A fully reproducible pipeline for COPROlite and paleofeces host IDentification
 
 [![GitHub Actions CI Status](https://github.com/nf-core/coproid/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/coproid/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/coproid/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/coproid/actions)
