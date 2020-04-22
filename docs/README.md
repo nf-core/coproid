@@ -36,7 +36,7 @@ nextflow run nf-core/coproid -profile test,<docker/singularity/conda/institute>
 iv. Start running your own analysis!
 
 ```bash
-nextflow run nf-core/coproid --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
+nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
 ```
 
 See [usage docs](docs/usage.md) for all of the available options when running the pipeline.

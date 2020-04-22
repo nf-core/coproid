@@ -15,7 +15,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/coproid --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/kraken_db' -profile docker
+nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -188,12 +188,21 @@ params {
 }
 ```
 
+### `--genome2` (using iGenomes)
+
+Name of iGenomes reference for candidate organism 2. Must be provided if fasta2 is not provided.
+See `--genome1` above for details.
+
+```bash
+--genome2 'CanFam3.1'
+```
+
 ### `--fasta1`
 
 If you prefer, you can specify the full path to your reference genome when you run the pipeline:
 
 ```bash
---fasta1 'path/to/fasta/reference.fa'
+--fasta1 'path/to/fasta/reference1.fa'
 ```
 
 ### `--fasta2`
@@ -201,15 +210,7 @@ If you prefer, you can specify the full path to your reference genome when you r
 If you prefer, you can specify the full path to your reference genome when you run the pipeline:
 
 ```bash
---fasta2 'path/to/fasta/reference.fa'
-```
-
-### `--genome2` (using iGenomes)
-
-Name of iGenomes reference for candidate organism 3. Must be provided if fasta2 is not provided
-
-```bash
---genome2 'CanFam3.1'
+--fasta2 'path/to/fasta/reference2.fa'
 ```
 
 ### `--igenomes_ignore`
@@ -338,7 +339,7 @@ Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 
 
 ### `sp_embed`
 
-SourcePredict embedding algorithm. One of mds, tsne, umap. Default to mds
+SourcePredict embedding algorithm. One of mds, tsne, umap. Default to mds from coproID version 1.1
 
 ```bash
 --sp_embed mds
@@ -370,46 +371,49 @@ More informations are available in the [Sourcepredict documentation](https://sou
 
 ### `--name3`
 
-Name of candidate 1. Example: "Sus_scrofa"
+Name of candidate species 3.
 
-### `--fasta3`
-
-Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if ### \`genome3 is not provided
-
-```bash
---fasta3 'path/to/fasta/reference.fa'
-```
+`--name3 Sus_scrofa`
 
 ### `--genome3` (using iGenomes)
 
-Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta3 is not provided
+Name of iGenomes reference for candidate organism 3. Must be provided if `--fasta3` is not provided.  
+See `--genome1` above for more details.
 
 ```bash
 --genome3 'Sscrofa10.2'
 ```
 
-### `--index1`
+### `--fasta3`
 
-Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
+Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if `--genome3` is not provided
 
 ```bash
---index1 'path/to/bt_index/basename'
+--fasta3 'path/to/fasta/reference3.fa'
+```
+
+### `--index1`
+
+Path to Bowtie2 pre-indexed genome candidate 1 Coprolite maker's genome
+
+```bash
+--index1 'path/to/bt_index/basename1'
 ```
 
 ### `--index2`
 
-Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
+Path to Bowtie2 pre-indexed genome candidate 2 Coprolite maker's genome
 
 ```bash
---index2 'path/to/bt_index/basename'
+--index2 'path/to/bt_index/basename2'
 ```
 
 ### `--index3`
 
-Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
+Path to Bowtie2 pre-indexed genome candidate 3 Coprolite maker's genome
 
 ```bash
---index3 'path/to/bt_index/basename'
+--index3 'path/to/bt_index/basename3'
 ```
 
 ## Job resources

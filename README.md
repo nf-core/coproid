@@ -36,19 +36,17 @@ nextflow run nf-core/coproid -profile test,<docker/singularity/conda/institute>
 iv. Start running your own analysis!
 
 ```bash
-nextflow run nf-core/coproid --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
+nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
 ```
 
 See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
 
 ## Documentation
 
-The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory:
-
 The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory and at the following address: [coproid.readthedocs.io](https://coproid.readthedocs.io)
 
 1. [Installation](https://nf-co.re/usage/installation)
-2. [Pipeline configuration
+2. Pipeline configuration
     - [Local installation](https://nf-co.re/usage/local_installation)
     - [Adding your own system config](https://nf-co.re/usage/adding_own_config)
     - [Reference genomes](https://nf-co.re/usage/reference_genomes)
