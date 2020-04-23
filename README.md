@@ -11,13 +11,19 @@
 [![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2653756.svg)](https://doi.org/10.5281/zenodo.2653756)
 [![Joins us on Slack](https://img.shields.io/badge/slack-nfcore/coproid-blue.svg)](https://nfcore.slack.com/channels/coproid)
-[![Published in PeerJ](https://img.shields.io/badge/PeerJ-published-%2300B2FF)](https://peerj.com/articles/9001)
-
-## Introduction
+[![Published in PeerJ](https://img.shields.io/badge/peerj-published-%2300B2FF)](https://peerj.com/articles/9001)
 
 **CoproID** helps you to identify the _"true maker"_ of Illumina sequenced Coprolites/Paleofaeces by checking the microbiome composition and the endogenous DNA.
 
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
+It combines the analysis of putative host ancient DNA with a machine learning prediction of the feces source based on microbiome taxonomic composition:
+
+- (**A**) First coproID performs a comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and eventually genome3) and computes a host-DNA species ratio (*NormalizedRatio*)
+- (**B**) Then coproID performs a metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using [machine learning](https://joss.theoj.org/papers/10.21105/joss.01540), coproID then estimates the host source from the metagenomic taxonomic composition (*prop_microbiome*).
+- Finally, coproID combines **A** and **B** to predict the likely host of the metagenomic sample.
+
+The coproID pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
+
+A detailed description of coproID can be found in the [article published in PeerJ](https://peerj.com/articles/9001).
 
 ## Quick Start
 
@@ -39,9 +45,15 @@ iv. Start running your own analysis!
 nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
 ```
 
+This command runs coproID to estimate whether the source of test samples (`--reads '*_R{1,2}.fastq.gz'`) are coming from a human (`--genome1 'GRCh37' -name1 'Homo_sapiens'`) or a dog (`--genome2 'CanFam3.1' --name2 'Canis_familiaris'`), and specifies the path to the minikraken database (`--krakendb 'path/to/minikraken_db'`).
+
+> NB: The example above assumes access to [iGenomes](https://nf-co.re/usage/reference_genomes).
+
 See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
 
 ## Documentation
+
+The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
 The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory and at the following address: [coproid.readthedocs.io](https://coproid.readthedocs.io)
 

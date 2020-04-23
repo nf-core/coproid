@@ -1,6 +1,6 @@
 # Introduction
 
- ![nf-core/coproid](../assets/img/coproid_logo.png)
+![nf-core/coproid](../assets/img/coproid_logo.png)
 
 ## A fully reproducible pipeline for COPROlite and paleofeces host IDentification
 
@@ -46,6 +46,8 @@ iv. Start running your own analysis!
 ```bash
 nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
 ```
+
+This command runs coproID to estimate whether the source of test samples (`--reads '*_R{1,2}.fastq.gz'`) are coming from a human (`--genome1 'GRCh37' -name1 'Homo_sapiens'`) or a dog (`--genome2 'CanFam3.1' --name2 'Canis_familiaris'`), and specifies the path to the minikraken database (`--krakendb 'path/to/minikraken_db'`).
 
 > NB: The example above assumes access to [iGenomes](https://nf-co.re/usage/reference_genomes).
 
