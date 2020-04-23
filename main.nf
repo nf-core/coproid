@@ -1270,7 +1270,6 @@ process get_software_versions {
     multiqc --version > v_multiqc.txt
     sourcepredict -h  > v_sourcepredict.txt
     samtools --version > v_samtools.txt
-    bedtools --version > v_bedtools.txt
     kraken2 --version > v_kraken2.txt
     bowtie2 --version > v_bowtie2.txt
     python --version > v_python.txt
