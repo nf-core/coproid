@@ -123,7 +123,25 @@ The MiniKraken2_v2_8GB database can be downloaded [here](https://ccb.jhu.edu/sof
 
 The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
 
+### `--fasta1`
+
+Reference genome1 can be specified by using the full path to the genome fasta file. Must be provided if `--genome1` is not provided.
+
+```bash
+--fasta1 'path/to/fasta/reference1.fa'
+```
+
+### `--fasta2`
+
+Reference genome2 can be specified by using the full path to the genome fasta file. Must be provided if `--genome2` is not provided.
+
+```bash
+--fasta2 'path/to/fasta/reference2.fa'
+```
+
 ### `--genome1` (using iGenomes)
+
+Alternatively, reference genomes can be specified using pre-index genomes available through the iGenomes service. Must be provided if `--fasta1` is not provided.  
 
 There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
 
@@ -190,27 +208,10 @@ params {
 
 ### `--genome2` (using iGenomes)
 
-Name of iGenomes reference for candidate organism 2. Must be provided if fasta2 is not provided.
-See `--genome1` above for details.
+Name of iGenomes reference for candidate organism 2. Must be provided if `--fasta2` is not provided.  
 
 ```bash
 --genome2 'CanFam3.1'
-```
-
-### `--fasta1`
-
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
-
-```bash
---fasta1 'path/to/fasta/reference1.fa'
-```
-
-### `--fasta2`
-
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
-
-```bash
---fasta2 'path/to/fasta/reference2.fa'
 ```
 
 ### `--igenomes_ignore`
@@ -329,14 +330,6 @@ Proportion of Endogenous DNA in organism 2 target microbiome. Must be between 0 
 --endo2 0.01
 ```
 
-### `--endo3`
-
-Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 and 1. Default = 0.01
-
-```bash
---endo3 0.01
-```
-
 ### `sp_embed`
 
 SourcePredict embedding algorithm. One of mds, tsne, umap. Default to mds from coproID version 1.1
@@ -386,10 +379,18 @@ See `--genome1` above for more details.
 
 ### `--fasta3`
 
-Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if `--genome3` is not provided
+Reference genome3 can be specified by using the full path to the genome fasta file. Must be provided if `--genome3` is not provided.
 
 ```bash
 --fasta3 'path/to/fasta/reference3.fa'
+```
+
+### `--endo3`
+
+Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 and 1. Default = 0.01
+
+```bash
+--endo3 0.01
 ```
 
 ### `--index1`
