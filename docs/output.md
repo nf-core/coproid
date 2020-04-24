@@ -19,6 +19,9 @@ For further reading and documentation see the [FastQC help](http://www.bioinform
 
 [AdapterRemoval](https://github.com/MikkelSchubert/adapterremoval) searches for and removes remnant adapter sequences from High-Throughput Sequencing (HTS) data and (optionally) trims low quality bases from the 3' end of reads following adapter removal. AdapterRemoval can analyze both single end and paired end data, and can be used to merge overlapping paired-ended reads into (longer) consensus sequences.
 
+- *Retained and Discarded Paired-End Collapsed*: This plot shows the number/proportion of reads that passed adapter removal and trimming filters.
+- *Length Distribution Paired End Collapsed*: This plot shows the length distribution of the different read categories.
+
 ### Bowtie2
 
 [Bowtie 2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) is an ultrafast and memory-efficient tool for aligning sequencing reads to long reference sequences.
@@ -28,6 +31,10 @@ This plot shows the number of reads aligning to the reference in different ways.
 
 [DamageProfiler](https://github.com/Integrative-Transcriptomics/DamageProfiler) calculates damage profiles of mapped reads.
 These plots represents the damage patterns and read length distribution.
+
+### nf-core/coproid Software Versions
+
+This section shows the version of the different softwares used in this pipeline.
 
 ## coproID_report.html
 
