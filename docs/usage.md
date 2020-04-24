@@ -368,6 +368,14 @@ Name of candidate species 3.
 
 `--name3 Sus_scrofa`
 
+### `--fasta3`
+
+Reference genome3 can be specified by using the full path to the genome fasta file. Must be provided if `--genome3` is not provided.
+
+```bash
+--fasta3 'path/to/fasta/reference3.fa'
+```
+
 ### `--genome3` (using iGenomes)
 
 Name of iGenomes reference for candidate organism 3. Must be provided if `--fasta3` is not provided.  
@@ -375,14 +383,6 @@ See `--genome1` above for more details.
 
 ```bash
 --genome3 'Sscrofa10.2'
-```
-
-### `--fasta3`
-
-Reference genome3 can be specified by using the full path to the genome fasta file. Must be provided if `--genome3` is not provided.
-
-```bash
---fasta3 'path/to/fasta/reference3.fa'
 ```
 
 ### `--endo3`
