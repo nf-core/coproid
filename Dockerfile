@@ -5,11 +5,11 @@ LABEL authors="Maxime Borry" \
 # Install the conda environment
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
-RUN conda env export --name nf-core-coproid-1.1dev > nf-core-coproid-1.1dev.yml
-ENV PATH /opt/conda/envs/nf-core-coproid-1.1dev/bin:$PATH
+RUN conda env export --name nf-core-coproid-1.1 > nf-core-coproid-1.1.yml
+ENV PATH /opt/conda/envs/nf-core-coproid-1.1/bin:$PATH
 
 # Dump the details of the installed packages to a file for posterity
-RUN conda env export --name nf-core-coproid-1.1dev > nf-core-coproid-1.1dev.yml
+RUN conda env export --name nf-core-coproid-1.1 > nf-core-coproid-1.1.yml
 
 # Numba cache dir patch
 ENV NUMBA_CACHE_DIR /tmp

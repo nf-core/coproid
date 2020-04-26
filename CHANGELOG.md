@@ -1,6 +1,6 @@
 # nf-core/coproid: Changelog
 
-## v1.1dev
+## v1.1
 
 - Update mapped basepair count to be quicker and include it in report [#14](https://github.com/nf-core/coproid/pull/14)
 - Remove outdated scripts [#14](https://github.com/nf-core/coproid/pull/14)
