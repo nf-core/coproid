@@ -21,10 +21,8 @@ jobs:
           sudo mv nextflow /usr/local/bin/
       - name: Pull docker image
         run: |
-          docker pull nfcore/coproid:dev && docker tag nfcore/coproid:dev nfcore/coproid:dev
-      - name: Run pipeline with single-end test data
-        run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,docker --single_end
-      - name: Run pipeline with paired-end test data
+          docker pull nfcore/coproid:dev
+          docker tag nfcore/coproid:dev nfcore/coproid:dev
+      - name: Run pipeline with test data
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,docker

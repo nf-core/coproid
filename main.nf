@@ -9,12 +9,6 @@
 ----------------------------------------------------------------------------------------
 */
 
-
-/***********
-HELP MESSAGE
-************/
- 
-
 def helpMessage() {
     log.info nfcoreHeader()
     log.info"""
@@ -85,7 +79,7 @@ DEFAULT VARIABLE VALUES SETUP
 bowtie_setting = ''
 collapse_setting = ''
 report_template = "$baseDir/templates/coproID_report.ipynb"
-coproid_logo = file("$baseDir/assets/img/coproid_logo_small.jpg")
+coproid_logo = file("$baseDir/assets/img/coproid_logo.png")
 
 
 // Show help message
@@ -344,12 +338,6 @@ SOURCEPREDICT SOURCES AND LABELS
 ********************************/
 sp_labels = file(params.sp_labels, checkIfExists: true)
 sp_sources = file(params.sp_sources, checkIfExists: true)
-
-
-/*******************
-coproID logo channel
-********************/
-logo = file("$baseDir/assets/img/coproID_nf-core_logo_small.png")
 
 /*******************
 Logging parameters
@@ -1184,7 +1172,7 @@ if (params.adna) {
 
             input:
                 file(copro_csv) from coproid_res
-                file(thelogo) from logo 
+                file(thelogo) from  
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
                 file(dplot3) from damage_result_genome3.collect().ifEmpty([])
@@ -1212,7 +1200,7 @@ if (params.adna) {
 
             input:
                 file(copro_csv) from coproid_res
-                file(thelogo) from logo
+                file(thelogo) from coproid_logo
                 file(dplot1) from damage_result_genome1.collect().ifEmpty([])
                 file(dplot1) from damage_result_genome2.collect().ifEmpty([])
                 file(umap) from  sourcepredict_embed_out
@@ -1282,7 +1270,6 @@ process get_software_versions {
     multiqc --version > v_multiqc.txt
     sourcepredict -h  > v_sourcepredict.txt
     samtools --version > v_samtools.txt
-    bedtools --version > v_bedtools.txt
     kraken2 --version > v_kraken2.txt
     bowtie2 --version > v_bowtie2.txt
     python --version > v_python.txt
@@ -1348,7 +1335,7 @@ process output_documentation {
 
     script:
     """
-    markdown_to_html.r $output_docs results_description.html
+    markdown_to_html.py $output_docs -o results_description.html
     """
 }
 
@@ -1452,9 +1439,9 @@ workflow.onComplete {
     c_reset = params.monochrome_logs ? '' : "\033[0m";
 
     if (workflow.stats.ignoredCount > 0 && workflow.success) {
-      log.info "${c_purple}Warning, pipeline completed, but with errored process(es) ${c_reset}"
-      log.info "${c_red}Number of ignored errored process(es) : ${workflow.stats.ignoredCount} ${c_reset}"
-      log.info "${c_green}Number of successfully ran process(es) : ${workflow.stats.succeedCount} ${c_reset}"
+        log.info "-${c_purple}Warning, pipeline completed, but with errored process(es) ${c_reset}-"
+        log.info "-${c_red}Number of ignored errored process(es) : ${workflow.stats.ignoredCount} ${c_reset}-"
+        log.info "-${c_green}Number of successfully ran process(es) : ${workflow.stats.succeedCount} ${c_reset}-"
     }
 
     if (workflow.success) {

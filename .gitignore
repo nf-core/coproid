@@ -2,7 +2,8 @@
 work/
 results/
 .DS_Store
-test*
+tests/
+testing/
 *.pyc
 *.ipynb_checkpoints
 docs/build/
