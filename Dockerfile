@@ -1,7 +1,16 @@
-FROM nfcore/base
+FROM nfcore/base:1.9
 LABEL authors="Maxime Borry" \
-    description="Docker image containing all requirements for nf-core/coproid pipeline"
+    description="Docker image containing all software requirements for the nf-core/coproid pipeline"
 
+# Install the conda environment
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
-ENV PATH /opt/conda/envs/nf-core-coproid-1.0/bin:$PATH
+RUN conda env export --name nf-core-coproid-1.1 > nf-core-coproid-1.1.yml
+ENV PATH /opt/conda/envs/nf-core-coproid-1.1/bin:$PATH
+
+# Dump the details of the installed packages to a file for posterity
+RUN conda env export --name nf-core-coproid-1.1 > nf-core-coproid-1.1.yml
+
+# Numba cache dir patch
+ENV NUMBA_CACHE_DIR /tmp
+ENV HOME /tmp

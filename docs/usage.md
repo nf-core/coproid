@@ -15,7 +15,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/coproid --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/kraken_db' -profile docker
+nextflow run nf-core/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -49,24 +49,32 @@ This version number will be logged in reports when you run the pipeline, so that
 
 ### `-profile`
 
-Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. Note that multiple profiles can be loaded, for example: `-profile docker` - the order of arguments is important!
+Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
 
-If `-profile` is not specified at all the pipeline will be run locally and expects all software to be installed and available on the `PATH`.
+Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Conda) - see below.
 
--   `awsbatch`
-    -   A generic configuration profile to be used with AWS Batch.
--   `conda`
-    -   A generic configuration profile to be used with [conda](https://conda.io/docs/)
-    -   Pulls most software from [Bioconda](https://bioconda.github.io/)
--   `docker`
-    -   A generic configuration profile to be used with [Docker](http://docker.com/)
-    -   Pulls software from dockerhub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
--   `singularity`
-    -   A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
-    -   Pulls software from DockerHub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
--   `test`
-    -   A profile with a complete configuration for automated testing
-    -   Includes links to test data so needs no other parameters
+> We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
+
+The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
+
+Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
+They are loaded in sequence, so later profiles can overwrite earlier profiles.
+
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
+
+* `docker`
+  * A generic configuration profile to be used with [Docker](http://docker.com/)
+  * Pulls software from dockerhub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
+* `singularity`
+  * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
+  * Pulls software from DockerHub: [`nfcore/coproid`](http://hub.docker.com/r/nfcore/coproid/)
+* `conda`
+  * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker or Singularity.
+  * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
+  * Pulls most software from [Bioconda](https://bioconda.github.io/)
+* `test`
+  * A profile with a complete configuration for automated testing
+  * Includes links to test data so needs no other parameters
 
 ### `--reads`
 
@@ -78,18 +86,18 @@ Use this to specify the location of your input FastQ files. For example:
 
 Please note the following requirements:
 
-1.  The path must be enclosed in quotes
-2.  The path must have at least one `*` wildcard character
-3.  When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
+1. The path must be enclosed in quotes
+2. The path must have at least one `*` wildcard character
+3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
 
 If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
-### `--singleEnd`
+### `--single_end`
 
-By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--singleEnd` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--reads`. For example:
+By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--reads`. For example:
 
 ```bash
---singleEnd --reads '*.fastq'
+--single_end --reads '*.fastq'
 ```
 
 It is not possible to run a mixture of single-end and paired-end files in one run.
@@ -104,22 +112,45 @@ Name of the second candidate species. Example : `"Canis_familiaris"`
 
 ### `--krakenDB`
 
-Path to Path to Kraken2 MiniKraken2_v2_8GB Database. Can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
+Path to the directory containing the Kraken2 MiniKraken2_v2_8GB database files.
+The MiniKraken2_v2_8GB database can be downloaded [here](https://ccb.jhu.edu/software/kraken2/dl/old/minikraken2_v2_8GB.tgz)
+
+```bash
+--krakendb "path/to/kraken2_db_dir"
+```
 
 ## Reference genomes
 
 The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
 
+### `--fasta1`
+
+Reference genome1 can be specified by using the full path to the genome fasta file. Must be provided if `--genome1` is not provided.
+
+```bash
+--fasta1 'path/to/fasta/reference1.fa'
+```
+
+### `--fasta2`
+
+Reference genome2 can be specified by using the full path to the genome fasta file. Must be provided if `--genome2` is not provided.
+
+```bash
+--fasta2 'path/to/fasta/reference2.fa'
+```
+
 ### `--genome1` (using iGenomes)
+
+Alternatively, reference genomes can be specified using pre-index genomes available through the iGenomes service. Must be provided if `--fasta1` is not provided.  
 
 There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
 
 You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
 
--   Human
-    -   `--genome GRCh37`
--   Dog
-    -   `--genome CanFam3.1`
+* Human
+  * `--genome GRCh37`
+* Dog
+  * `--genome CanFam3.1`
 
 > There are numerous others - check the config file for more.
 
@@ -175,31 +206,15 @@ params {
 }
 ```
 
-### `--fasta1`
-
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
-
-```bash
---fasta1 'path/to/fasta/reference.fa'
-```
-
-### `--fasta2`
-
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
-
-```bash
---fasta2 'path/to/fasta/reference.fa'
-```
-
 ### `--genome2` (using iGenomes)
 
-Name of iGenomes reference for candidate organism 3. Must be provided if fasta2 is not provided
+Name of iGenomes reference for candidate organism 2. Must be provided if `--fasta2` is not provided.  
 
 ```bash
 --genome2 'CanFam3.1'
 ```
 
-### `--igenomesIgnore`
+### `--igenomes_ignore`
 
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
@@ -315,6 +330,61 @@ Proportion of Endogenous DNA in organism 2 target microbiome. Must be between 0 
 --endo2 0.01
 ```
 
+### `sp_embed`
+
+SourcePredict embedding algorithm. One of mds, tsne, umap. Default to mds from coproID version 1.1
+
+```bash
+--sp_embed mds
+```
+
+More information is available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
+
+### `sp_norm`
+
+Sourcepredict normalization method. One of 'rle', 'gmpr', 'subsample'. Default = 'gmpr'
+
+```bash
+--sp_norm 'gmpr'
+```
+
+More informations are available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
+
+### `sp_neighbors`
+
+Sourcepredict numbers of neighbors for KNN ML. Integer or all. Default = all
+
+```bash
+--sp_neighbors all
+```
+
+More informations are available in the [Sourcepredict documentation](https://sourcepredict.readthedocs.io/en/latest/index.html)
+
+## Other coproID parameters
+
+### `--name3`
+
+Name of candidate species 3.
+
+`--name3 Sus_scrofa`
+
+### `--fasta3`
+
+Reference genome3 can be specified by using the full path to the genome fasta file. Must be provided if `--genome3` is not provided.
+
+```bash
+--fasta3 'path/to/fasta/reference3.fa'
+```
+
+### `--genome3` (using iGenomes)
+
+Name of iGenomes reference for candidate organism 3. Must be provided if `--fasta3` is not provided.  
+See `--genome1` above for more details.
+
+```bash
+--genome3 'Sscrofa10.2'
+```
+
 ### `--endo3`
 
 Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 and 1. Default = 0.01
@@ -323,50 +393,28 @@ Proportion of Endogenous DNA in organism 3 target microbiome. Must be between 0 
 --endo3 0.01
 ```
 
-## Other coproID parameters
-
-### `--name3`
-
-Name of candidate 1. Example: "Sus_scrofa"
-
-### `--fasta3`
-
-Path to canidate organism 3 genome fasta file (must be surrounded with quotes). Must be provided if ### \`genome3 is not provided
-
-```bash
---fasta3 'path/to/fasta/reference.fa'
-```
-
-### `--genome3` (using iGenomes)
-
-Name of iGenomes reference for candidate organism 3. Must be provided if \`fasta3 is not provided
-
-```bash
---genome3 'Sscrofa10.2'
-```
-
 ### `--index1`
 
-Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
+Path to Bowtie2 pre-indexed genome candidate 1 Coprolite maker's genome
 
 ```bash
---index1 'path/to/bt_index/basename*'
+--index1 'path/to/bt_index/basename1'
 ```
 
 ### `--index2`
 
-Path to Bowtie2 index genome candidate 2 Coprolite maker's genome
+Path to Bowtie2 pre-indexed genome candidate 2 Coprolite maker's genome
 
 ```bash
---index2 'path/to/bt_index/basename*'
+--index2 'path/to/bt_index/basename2'
 ```
 
 ### `--index3`
 
-Path to Bowtie2 index genome candidate 3 Coprolite maker's genome
+Path to Bowtie2 pre-indexed genome candidate 3 Coprolite maker's genome
 
 ```bash
---index3 'path/to/bt_index/basename*'
+--index3 'path/to/bt_index/basename3'
 ```
 
 ## Job resources
@@ -381,11 +429,11 @@ Wherever process-specific requirements are set in the pipeline, the default valu
 
 If you are likely to be running `nf-core` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition below). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
 
-If you have any questions or issues please send us a message on [Slack](https://nf-core-invite.herokuapp.com/).
+If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack).
 
 ## AWS Batch specific parameters
 
-Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use the `-awsbatch` profile and then specify all of the following parameters.
+Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use [`-profile awsbatch`](https://github.com/nf-core/configs/blob/master/conf/awsbatch.config) and then specify all of the following parameters.
 
 ### `--awsqueue`
 
@@ -393,7 +441,11 @@ The JobQueue that you intend to use on AWS Batch.
 
 ### `--awsregion`
 
-The AWS region to run your job in. Default is set to `eu-west-1` but can be adjusted to your needs.
+The AWS region in which to run your job. Default is set to `eu-west-1` but can be adjusted to your needs.
+
+### `--awscli`
+
+The [AWS CLI](https://www.nextflow.io/docs/latest/awscloud.html#aws-cli-installation) path in your custom AMI. Default: `/home/ec2-user/miniconda/bin/aws`.
 
 Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't.
 
@@ -406,6 +458,14 @@ The output directory where the results will be saved.
 ### `--email`
 
 Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.
+
+### `--email_on_fail`
+
+This works exactly as with `--email`, except emails are only sent if the workflow is not successful.
+
+### `--max_multiqc_email_size`
+
+Threshold size for MultiQC report to be attached in notification email. If file generated by pipeline exceeds the threshold, it will not be attached (Default: 25MB).
 
 ### `-name`
 
@@ -433,7 +493,7 @@ Note - you can use this to override pipeline defaults.
 
 ### `--custom_config_version`
 
-Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default is set to `master`.
+Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default: `master`.
 
 ```bash
 ## Download and use config file with following git commid id

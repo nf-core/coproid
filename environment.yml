@@ -1,35 +1,32 @@
-name: nf-core-coproid-1.0
+# You can use this file to create a conda environment for this pipeline:
+#   conda env create -f environment.yml
+name: nf-core-coproid-1.1
 channels:
-  - bioconda
   - conda-forge
   - maxibor
-  - etetoolkit
+  - bioconda
   - defaults
 dependencies:
-  - bioconda::adapterremoval=2.2.2
-  - bioconda::bcftools=1.9
-  - bioconda::bedtools=2.27.1
-  - bioconda::blast=2.5.0
-  - anaconda::bokeh=1.0.4
-  - bioconda::bowtie2=2.3.5
-  - bioconda::damageprofiler=0.4.6
-  - bioconda::ete3=3.1.1
-  - bioconda::fastqc=0.11.8
-  - bioconda::htslib=1.9
-  - anaconda::jupyter=1.0.0
-  - bioconda::kraken2=2.0.7_beta
-  - conda-forge::notebook=5.7.5
-  - anaconda::nbconvert=5.4.1
-  - bioconda::nextflow=19.01.0
-  - bioconda::pmdtools=0.60 
-  - bioconda::pysam=0.15.2
-  - bioconda::samtools=1.9
-  - conda-forge::scikit-bio=0.5.5
-  - anaconda::scikit-learn=0.20.2
-  - maxibor::sourcepredict=0.32
-  - conda-forge::umap-learn=0.3.7
-  - anaconda::numpy=1.16.3
-  - anaconda::pandas=0.24.2
-  - anaconda::scipy=1.2.1
+  - conda-forge::openblas=0.3.7
+  - bioconda::adapterremoval=2.3.1
+  - conda-forge::bokeh=2.0.1
+  - bioconda::bowtie2=2.3.5.1
+  - bioconda::damageprofiler=0.4.9
+  - bioconda::fastqc=0.11.9
+  - conda-forge::jupyter=1.0.0
+  - bioconda::kraken2=2.0.8_beta
+  - conda-forge::notebook=6.0.3
+  - conda-forge::nbconvert=5.6.1
+  - bioconda::pmdtools=0.60
+  - bioconda::pysam=0.15.3
+  - bioconda::samtools=1.10
+  - maxibor::sourcepredict=0.5
+  - conda-forge::scipy=1.4.1
+  - conda-forge::matplotlib=3.2.1
   - bioconda::multiqc=1.7
-  - conda-forge::r-markdown=0.9
+  - conda-forge::jupyter_contrib_nbextensions=0.5.1
+  - conda-forge::plotnine=0.6.0
+  - conda-forge::markdown=3.2.1
+  - conda-forge::pymdown-extensions=7.0
+  - conda-forge::pygments=2.6.1
+  - conda-forge::tbb=2020.1
