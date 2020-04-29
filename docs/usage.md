@@ -145,7 +145,7 @@ Alternatively, reference genomes can be specified using pre-index genomes availa
 
 There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
 
-You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
+You can find the keys to specify the genomes in the [iGenomes config file](https://github.com/nf-core/coproid/blob/master/conf/igenomes.config). Common genomes that are supported are:
 
 * Human
   * `--genome GRCh37`

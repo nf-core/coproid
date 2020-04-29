@@ -51,7 +51,7 @@ This command runs coproID to estimate whether the source of test samples (`--rea
 
 > NB: The example above assumes access to [iGenomes](https://nf-co.re/usage/reference_genomes).
 
-See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
+See [usage docs](usage.md) for all of the available options when running the pipeline.
 
 ## Documentation
 
@@ -64,8 +64,8 @@ The nf-core/coproid pipeline comes with documentation about the pipeline, found 
     - [Local installation](https://nf-co.re/usage/local_installation)
     - [Adding your own system config](https://nf-co.re/usage/adding_own_config)
     - [Reference genomes](https://nf-co.re/usage/reference_genomes)
-3. [Running the pipeline](docs/usage.md)
-4. [Output and how to interpret the results](docs/output.md)
+3. [Running the pipeline](usage.md)
+4. [Output and how to interpret the results](output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
 ## Credits
@@ -74,7 +74,7 @@ nf-core/coproid was written by [Maxime Borry](https://github.com/maxibor).
 
 ## Contributions and Support
 
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+If you would like to contribute to this pipeline, please see the [contributing guidelines](https://github.com/nf-core/coproid/blob/master/.github/CONTRIBUTING.md).
 
 For further information or help, don't hesitate to get in touch on [Slack](https://nfcore.slack.com/channels/coproid) (you can join with [this invite](https://nf-co.re/join/slack)).
 
