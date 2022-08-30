@@ -4,7 +4,7 @@
     nf-core/coproid
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/nf-core/coproid
-    Website: https://nf-co.re/coproid
+Website: https://nf-co.re/coproid
     Slack  : https://nfcore.slack.com/channels/coproid
 ----------------------------------------------------------------------------------------
 */
