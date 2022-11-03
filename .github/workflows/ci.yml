@@ -22,7 +22,7 @@ jobs:
       - name: Pull docker image
         run: |
           docker pull nfcore/coproid:dev
-          docker tag nfcore/coproid:dev nfcore/coproid:1.1
+          docker tag nfcore/coproid:dev nfcore/coproid:1.1.1
       - name: Run pipeline with test data
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,docker
