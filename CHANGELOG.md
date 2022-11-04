@@ -1,5 +1,11 @@
 # nf-core/coproid: Changelog
 
+## v.1.1.1
+
+### Fixed
+
+- Fix [#37](https://github.com/nf-core/coproid/issues/37) with conda environment and docker container update
+
 ## v1.1
 
 - Update mapped basepair count to be quicker and include it in report [#14](https://github.com/nf-core/coproid/pull/14)
