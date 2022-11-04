@@ -19,8 +19,8 @@
 
 It combines the analysis of putative host ancient DNA with a machine learning prediction of the feces source based on microbiome taxonomic composition:
 
-- (**A**) First coproID performs a comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and eventually genome3) and computes a host-DNA species ratio (*NormalizedRatio*)
-- (**B**) Then coproID performs a metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using [machine learning](https://joss.theoj.org/papers/10.21105/joss.01540), coproID then estimates the host source from the metagenomic taxonomic composition (*prop_microbiome*).
+- (**A**) First coproID performs a comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and eventually genome3) and computes a host-DNA species ratio (_NormalizedRatio_)
+- (**B**) Then coproID performs a metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using [machine learning](https://joss.theoj.org/papers/10.21105/joss.01540), coproID then estimates the host source from the metagenomic taxonomic composition (_prop_microbiome_).
 - Finally, coproID combines **A** and **B** to predict the likely host of the metagenomic sample.
 
 The coproID pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.

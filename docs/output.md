@@ -19,8 +19,8 @@ For further reading and documentation see the [FastQC help](http://www.bioinform
 
 [AdapterRemoval](https://github.com/MikkelSchubert/adapterremoval) searches for and removes remnant adapter sequences from High-Throughput Sequencing (HTS) data and (optionally) trims low quality bases from the 3' end of reads following adapter removal. AdapterRemoval can analyze both single end and paired end data, and can be used to merge overlapping paired-ended reads into (longer) consensus sequences.
 
-- *Retained and Discarded Paired-End Collapsed*: This plot shows the number/proportion of reads that passed adapter removal and trimming filters.
-- *Length Distribution Paired End Collapsed*: This plot shows the length distribution of the different read categories.
+- _Retained and Discarded Paired-End Collapsed_: This plot shows the number/proportion of reads that passed adapter removal and trimming filters.
+- _Length Distribution Paired End Collapsed_: This plot shows the length distribution of the different read categories.
 
 ### Bowtie2
 
