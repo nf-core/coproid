@@ -6,10 +6,29 @@
 
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { FASTP                  } from '../modules/nf-core/fastp/main'
+include { BOWTIE2_BUILD          } from '../modules/nf-core/bowtie2/build/main'
+include { BOWTIE2_ALIGN          } from '../modules/nf-core/bowtie2/align/main'
+include { SAMTOOLS_INDEX         } from '../modules/nf-core/samtools/index/main'
+include { SAM2LCA_ANALYZE        } from '../modules/nf-core/sam2lca/analyze/main'
+include { DAMAGEPROFILER         } from '../modules/nf-core/damageprofiler/main'
+include { BBMAP_BBDUK            } from '../modules/nf-core/bbmap/bbduk/main'
+include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main'
+include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
+include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' // needed?
+include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_coproid_pipeline'
+
+//
+// SUBWORKFLOWS: Consisting of a mix of local and nf-core/modules
+//
+include { PREPARE_GENOMES           } from '../subworkflows/local/prepare_genome_indices'
+include { ALIGN_INDEX               } from '../subworkflows/local/align_index'
+include { MERGE_SORT_INDEX_SAMTOOLS } from '../subworkflows/local/merge_sort_index_samtools'
+include { KRAKEN2_CLASSIFICATION    } from '../subworkflows/local/kraken2_classification'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,12 +39,21 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_copr
 workflow COPROID {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    ch_samplesheet // channel: samplesheet FASTQ read in from --input
 
     main:
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+
+    //
+    // SUBWORKFLOW: Prepare genomes from genome sheet
+    //
+    
+    PREPARE_GENOMES (
+        ch_genomes
+    )
+    ch_versions = ch_versions.mix(PREPARE_GENOMES.out.versions.first())
 
     //
     // MODULE: Run FastQC
@@ -35,6 +63,87 @@ workflow COPROID {
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
+    // MODULE: Preprocessing with fastp
+    //
+    FASTP (
+        ch_samplesheet
+    )
+    ch_trimmed = FASTP.out.reads
+    ch_versions = ch_versions.mix(FASTP.out.versions.first())
+
+    //
+    // SUBWORKFLOW: Align reads to all genomes and index alignments
+    //
+
+    FASTP.out.reads // [meta[ID, single_end], merged_reads]
+        .combine(PREPARE_GENOMES.out.genomes) //[meta[genome_name], fasta, index]
+        .map {
+            meta_reads, reads, meta_genome, genome_fasta, genome_index ->
+            [
+                [
+                    'id': meta_reads.id + '_' + meta_genome.genome_name,
+                    'genome_name': meta_genome.genome_name,
+                    'genome_taxid': meta_genome.taxid,
+                    'genome_size': meta_genome.genome_size,
+                    'sample_name': meta_reads.id,
+                    'single_end': meta_reads.single_end,
+                    'merge': meta_reads.merge
+                ],
+                reads,
+                genome_index
+            ]
+        }
+        .set { ch_reads_genomes_index }
+    
+    ALIGN_INDEX (
+        ch_reads_genomes_index
+    )
+    ch_versions = ch_versions.mix(ALIGN_INDEX.out.versions.first())
+
+    // join bam with indices
+    ALIGN_INDEX.out.bam.join(
+        ALIGN_INDEX.out.bai
+    ).map {
+        meta, bam, bai -> [['id':meta.sample_name], bam] // meta.id, bam
+    }.groupTuple()
+    .set { bams_synced }
+
+    // SUBWORKFLOW: sort indices
+    MERGE_SORT_INDEX_SAMTOOLS (
+        bams_synced
+    )
+    ch_versions = ch_versions.mix(MERGE_SORT_INDEX_SAMTOOLS.out.versions.first())
+
+    //
+    // MODULE: Run sam2lca
+    //
+    SAM2LCA_ANALYZE (
+        MERGE_SORT_INDEX_SAMTOOLS.out.bam.join(
+            MERGE_SORT_INDEX_SAMTOOLS.out.bai
+    ))
+    ch_sam2lca = BOWTIE2_ALIGN.out.csv
+    ch_versions = ch_versions.mix(SAM2LCA_ANALYZEFASTQC.out.versions.first())
+
+    //
+    // SUBWORKFLOW: kraken classification and parse reports
+    //
+    KRAKEN2_CLASSIFICATION (
+        ch_unaligned,
+        ch_kraken2_db
+    )
+
+    //
+    // MODULE: Run sourcepredict
+    //
+    SOURCEPREDICT (
+        KRAKEN2_CLASSIFICATION.out.kraken_merged_report,
+        ch_sp_sources,
+        ch_sp_labels,
+        taxa_sqlite,
+        taxa_sqlite_traverse_pkl
+    )
 
     //
     // Collate and save software versions

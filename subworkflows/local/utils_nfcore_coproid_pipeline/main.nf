@@ -8,17 +8,18 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UTILS_NFVALIDATION_PLUGIN } from '../../nf-core/utils_nfvalidation_plugin'
-include { paramsSummaryMap          } from 'plugin/nf-validation'
-include { fromSamplesheet           } from 'plugin/nf-validation'
-include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
-include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { dashedLine                } from '../../nf-core/utils_nfcore_pipeline'
-include { nfCoreLogo                } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
-include { workflowCitation          } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFSCHEMA_PLUGIN                 } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryMap                      } from 'plugin/nf-schema'
+include { samplesheetToList                     } from 'plugin/nf-schema'
+include { samplesheetToList as genomesToList    } from 'plugin/nf-schema' 
+include { UTILS_NEXTFLOW_PIPELINE               } from '../../nf-core/utils_nextflow_pipeline'
+include { completionEmail                       } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary                     } from '../../nf-core/utils_nfcore_pipeline'
+include { dashedLine                            } from '../../nf-core/utils_nfcore_pipeline'
+include { nfCoreLogo                            } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification                        } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFCORE_PIPELINE                 } from '../../nf-core/utils_nfcore_pipeline'
+include { workflowCitation                      } from '../../nf-core/utils_nfcore_pipeline'
 
 /*
 ========================================================================================
@@ -54,16 +55,10 @@ workflow PIPELINE_INITIALISATION {
     //
     // Validate parameters and generate parameter summary to stdout
     //
-    pre_help_text = nfCoreLogo(monochrome_logs)
-    post_help_text = '\n' + workflowCitation() + '\n' + dashedLine(monochrome_logs)
-    def String workflow_command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR>"
-    UTILS_NFVALIDATION_PLUGIN (
-        help,
-        workflow_command,
-        pre_help_text,
-        post_help_text,
+    UTILS_NFSCHEMA_PLUGIN (
+        workflow,
         validate_params,
-        "nextflow_schema.json"
+        null
     )
 
     //
@@ -80,8 +75,7 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
-    Channel
-        .fromSamplesheet("input")
+        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map {
             meta, fastq_1, fastq_2 ->
                 if (!fastq_2) {
@@ -91,8 +85,8 @@ workflow PIPELINE_INITIALISATION {
                 }
         }
         .groupTuple()
-        .map {
-            validateInputSamplesheet(it)
+        .map { samplesheet ->
+            validateInputSamplesheet(samplesheet)
         }
         .map {
             meta, fastqs ->
@@ -102,6 +96,37 @@ workflow PIPELINE_INITIALISATION {
 
     emit:
     samplesheet = ch_samplesheet
+    versions    = ch_versions
+}
+
+    //
+    // Create channel from genomes file provided through params.genomes
+    //
+        .fromList(genomesToList(params.genomes, "${projectDir}/assets/schema_genomes.json"))
+        .map {
+            meta, igenome, fasta, index ->
+                if (!fasta) {
+                    return [ meta.genome_name, meta + [ igenome ] ]
+                } else {
+                    if (!index) {
+                        return [ meta.genome_name, meta + [ fasta ] ]
+                    } else { 
+                    return [ meta.genome_name, meta + [ fasta ], [ index ] ]
+                }
+            }
+        }
+        .groupTuple()
+        .map { genomesheet ->
+            validateInputSamplesheet(genomesheet)
+        }
+        .map {
+            meta, fastqs ->
+                return [ meta, fastqs.flatten() ]
+        }
+        .set { ch_genomesheet }
+
+    emit:
+    genomes = ch_genomesheet
     versions    = ch_versions
 }
 

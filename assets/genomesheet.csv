@@ -1,0 +1,3 @@
+genome_name,igenome,fasta,index
+Homo_sapiens,,/mnt/archgen/users/vanos/tests/data/GCA_000001405.29.fasta.gz,
+Canis_familiaris,,/mnt/archgen/users/vanos/tests/data/GCA_011100685.1.fasta.gz,
