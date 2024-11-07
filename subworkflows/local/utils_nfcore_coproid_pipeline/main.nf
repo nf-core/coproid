@@ -13,13 +13,11 @@ include { paramsSummaryMap                      } from 'plugin/nf-schema'
 include { samplesheetToList                     } from 'plugin/nf-schema'
 include { samplesheetToList as genomesToList    } from 'plugin/nf-schema' 
 include { UTILS_NEXTFLOW_PIPELINE               } from '../../nf-core/utils_nextflow_pipeline'
+include { UTILS_NFCORE_PIPELINE                 } from '../../nf-core/utils_nfcore_pipeline'
 include { completionEmail                       } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary                     } from '../../nf-core/utils_nfcore_pipeline'
 include { dashedLine                            } from '../../nf-core/utils_nfcore_pipeline'
-include { nfCoreLogo                            } from '../../nf-core/utils_nfcore_pipeline'
 include { imNotification                        } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFCORE_PIPELINE                 } from '../../nf-core/utils_nfcore_pipeline'
-include { workflowCitation                      } from '../../nf-core/utils_nfcore_pipeline'
 
 /*
 ========================================================================================
@@ -31,12 +29,12 @@ workflow PIPELINE_INITIALISATION {
 
     take:
     version           // boolean: Display version and exit
-    help              // boolean: Display help text
     validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
     monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args
+    nextflow_cli_args //   array: List of positional nextflow CLI args 
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    genome_sheet      //  string: Path to reference genomesheet 
 
     main:
 
@@ -70,11 +68,13 @@ workflow PIPELINE_INITIALISATION {
     //
     // Custom validation for pipeline parameters
     //
+    // TODO
     validateInputParameters()
 
     //
     // Create channel from input file provided through params.input
     //
+    Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map {
             meta, fastq_1, fastq_2 ->
@@ -97,36 +97,29 @@ workflow PIPELINE_INITIALISATION {
     emit:
     samplesheet = ch_samplesheet
     versions    = ch_versions
-}
 
+//
+    // Create channel from genomes file provided through params.genome_sheet
     //
-    // Create channel from genomes file provided through params.genomes
-    //
-        .fromList(genomesToList(params.genomes, "${projectDir}/assets/schema_genomes.json"))
+    Channel
+        .fromList(genomesToList(params.genome_sheet, "${projectDir}/assets/schema_genomes.json"))
         .map {
             meta, igenome, fasta, index ->
                 if (!fasta) {
                     return [ meta.genome_name, meta + [ igenome ] ]
                 } else {
                     if (!index) {
-                        return [ meta.genome_name, meta + [ fasta ] ]
+                        return [ meta.genome_name, meta + [ fasta_file : fasta ] ]
                     } else { 
-                    return [ meta.genome_name, meta + [ fasta ], [ index ] ]
+                        return [ meta.genome_name, meta + [ fasta_file : fasta ], [ index ] ]
                 }
             }
         }
         .groupTuple()
-        .map { genomesheet ->
-            validateInputSamplesheet(genomesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
         .set { ch_genomesheet }
 
     emit:
-    genomes = ch_genomesheet
+    genomesheet = ch_genomesheet
     versions    = ch_versions
 }
 
@@ -176,11 +169,15 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ========================================================================================
 */
+
 //
 // Check and validate pipeline parameters
 //
 def validateInputParameters() {
-    genomeExistsError()
+    
+    if (!params.input       ) { error("Input samplesheet not specified!") }
+    if (!params.genome_sheet) { error("Genomes sheet not specified!") }
+    
 }
 
 //
@@ -196,31 +193,6 @@ def validateInputSamplesheet(input) {
     }
 
     return [ metas[0], fastqs ]
-}
-//
-// Get attribute from genome config file e.g. fasta
-//
-def getGenomeAttribute(attribute) {
-    if (params.genomes && params.genome && params.genomes.containsKey(params.genome)) {
-        if (params.genomes[ params.genome ].containsKey(attribute)) {
-            return params.genomes[ params.genome ][ attribute ]
-        }
-    }
-    return null
-}
-
-//
-// Exit pipeline if incorrect --genome key provided
-//
-def genomeExistsError() {
-    if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
-        def error_string = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
-            "  Genome '${params.genome}' not found in any config files provided to the pipeline.\n" +
-            "  Currently, the available genome keys are:\n" +
-            "  ${params.genomes.keySet().join(", ")}\n" +
-            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        error(error_string)
-    }
 }
 
 //

@@ -17,7 +17,7 @@ include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main
 include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
 include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' // needed?
 include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
-include { paramsSummaryMap       } from 'plugin/nf-validation'
+include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_coproid_pipeline'
@@ -32,6 +32,20 @@ include { KRAKEN2_CLASSIFICATION    } from '../subworkflows/local/kraken2_classi
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    CREATE CHANNELS 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+if (params.genome_sheet)              { ch_genomes    = Channel.fromPath(params.genome_sheet) } else { error("Genomes sheet not specified!") }
+if (params.sam2lca_db  )              { ch_sam2lca_db = file(params.sam2lca_db) } else { error("SAM2LCA database path not specified!") }
+if (params.kraken2_db  )              { ch_kraken2_db = file(params.kraken2_db) } else { error("Kraken2 database path not specified!") }
+if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
+if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
+if (params.taxa_sqlite )              { ch_taxa_sqlite = file(params.taxa_sqlite) } else { error("Ete3 taxa.sqlite file not specified!") }
+if (params.taxa_sqlite_traverse_pkl ) { ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) } else { error("Ete3 taxa.sqlite.traverse file not specified!") }
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
@@ -40,6 +54,7 @@ workflow COPROID {
 
     take:
     ch_samplesheet // channel: samplesheet FASTQ read in from --input
+    ch_genomesheet // channel: genomesheet genomes from --genome_sheet
 
     main:
 
@@ -51,7 +66,7 @@ workflow COPROID {
     //
     
     PREPARE_GENOMES (
-        ch_genomes
+        ch_genomesheet
     )
     ch_versions = ch_versions.mix(PREPARE_GENOMES.out.versions.first())
 
@@ -68,7 +83,11 @@ workflow COPROID {
     // MODULE: Preprocessing with fastp
     //
     FASTP (
-        ch_samplesheet
+        ch_samplesheet,
+        [],
+        false,
+        false,
+        true
     )
     ch_trimmed = FASTP.out.reads
     ch_versions = ch_versions.mix(FASTP.out.versions.first())
@@ -99,7 +118,7 @@ workflow COPROID {
     
     ALIGN_INDEX (
         ch_reads_genomes_index
-    )
+    ) 
     ch_versions = ch_versions.mix(ALIGN_INDEX.out.versions.first())
 
     // join bam with indices
@@ -122,15 +141,17 @@ workflow COPROID {
     SAM2LCA_ANALYZE (
         MERGE_SORT_INDEX_SAMTOOLS.out.bam.join(
             MERGE_SORT_INDEX_SAMTOOLS.out.bai
-    ))
-    ch_sam2lca = BOWTIE2_ALIGN.out.csv
-    ch_versions = ch_versions.mix(SAM2LCA_ANALYZEFASTQC.out.versions.first())
+        ),
+        ch_sam2lca_db
+    )
+    ch_sam2lca = SAM2LCA_ANALYZE.out.csv
+    ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())
 
     //
     // SUBWORKFLOW: kraken classification and parse reports
     //
     KRAKEN2_CLASSIFICATION (
-        ch_unaligned,
+        ALIGN_INDEX.out.fastq,
         ch_kraken2_db
     )
 
@@ -141,8 +162,8 @@ workflow COPROID {
         KRAKEN2_CLASSIFICATION.out.kraken_merged_report,
         ch_sp_sources,
         ch_sp_labels,
-        taxa_sqlite,
-        taxa_sqlite_traverse_pkl
+        ch_taxa_sqlite,
+        ch_sqlite_traverse
     )
 
     //

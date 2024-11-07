@@ -2,12 +2,12 @@ include { BOWTIE2_BUILD } from '../../modules/nf-core/bowtie2/build/main'
 
 workflow PREPARE_GENOMES {
     take:
-        genome_sheet  // [meta["genome_name": genome_name], val(igenome), file(row.fasta), file(row.index)]
+        genomesheet  // [meta["genome_name": genome_name], val(igenome), file(row.fasta), file(row.index)]
 
     main:
         ch_versions = Channel.empty()
 
-        genome_sheet
+        genomesheet
             .splitCsv(header:true, sep:',')
             .map { create_genome_channel(it) }
             .set { genomes }

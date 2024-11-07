@@ -21,7 +21,7 @@ include { COPROID  } from './workflows/coproid'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_coproid_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_coproid_pipeline'
 
-include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_coproid_pipeline'
+//include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_coproid_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,7 +32,7 @@ include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_copr
 // TODO nf-core: Remove this line if you don't need a FASTA file
 //   This is an example of how to use getGenomeAttribute() to fetch parameters
 //   from igenomes.config using `--genome`
-params.fasta = getGenomeAttribute('fasta')
+//params.fasta = getGenomeAttribute('fasta')
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,6 +47,7 @@ workflow NFCORE_COPROID {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    genomesheet // channel: genomesheet read in from --genome_sheet
 
     main:
 
@@ -54,7 +55,8 @@ workflow NFCORE_COPROID {
     // WORKFLOW: Run pipeline
     //
     COPROID (
-        samplesheet
+        samplesheet,
+        genomesheet
     )
 
     emit:
@@ -76,19 +78,20 @@ workflow {
     //
     PIPELINE_INITIALISATION (
         params.version,
-        params.help,
         params.validate_params,
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
+        params.genome_sheet
     )
 
     //
     // WORKFLOW: Run main workflow
     //
     NFCORE_COPROID (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
+        PIPELINE_INITIALISATION.out.genomesheet
     )
 
     //
