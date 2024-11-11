@@ -2,13 +2,13 @@ include { BOWTIE2_BUILD } from '../../modules/nf-core/bowtie2/build/main'
 
 workflow PREPARE_GENOMES {
     take:
-        genomesheet  // [meta["genome_name": genome_name], val(igenome), file(row.fasta), file(row.index)]
+        ch_genomesheet  // [meta["genome_name": genome_name], val(igenome), file(fasta), file(index)]
 
     main:
         ch_versions = Channel.empty()
 
-        genomesheet
-            .splitCsv(header:true, sep:',')
+        ch_genomesheet
+//            .splitCsv(header:true, sep:',')
             .map { create_genome_channel(it) }
             .set { genomes }
 
@@ -44,11 +44,11 @@ def create_genome_channel(LinkedHashMap row) {
     meta.taxid = row.taxid
     meta.genome_size = row.genome_size
     def genome_meta = []
-    if (file(row.igenome).exists()) {
+    if (row.igenome) {
         genome_meta = [meta, file(params.genomes[ igenome ][ fasta ]), path(params.genomes[ igenome ][ bowtie2 ])]
-    } else if (file(row.fasta).exists() and file(row.index).exists()) {
+    } else if (row.fasta && row.index) {
         genome_meta = [meta, file(row.fasta), path(row.index)]
-    } else if (file(row.fasta).exists() and !file(row.index).exists()){
+    } else if (row.fasta && ! row.index){
         genome_meta = [meta, file(row.fasta)]
     } else {
         exit 1, "Genome ${row.genome_name} is not available. Please provide either a iGenome or a fasta reference file"

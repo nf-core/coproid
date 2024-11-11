@@ -13,6 +13,18 @@
                 "errorMessage": "Genome name must be provided and cannot contain spaces",
                 "meta": ["genome_name"]
             },
+            "taxid": {
+                "type": "integer",
+                "pattern": "^\\d+$",
+                "errorMessage": "Taxid must be provided",
+                "meta": ["taxid"]
+            },
+            "genome_size": {
+                "type": "integer",
+                "pattern": "^\\d+$",
+                "errorMessage": "Genome size must be provided and cannot contain spaces",
+                "meta": ["genome_size"]
+            },
             "igenome": {
                 "anyOf": [
                     {
@@ -49,7 +61,7 @@
                 "exists": true
             }
         },
-        "required": ["genome_name"],
+        "required": ["genome_name", "taxid", "genome_size"],
         "oneOf": [{ "required": ["igenome"] }, { "required": ["fasta"] }]
     }
 }

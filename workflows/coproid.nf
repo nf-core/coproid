@@ -111,9 +111,10 @@ workflow COPROID {
                     'merge': meta_reads.merge
                 ],
                 reads,
-                genome_index
+                genome_index,
+                fasta
             ]
-        }
+        }.dump(tag: 'reads_genomes')
         .set { ch_reads_genomes_index }
     
     ALIGN_INDEX (

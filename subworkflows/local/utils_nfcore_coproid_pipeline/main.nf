@@ -75,7 +75,7 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
     Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json")).dump(tag: 'sample_sheet')
         .map {
             meta, fastq_1, fastq_2 ->
                 if (!fastq_2) {
@@ -102,20 +102,18 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from genomes file provided through params.genome_sheet
     //
     Channel
-        .fromList(genomesToList(params.genome_sheet, "${projectDir}/assets/schema_genomes.json"))
+        .fromList(genomesToList(params.genome_sheet, "${projectDir}/assets/schema_genomes.json")).dump(tag: 'genome_sheet')
         .map {
             meta, igenome, fasta, index ->
-                if (!fasta) {
-                    return [ meta.genome_name, meta + [ igenome ] ]
-                } else {
-                    if (!index) {
-                        return [ meta.genome_name, meta + [ fasta_file : fasta ] ]
-                    } else { 
-                        return [ meta.genome_name, meta + [ fasta_file : fasta ], [ index ] ]
-                }
-            }
-        }
-        .groupTuple()
+            [
+                'genome_name' : meta.genome_name,
+                'taxid' : meta.taxid,
+                'genome_size' : meta.genome_size,
+                'igenome' : igenome,
+                'fasta' : fasta,
+                'index' : index
+            ]
+       }.dump(tag: 'genome_hash')
         .set { ch_genomesheet }
 
     emit:
