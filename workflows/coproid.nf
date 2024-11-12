@@ -112,7 +112,7 @@ workflow COPROID {
                 ],
                 reads,
                 genome_index,
-                fasta
+                genome_fasta
             ]
         }.dump(tag: 'reads_genomes')
         .set { ch_reads_genomes_index }
@@ -127,7 +127,7 @@ workflow COPROID {
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name], bam] // meta.id, bam
-    }.groupTuple()
+    }.groupTuple().dump(tag: 'aligned_index')
     .set { bams_synced }
 
     // SUBWORKFLOW: sort indices
@@ -155,12 +155,24 @@ workflow COPROID {
         ALIGN_INDEX.out.fastq,
         ch_kraken2_db
     )
+    
+    KRAKEN2_CLASSIFICATION.out.kraken_merged_report.dump(tag: 'kraken_parse')
+        .map { 
+        kraken_merged_report ->
+            [
+                [
+                'id' : 'samples_combined'
+                ],
+            kraken_merged_report
+            ]
+        }.dump(tag: 'kraken_tupple')
+        .set { ch_kraken_merged }
 
     //
     // MODULE: Run sourcepredict
     //
     SOURCEPREDICT (
-        KRAKEN2_CLASSIFICATION.out.kraken_merged_report,
+        ch_kraken_merged,
         ch_sp_sources,
         ch_sp_labels,
         ch_taxa_sqlite,

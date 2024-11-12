@@ -9,8 +9,6 @@ workflow ALIGN_INDEX {
         ch_versions = Channel.empty()
         BOWTIE2_ALIGN (
             reads_genomes,
-            genome_index,
-            genome_fasta,
             true,
             true 
             )
