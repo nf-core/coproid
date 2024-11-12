@@ -152,7 +152,7 @@ workflow COPROID {
     // SUBWORKFLOW: kraken classification and parse reports
     //
     KRAKEN2_CLASSIFICATION (
-        ALIGN_INDEX.out.fastq,
+        FASTP.out.reads,
         ch_kraken2_db
     )
     
