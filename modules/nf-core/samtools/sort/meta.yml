@@ -26,6 +26,16 @@ input:
         type: file
         description: BAM/CRAM/SAM file(s)
         pattern: "*.{bam,cram,sam}"
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. [ id:'genome' ]
+    - fasta:
+        type: file
+        description: Reference genome FASTA file
+        pattern: "*.{fa,fasta,fna}"
+        optional: true
 output:
   - bam:
       - meta:
