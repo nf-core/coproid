@@ -15,8 +15,9 @@ include { DAMAGEPROFILER         } from '../modules/nf-core/damageprofiler/main'
 include { BBMAP_BBDUK            } from '../modules/nf-core/bbmap/bbduk/main'
 include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main'
 include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
-include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' // needed?
+include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
 include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
+include { QUARTONOTEBOOK } from '../modules/nf-core/quartonotebook/main'   
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -122,12 +123,26 @@ workflow COPROID {
     ) 
     ch_versions = ch_versions.mix(ALIGN_INDEX.out.versions.first())
 
+    DAMAGEPROFILER(
+        ALIGN_INDEX.out.bam,
+        [],
+        [],
+        []
+    )
+
+    //ALIGN_INDEX.out.bam.join(
+    //    ALIGN_INDEX.out.bai
+    //).map {
+    //    meta, bam, bai -> [['id':meta.sample_name], bam, bai] // meta.id, bam
+    //}.dump(tag: 'aligned_index')
+    //.set { aligned_index }
+
     // join bam with indices
     ALIGN_INDEX.out.bam.join(
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name], bam] // meta.id, bam
-    }.groupTuple().dump(tag: 'aligned_index')
+    }.groupTuple().dump(tag: 'bams_synced')
     .set { bams_synced }
 
     // SUBWORKFLOW: sort indices

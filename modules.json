@@ -45,6 +45,11 @@
                         "git_sha": "b7ebe95761cd389603f9cc0e0dc384c0f663815a",
                         "installed_by": ["modules"]
                     },
+                    "quartonotebook": {
+                        "branch": "master",
+                        "git_sha": "0e2d0c6d94f048eb1ba88924a0c87edc2c1bd6ef",
+                        "installed_by": ["modules"]
+                    },
                     "sam2lca/analyze": {
                         "branch": "master",
                         "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",

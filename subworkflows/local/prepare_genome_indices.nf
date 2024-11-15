@@ -47,7 +47,7 @@ def create_genome_channel(LinkedHashMap row) {
     if (row.igenome) {
         genome_meta = [meta, file(params.genomes[ igenome ][ fasta ]), path(params.genomes[ igenome ][ bowtie2 ])]
     } else if (row.fasta && row.index) {
-        genome_meta = [meta, file(row.fasta), path(row.index)]
+        genome_meta = [meta, file(row.fasta), file(row.index)]
     } else if (row.fasta && ! row.index){
         genome_meta = [meta, file(row.fasta)]
     } else {
