@@ -12,12 +12,13 @@ include { BOWTIE2_ALIGN          } from '../modules/nf-core/bowtie2/align/main'
 include { SAMTOOLS_INDEX         } from '../modules/nf-core/samtools/index/main'
 include { SAM2LCA_ANALYZE        } from '../modules/nf-core/sam2lca/analyze/main'
 include { DAMAGEPROFILER         } from '../modules/nf-core/damageprofiler/main'
+include { PYDAMAGE_ANALYZE       } from '../modules/nf-core/pydamage/analyze/main'
 include { BBMAP_BBDUK            } from '../modules/nf-core/bbmap/bbduk/main'
 include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main'
 include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
 include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
 include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
-include { QUARTONOTEBOOK } from '../modules/nf-core/quartonotebook/main'   
+include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'   
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -91,6 +92,7 @@ workflow COPROID {
         true
     )
     ch_trimmed = FASTP.out.reads
+    ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect{it[1]})
     ch_versions = ch_versions.mix(FASTP.out.versions.first())
 
     //
@@ -122,6 +124,7 @@ workflow COPROID {
         ch_reads_genomes_index
     ) 
     ch_versions = ch_versions.mix(ALIGN_INDEX.out.versions.first())
+//    ch_multiqc_files = ch_multiqc_files.mix(ALIGN_INDEX.out.log.collect{it[1]})
 
     DAMAGEPROFILER(
         ALIGN_INDEX.out.bam,
@@ -129,13 +132,19 @@ workflow COPROID {
         [],
         []
     )
+    ch_versions = ch_versions.mix(DAMAGEPROFILER.out.versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(DAMAGEPROFILER.out.results.collect{it[1]})
 
-    //ALIGN_INDEX.out.bam.join(
-    //    ALIGN_INDEX.out.bai
-    //).map {
-    //    meta, bam, bai -> [['id':meta.sample_name], bam, bai] // meta.id, bam
-    //}.dump(tag: 'aligned_index')
-    //.set { aligned_index }
+    ALIGN_INDEX.out.bam.join(
+        ALIGN_INDEX.out.bai
+    ).map {
+        meta, bam, bai -> [['id':meta.sample_name, 'genome_name':meta.genome_name], bam, bai] // meta.id, bam
+    }.dump(tag: 'aligned_index')
+    .set { aligned_index }
+
+    PYDAMAGE_ANALYZE (
+        aligned_index
+    )
 
     // join bam with indices
     ALIGN_INDEX.out.bam.join(
@@ -170,6 +179,7 @@ workflow COPROID {
         FASTP.out.reads,
         ch_kraken2_db
     )
+    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_CLASSIFICATION.out.kraken_report.collect{it[1]})
     
     KRAKEN2_CLASSIFICATION.out.kraken_merged_report.dump(tag: 'kraken_parse')
         .map { 

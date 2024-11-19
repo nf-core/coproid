@@ -27,5 +27,6 @@ workflow KRAKEN2_CLASSIFICATION {
 
     emit:
         kraken_merged_report = KRAKEN_MERGE.out.kraken_merged_report
+        kraken_report = KRAKEN2_KRAKEN2.out.report
         versions = ch_versions
 }
