@@ -47,6 +47,11 @@ input:
         description: taxa.sqlite.traverse.pkl file downloaded with ete3 toolkit
         pattern: "taxa.sqlite.traverse.pkl"
 
+  - - save_embedding:
+        type: string
+        description: |
+          If true, an optional command is added to save a file reporting the embedding file
+
 output:
   - report:
       - meta:

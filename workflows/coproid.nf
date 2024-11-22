@@ -17,6 +17,7 @@ include { BBMAP_BBDUK            } from '../modules/nf-core/bbmap/bbduk/main'
 include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main'
 include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
 include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
+include { SAM2LCA_MERGE          } from '../modules/local/sam2lca_merge' 
 include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
 include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'   
 include { paramsSummaryMap       } from 'plugin/nf-schema'
@@ -145,6 +146,10 @@ workflow COPROID {
     PYDAMAGE_ANALYZE (
         aligned_index
     )
+    ch_versions = ch_versions.mix(PYDAMAGE_ANALYZE.out.versions.first())
+
+    PYDAMAGE_ANALYZE.out.csv.collect().dump(tag: 'pydamage_reports')
+    .set { pydamage_reports }
 
     // join bam with indices
     ALIGN_INDEX.out.bam.join(
@@ -171,6 +176,13 @@ workflow COPROID {
     )
     ch_sam2lca = SAM2LCA_ANALYZE.out.csv
     ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())
+
+    SAM2LCA_ANALYZE.out.csv.collect({it[1]}).dump(tag: 'sam2lca_reports')
+    .set { sam2lca_reports }
+
+    SAM2LCA_MERGE (
+        sam2lca_reports
+    )
 
     //
     // SUBWORKFLOW: kraken classification and parse reports
@@ -201,7 +213,8 @@ workflow COPROID {
         ch_sp_sources,
         ch_sp_labels,
         ch_taxa_sqlite,
-        ch_sqlite_traverse
+        ch_sqlite_traverse,
+        true
     )
 
     //
