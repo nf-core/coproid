@@ -18,6 +18,7 @@ include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main
 include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
 include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
 include { SAM2LCA_MERGE          } from '../modules/local/sam2lca_merge' 
+include { PYDAMAGE_MERGE         } from '../modules/local/pydamage_merge' 
 include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
 include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'   
 include { paramsSummaryMap       } from 'plugin/nf-schema'
@@ -32,6 +33,7 @@ include { PREPARE_GENOMES           } from '../subworkflows/local/prepare_genome
 include { ALIGN_INDEX               } from '../subworkflows/local/align_index'
 include { MERGE_SORT_INDEX_SAMTOOLS } from '../subworkflows/local/merge_sort_index_samtools'
 include { KRAKEN2_CLASSIFICATION    } from '../subworkflows/local/kraken2_classification'
+include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporting'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,6 +65,7 @@ workflow COPROID {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+    ch_quarto = Channel.empty()
 
     //
     // SUBWORKFLOW: Prepare genomes from genome sheet
@@ -148,8 +151,14 @@ workflow COPROID {
     )
     ch_versions = ch_versions.mix(PYDAMAGE_ANALYZE.out.versions.first())
 
-    PYDAMAGE_ANALYZE.out.csv.collect().dump(tag: 'pydamage_reports')
+    PYDAMAGE_ANALYZE.out.csv.collect({it[1]})
+    .dump(tag: 'pydamage_reports')
     .set { pydamage_reports }
+
+    PYDAMAGE_MERGE (
+        pydamage_reports
+    )
+    ch_quarto = ch_quarto.mix(PYDAMAGE_MERGE.out.pydamage_merged_report)
 
     // join bam with indices
     ALIGN_INDEX.out.bam.join(
@@ -183,6 +192,7 @@ workflow COPROID {
     SAM2LCA_MERGE (
         sam2lca_reports
     )
+    ch_quarto = ch_quarto.mix(SAM2LCA_MERGE.out.sam2lca_merged_report)
 
     //
     // SUBWORKFLOW: kraken classification and parse reports
@@ -215,6 +225,15 @@ workflow COPROID {
         ch_taxa_sqlite,
         ch_sqlite_traverse,
         true
+    )
+    ch_quarto = ch_quarto.mix(SOURCEPREDICT.out.report.collect{it[1]})
+    ch_quarto = ch_quarto.mix(SOURCEPREDICT.out.embedding.collect{it[1]})
+    
+    //
+    // SUBWORKFLOW: quarto reporting
+    //
+    QUARTO_REPORTING (
+        ch_quarto
     )
 
     //

@@ -27,7 +27,10 @@ for file in csv_files:
     
     # Filter rows where 'count_taxon' > 0
     df_filtered = df[df['count_taxon'] > 0].copy()
-    
+
+    # Filter rows where 'count_taxon' > 0 and 'rank' is 'species' or 'subspecies'
+    df_filtered = df[(df['count_taxon'] > 0) & (df['rank'].isin(['species', 'subspecies']))].copy()
+
     # Keep relevant columns and rename 'count_taxon' to the sample name
     df_filtered = df_filtered[['TAXID', 'name', 'rank', 'count_taxon']].rename(columns={'count_taxon': sample_name})
     
