@@ -1,19 +1,17 @@
 ---
 title: "coproID report test"
-format: html
+format: 
+    nf-core-html: default
 editor: visual
 ---
 
-![](images/clipboard-2044164150.png){fig-align="center"}
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 library(ggplot2)
-library(tidyverse)
 library(plotly)
 library(tibble)
 library(rlang)
 library(magrittr)
-library(gt)
 library(tidyr)
 library(plotly)
 ```
@@ -23,12 +21,6 @@ Pipeline version 2.0
 ## Introduction
 
 [coproID](https://github.com/nf-core/coproID) is a pipeline designed to identify the source of coprolites, but can also be used to track the source of other metagenomic samples. More information regarding the pipeline and the output files can be found here: [coproid.readthedocs](https://coproid.readthedocs.io/en/latest/output.html)
-
-```{r echo = FALSE, message = FALSE, warning = FALSE}
-
-# lca1 <- read.csv("SAMPLE_SINGLE_END.sam2lca.csv")
-# lca2 <- read.csv("SAMPLE_PAIRED_END.sam2lca.csv")
-```
 
 # Host DNA
 
@@ -55,19 +47,15 @@ ggplotly(sam_plot, tooltip = "all")
 
 # Source tracking
 
+**Figure X.** **Stacked barplot of source prediction per sample based on the [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html) analysis.**
+
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 
-sp <- read.csv("coproid.sourcepredict.csv") 
+sp <- read.csv("coproid.report.sourcepredict.csv") 
 spT <- t(sp[-1]) %>%
   as.data.frame()
 colnames(spT) <- sp$X
 spT <- rownames_to_column(spT, var = "sample")
-
-```
-
-**Figure X.** **Stacked barplot of source prediction per sample based on the [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html) analysis.**
-
-```{r echo = FALSE, message = FALSE, warning = FALSE}
 
 sp_long <- spT %>%
   pivot_longer(
@@ -79,14 +67,14 @@ portions <- ggplot(sp_long, aes(x = fraction, y = sample, fill = taxa)) +
   geom_col() +
   theme(axis.text.x = element_text(hjust = 1, size = 8))
 interactive_plot <- ggplotly(portions, tooltip = "all")
-interactive_plot
+view(interactive_plot)
 ```
 
 **Table 1. Source prediction per sample based on the [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html) analysis.**
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 
-gt(spT)
+spT
 ```
 
 # Embedding

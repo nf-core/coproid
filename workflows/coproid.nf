@@ -65,7 +65,7 @@ workflow COPROID {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-    ch_quarto = Channel.empty()
+//    ch_quarto = Channel.empty()
 
     //
     // SUBWORKFLOW: Prepare genomes from genome sheet
@@ -158,7 +158,6 @@ workflow COPROID {
     PYDAMAGE_MERGE (
         pydamage_reports
     )
-    ch_quarto = ch_quarto.mix(PYDAMAGE_MERGE.out.pydamage_merged_report)
 
     // join bam with indices
     ALIGN_INDEX.out.bam.join(
@@ -192,7 +191,6 @@ workflow COPROID {
     SAM2LCA_MERGE (
         sam2lca_reports
     )
-    ch_quarto = ch_quarto.mix(SAM2LCA_MERGE.out.sam2lca_merged_report)
 
     //
     // SUBWORKFLOW: kraken classification and parse reports
@@ -226,9 +224,13 @@ workflow COPROID {
         ch_sqlite_traverse,
         true
     )
-    ch_quarto = ch_quarto.mix(SOURCEPREDICT.out.report.collect{it[1]})
-    ch_quarto = ch_quarto.mix(SOURCEPREDICT.out.embedding.collect{it[1]})
-    
+
+    ch_quarto = SAM2LCA_MERGE.out.sam2lca_merged_report.mix(
+            SOURCEPREDICT.out.report.collectFile{it[1]},
+            SOURCEPREDICT.out.embedding.collectFile{it[1]},
+            PYDAMAGE_MERGE.out.pydamage_merged_report
+        ).toList().dump(tag: 'quarto_input')
+
     //
     // SUBWORKFLOW: quarto reporting
     //

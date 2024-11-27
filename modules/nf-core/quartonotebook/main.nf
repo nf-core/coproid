@@ -8,7 +8,9 @@ process QUARTONOTEBOOK {
     // required dependencies for your analyses. You'll at least need Quarto
     // itself, Papermill and whatever language you are running your analyses on;
     // you can see an example in this module's Dockerfile.
-    container "docker.io/erikfas/quartonotebook"
+
+    container = 'library://meriamos/coproid/quarto_container'
+ //   container "docker.io/erikfas/quartonotebook"
 
     input:
     tuple val(meta), path(notebook)

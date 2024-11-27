@@ -17,7 +17,7 @@ process SOURCEPREDICT {
 
     output:
     tuple val(meta), path("*.embedding.sourcepredict.csv")  , optional:true, emit: embedding
-    tuple val(meta), path("*.sourcepredict.csv")            , emit: report
+    tuple val(meta), path("*.report.sourcepredict.csv")            , emit: report
     path "versions.yml"                                     , emit: versions
 
     when:
@@ -37,7 +37,7 @@ process SOURCEPREDICT {
         $args \\
         $save_embedding \\
         -t $task.cpus \\
-        -o ${prefix}.sourcepredict.csv \\
+        -o ${prefix}.report.sourcepredict.csv \\
         ${kraken_parse}
 
     cat <<-END_VERSIONS > versions.yml
