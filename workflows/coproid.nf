@@ -16,9 +16,9 @@ include { PYDAMAGE_ANALYZE       } from '../modules/nf-core/pydamage/analyze/mai
 include { BBMAP_BBDUK            } from '../modules/nf-core/bbmap/bbduk/main'
 include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main'
 include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
-include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
+include { KRAKEN_MERGE           } from '../modules/local/kraken_merge'
 include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
-include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'   
+include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -28,13 +28,14 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_copr
 // SUBWORKFLOWS: Consisting of a mix of local and nf-core/modules
 //
 include { PREPARE_GENOMES           } from '../subworkflows/local/prepare_genome_indices'
+include { SAM2LCA_DB                } from '../subworkflows/local/sam2lca_db'
 include { ALIGN_INDEX               } from '../subworkflows/local/align_index'
 include { MERGE_SORT_INDEX_SAMTOOLS } from '../subworkflows/local/merge_sort_index_samtools'
 include { KRAKEN2_CLASSIFICATION    } from '../subworkflows/local/kraken2_classification'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CREATE CHANNELS 
+    CREATE CHANNELS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -66,7 +67,7 @@ workflow COPROID {
     //
     // SUBWORKFLOW: Prepare genomes from genome sheet
     //
-    
+
     PREPARE_GENOMES (
         ch_genomesheet
     )
@@ -119,10 +120,10 @@ workflow COPROID {
             ]
         }.dump(tag: 'reads_genomes')
         .set { ch_reads_genomes_index }
-    
+
     ALIGN_INDEX (
         ch_reads_genomes_index
-    ) 
+    )
     ch_versions = ch_versions.mix(ALIGN_INDEX.out.versions.first())
 //    ch_multiqc_files = ch_multiqc_files.mix(ALIGN_INDEX.out.log.collect{it[1]})
 
@@ -160,6 +161,15 @@ workflow COPROID {
     )
     ch_versions = ch_versions.mix(MERGE_SORT_INDEX_SAMTOOLS.out.versions.first())
 
+    SAM2LCA_DB(
+        PREPARE_GENOMES.out.genomes.map {
+            meta, fasta, index -> [meta, fasta]
+        },
+        [],
+        [],
+        []
+    )
+
     //
     // MODULE: Run sam2lca
     //
@@ -167,7 +177,10 @@ workflow COPROID {
         MERGE_SORT_INDEX_SAMTOOLS.out.bam.join(
             MERGE_SORT_INDEX_SAMTOOLS.out.bai
         ),
-        ch_sam2lca_db
+        SAM2LCA_DB.out.sam2lca_db,
+        [],
+        [],
+        []
     )
     ch_sam2lca = SAM2LCA_ANALYZE.out.csv
     ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())
@@ -180,9 +193,9 @@ workflow COPROID {
         ch_kraken2_db
     )
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_CLASSIFICATION.out.kraken_report.collect{it[1]})
-    
+
     KRAKEN2_CLASSIFICATION.out.kraken_merged_report.dump(tag: 'kraken_parse')
-        .map { 
+        .map {
         kraken_merged_report ->
             [
                 [
