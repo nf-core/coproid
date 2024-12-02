@@ -21,7 +21,7 @@ workflow ALIGN_INDEX {
     emit:
         bam =  BOWTIE2_ALIGN.out.bam
         bai = SAMTOOLS_INDEX.out.bai
-//        log = BOWTIE2_ALIGN.out.log
         fastq = BOWTIE2_ALIGN.out.fastq
         versions = ch_versions
+        multiqc_files = BOWTIE2_ALIGN.out.log
 }

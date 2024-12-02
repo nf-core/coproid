@@ -15,11 +15,11 @@ include { DAMAGEPROFILER         } from '../modules/nf-core/damageprofiler/main'
 include { PYDAMAGE_ANALYZE       } from '../modules/nf-core/pydamage/analyze/main'
 include { BBMAP_BBDUK            } from '../modules/nf-core/bbmap/bbduk/main'
 include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main'
-include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
-include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
+//include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
+//include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
 include { SAM2LCA_MERGE          } from '../modules/local/sam2lca_merge' 
 include { PYDAMAGE_MERGE         } from '../modules/local/pydamage_merge' 
-include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
+//include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
 include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'   
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -44,10 +44,10 @@ include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporti
 if (params.genome_sheet)              { ch_genomes    = Channel.fromPath(params.genome_sheet) } else { error("Genomes sheet not specified!") }
 if (params.sam2lca_db  )              { ch_sam2lca_db = file(params.sam2lca_db) } else { error("SAM2LCA database path not specified!") }
 if (params.kraken2_db  )              { ch_kraken2_db = file(params.kraken2_db) } else { error("Kraken2 database path not specified!") }
-if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
-if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
-if (params.taxa_sqlite )              { ch_taxa_sqlite = file(params.taxa_sqlite) } else { error("Ete3 taxa.sqlite file not specified!") }
-if (params.taxa_sqlite_traverse_pkl ) { ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) } else { error("Ete3 taxa.sqlite.traverse file not specified!") }
+//if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
+//if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
+//if (params.taxa_sqlite )              { ch_taxa_sqlite = file(params.taxa_sqlite) } else { error("Ete3 taxa.sqlite file not specified!") }
+//if (params.taxa_sqlite_traverse_pkl ) { ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) } else { error("Ete3 taxa.sqlite.traverse file not specified!") }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,7 +65,6 @@ workflow COPROID {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-//    ch_quarto = Channel.empty()
 
     //
     // SUBWORKFLOW: Prepare genomes from genome sheet
@@ -128,7 +127,7 @@ workflow COPROID {
         ch_reads_genomes_index
     ) 
     ch_versions = ch_versions.mix(ALIGN_INDEX.out.versions.first())
-//    ch_multiqc_files = ch_multiqc_files.mix(ALIGN_INDEX.out.log.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(ALIGN_INDEX.out.multiqc_files.collect{it[1]})
 
     DAMAGEPROFILER(
         ALIGN_INDEX.out.bam,
@@ -200,34 +199,11 @@ workflow COPROID {
         ch_kraken2_db
     )
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_CLASSIFICATION.out.kraken_report.collect{it[1]})
-    
-    KRAKEN2_CLASSIFICATION.out.kraken_merged_report.dump(tag: 'kraken_parse')
-        .map { 
-        kraken_merged_report ->
-            [
-                [
-                'id' : 'samples_combined'
-                ],
-            kraken_merged_report
-            ]
-        }.dump(tag: 'kraken_tupple')
-        .set { ch_kraken_merged }
-
-    //
-    // MODULE: Run sourcepredict
-    //
-    SOURCEPREDICT (
-        ch_kraken_merged,
-        ch_sp_sources,
-        ch_sp_labels,
-        ch_taxa_sqlite,
-        ch_sqlite_traverse,
-        true
-    )
-
+    ch_versions = ch_versions.mix(KRAKEN2_CLASSIFICATION.out.versions.first())
+ 
     ch_quarto = SAM2LCA_MERGE.out.sam2lca_merged_report.mix(
-            SOURCEPREDICT.out.report.collectFile{it[1]},
-            SOURCEPREDICT.out.embedding.collectFile{it[1]},
+            KRAKEN2_CLASSIFICATION.out.sp_report.collectFile{it[1]},
+            KRAKEN2_CLASSIFICATION.out.sp_embedding.collectFile{it[1]},
             PYDAMAGE_MERGE.out.pydamage_merged_report
         ).toList().dump(tag: 'quarto_input')
 
