@@ -1,0 +1,79 @@
+Changes in module 'nf-core/sourcepredict'
+'modules/nf-core/sourcepredict/environment.yml' is unchanged
+Changes in 'sourcepredict/meta.yml':
+--- modules/nf-core/sourcepredict/meta.yml
++++ modules/nf-core/sourcepredict/meta.yml
+@@ -47,6 +47,11 @@
+         description: taxa.sqlite.traverse.pkl file downloaded with ete3 toolkit
+         pattern: "taxa.sqlite.traverse.pkl"
+ 
++  - - save_embedding:
++        type: string
++        description: |
++          If true, an optional command is added to save a file reporting the embedding file
++
+ output:
+   - report:
+       - meta:
+
+Changes in 'sourcepredict/main.nf':
+--- modules/nf-core/sourcepredict/main.nf
++++ modules/nf-core/sourcepredict/main.nf
+@@ -13,10 +13,12 @@
+     path labels
+     path(taxa_sqlite, stageAs: '.etetoolkit/*')
+     path(taxa_sqlite_traverse_pkl, stageAs: '.etetoolkit/*')
++    val save_embedding
+ 
+     output:
+-    tuple val(meta), path("*.sourcepredict.csv")    , emit: report
+-    path "versions.yml"                             , emit: versions
++    tuple val(meta), path("*.embedding.sourcepredict.csv")  , optional:true, emit: embedding
++    tuple val(meta), path("*.report.sourcepredict.csv")     , emit: report
++    path "versions.yml"                                     , emit: versions
+ 
+     when:
+     task.ext.when == null || task.ext.when
+@@ -24,6 +26,7 @@
+     script:
+     def args = task.ext.args ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}"
++    def save_embedding = save_embedding ? "-e ${prefix}.embedding.sourcepredict.csv" : ""
+     """
+     export NUMBA_CACHE_DIR='./tmp'
+     export HOME='./'
+@@ -32,8 +35,9 @@
+         -s $sources \\
+         -l $labels \\
+         $args \\
++        $save_embedding \\
+         -t $task.cpus \\
+-        -o ${prefix}.sourcepredict.csv \\
++        -o ${prefix}.report.sourcepredict.csv \\
+         ${kraken_parse}
+ 
+     cat <<-END_VERSIONS > versions.yml
+
+'modules/nf-core/sourcepredict/tests/nextflow.config' is unchanged
+Changes in 'sourcepredict/tests/main.nf.test':
+--- modules/nf-core/sourcepredict/tests/main.nf.test
++++ modules/nf-core/sourcepredict/tests/main.nf.test
+@@ -36,6 +36,7 @@
+                 input[2] = file(params.modules_testdata_base_path + 'genomics/prokaryotes/metagenome/taxonomy/misc/sources_labels.csv', checkIfExists: true)
+                 input[3] = XZ_DECOMPRESS.out.file.map{ it[1] }
+                 input[4] = file(params.modules_testdata_base_path + 'genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl', checkIfExists: true)
++                input[5] = []
+                 """
+             }
+         }
+@@ -64,6 +65,7 @@
+                 input[2] = file(params.modules_testdata_base_path + 'genomics/prokaryotes/metagenome/taxonomy/misc/sources_labels.csv', checkIfExists: true)
+                 input[3] = XZ_DECOMPRESS.out.file.map{ it[1] }
+                 input[4] = file(params.modules_testdata_base_path + 'genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl', checkIfExists: true)
++                input[5] = []
+                 """
+             }
+         }
+
+'modules/nf-core/sourcepredict/tests/main.nf.test.snap' is unchanged
+************************************************************
