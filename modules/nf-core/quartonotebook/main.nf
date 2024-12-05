@@ -9,7 +9,7 @@ process QUARTONOTEBOOK {
     // itself, Papermill and whatever language you are running your analyses on;
     // you can see an example in this module's Dockerfile.
 
-    container = 'library://meriamos/coproid/quarto_container'
+    container = 'library://meriamos/coproid/quarto_container:latest'
  //   container "docker.io/erikfas/quartonotebook"
 
     input:

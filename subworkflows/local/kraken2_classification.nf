@@ -31,7 +31,7 @@ workflow KRAKEN2_CLASSIFICATION {
 
         // ch_versions = ch_versions.mix(KRAKEN_MERGE.out.versions.first())
 
-    KRAKEN_MERGE.out.kraken_merged_report.dump(tag: 'kraken_parse')
+    KRAKEN_MERGE.out.kraken_merged_report //.dump(tag: 'kraken_parse')
         .map { 
         kraken_merged_report ->
             [
@@ -40,7 +40,7 @@ workflow KRAKEN2_CLASSIFICATION {
                 ],
             kraken_merged_report
             ]
-        }.dump(tag: 'kraken_tuple')
+        } //.dump(tag: 'kraken_tuple')
         .set { ch_kraken_merged }
 
     //

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# Written by Meriam van Os
 import sys
 import os
 import pandas as pd

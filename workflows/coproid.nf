@@ -19,6 +19,7 @@ include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
 include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
 include { SAM2LCA_MERGE          } from '../modules/local/sam2lca_merge' 
 include { PYDAMAGE_MERGE         } from '../modules/local/pydamage_merge' 
+include { DAMAGEPROFILER_MERGE   } from '../modules/local/damageprofiler_merge' 
 include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
 include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'   
 include { paramsSummaryMap       } from 'plugin/nf-schema'
@@ -109,7 +110,7 @@ workflow COPROID {
             meta_reads, reads, meta_genome, genome_fasta, genome_index ->
             [
                 [
-                    'id': meta_reads.id + '_' + meta_genome.genome_name,
+                    'id': meta_reads.id + '-' + meta_genome.genome_name,
                     'genome_name': meta_genome.genome_name,
                     'genome_taxid': meta_genome.taxid,
                     'genome_size': meta_genome.genome_size,
@@ -121,7 +122,7 @@ workflow COPROID {
                 genome_index,
                 genome_fasta
             ]
-        }.dump(tag: 'reads_genomes')
+        } //.dump(tag: 'reads_genomes')
         .set { ch_reads_genomes_index }
 
     ALIGN_INDEX (
@@ -139,11 +140,23 @@ workflow COPROID {
     ch_versions = ch_versions.mix(DAMAGEPROFILER.out.versions.first())
     ch_multiqc_files = ch_multiqc_files.mix(DAMAGEPROFILER.out.results.collect{it[1]})
 
+//    DAMAGEPROFILER.out.results.collect({it[1]})
+//    .dump(tag: 'damageprofiler_reports')
+//    .set { damageprofiler_reports }
+
+    DAMAGEPROFILER.out.results.collect({it[1]})
+    .dump(tag: 'damageprofiler_reports')
+    .set { damageprofiler_reports }
+
+    DAMAGEPROFILER_MERGE(
+        damageprofiler_reports
+    )
+
     ALIGN_INDEX.out.bam.join(
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name, 'genome_name':meta.genome_name], bam, bai] // meta.id, bam
-    }.dump(tag: 'aligned_index')
+    } //.dump(tag: 'aligned_index')
     .set { aligned_index }
 
     PYDAMAGE_ANALYZE (
@@ -152,7 +165,7 @@ workflow COPROID {
     ch_versions = ch_versions.mix(PYDAMAGE_ANALYZE.out.versions.first())
 
     PYDAMAGE_ANALYZE.out.csv.collect({it[1]})
-    .dump(tag: 'pydamage_reports')
+//    .dump(tag: 'pydamage_reports')
     .set { pydamage_reports }
 
     PYDAMAGE_MERGE (
@@ -164,7 +177,7 @@ workflow COPROID {
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name], bam] // meta.id, bam
-    }.groupTuple().dump(tag: 'bams_synced')
+    }.groupTuple() //.dump(tag: 'bams_synced')
     .set { bams_synced }
 
     // SUBWORKFLOW: sort indices
@@ -173,14 +186,14 @@ workflow COPROID {
     )
     ch_versions = ch_versions.mix(MERGE_SORT_INDEX_SAMTOOLS.out.versions.first())
 
-    SAM2LCA_DB(
-        PREPARE_GENOMES.out.genomes.map {
-            meta, fasta, index -> [meta, fasta]
-        },
-        [],
-        [],
-        []
-    )
+//    SAM2LCA_DB(
+//        PREPARE_GENOMES.out.genomes.map {
+//            meta, fasta, index -> [meta, fasta]
+//        },
+//        [],
+//        [],
+//        []
+//    )
 
     //
     // MODULE: Run sam2lca
@@ -189,10 +202,8 @@ workflow COPROID {
         MERGE_SORT_INDEX_SAMTOOLS.out.bam.join(
             MERGE_SORT_INDEX_SAMTOOLS.out.bai
         ),
-        SAM2LCA_DB.out.sam2lca_db,
-        [],
-        [],
-        []
+//        SAM2LCA_DB.out.sam2lca_db
+        ch_sam2lca_db
     )
     ch_sam2lca = SAM2LCA_ANALYZE.out.csv
     ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())
@@ -217,7 +228,8 @@ workflow COPROID {
     ch_quarto = SAM2LCA_MERGE.out.sam2lca_merged_report.mix(
             KRAKEN2_CLASSIFICATION.out.sp_report.collectFile{it[1]},
             KRAKEN2_CLASSIFICATION.out.sp_embedding.collectFile{it[1]},
-            PYDAMAGE_MERGE.out.pydamage_merged_report
+            PYDAMAGE_MERGE.out.pydamage_merged_report,
+            DAMAGEPROFILER_MERGE.out.damageprofiler_merged_report
         ).toList().dump(tag: 'quarto_input')
 
     //

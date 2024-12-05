@@ -1,4 +1,4 @@
-process PYDAMAGE_MERGE {
+process DAMAGEPROFILER_MERGE {
     label 'process_single'
 
     conda "conda-forge::pandas=1.4.3"
@@ -7,16 +7,20 @@ process PYDAMAGE_MERGE {
         'quay.io/biocontainers/pandas:1.4.3' }"
 
     input:
-    path pydamage_reports 
+    path damageprofiler_reports 
 
     output:
-    path("*.csv"), emit: pydamage_merged_report
+    path("*.csv"), emit: damageprofiler_merged_report
 
     script:
     def args = task.ext.args   ?: ''
     prefix   = task.ext.prefix
     """
-    pydamage_merge.py ${prefix}.pydamage_merged_report.csv $pydamage_reports
+    for file in *-*/*_freq.txt; do
+        echo "\${file}" >> file_paths.txt
+    done
+
+    damageprofiler_merge.py ${prefix}.damageprofiler_merged_report.csv file_paths.txt
 
     """
 
