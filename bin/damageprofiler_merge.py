@@ -50,18 +50,18 @@ def merge_and_reshape(output_file, input_file_list):
     df_long = pd.melt(merged_df, id_vars=["pos"], var_name="sample_reference_prime", value_name="value")
     
     # Split the combined column into separate columns
-    df_long[["sample", "reference", "prime_end"]] = df_long["sample_reference_prime"].str.split("-", expand=True)
+    df_long[["Sample", "Reference", "prime_end"]] = df_long["sample_reference_prime"].str.split("-", expand=True)
     
     # Pivot the table to the desired format
     reshaped_df = df_long.pivot_table(
-        index=["sample", "reference", "prime_end"],
+        index=["Sample", "Reference", "prime_end"],
         columns="pos",
         values="value"
     ).reset_index()
     
     # Rename the columns to ensure positions are aligned as integers
     reshaped_df.columns.name = None  # Remove the pivot table's columns name
-    reshaped_df.columns = ["sample", "reference", "prime_end"] + [str(col) for col in sorted(merged_df["pos"].unique())]
+    reshaped_df.columns = ["Sample", "Reference", "prime_end"] + [str(col) for col in sorted(merged_df["pos"].unique())]
     
     # Save the output to a file
     reshaped_df.to_csv(output_file, index=False, sep="\t")

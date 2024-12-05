@@ -18,9 +18,9 @@ library(knitr)
 library(ggh4x)
 ```
 
-Pipeline version 2.0
+_Pipeline version 2.0_
 
-## Introduction
+# Introduction
 
 [coproID](https://github.com/nf-core/coproID) is a pipeline designed to identify the source of coprolites, but can also be used to track the source of other metagenomic samples. More information regarding the pipeline and the output files can be found here: [coproid.readthedocs](https://coproid.readthedocs.io/en/latest/output.html)
 
@@ -31,7 +31,7 @@ Pipeline version 2.0
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 
 sam2lca <- read.csv("coproid.sam2lca_merged_report.csv")
-  
+colnames(sam2lca) <- gsub("name", "Taxa", colnames(sam2lca))
 
 sam2lca[, -c(1:3)] <- sweep(sam2lca[, -c(1:3)], 2, colSums(sam2lca[, -c(1:3)]), FUN = "/")
 
@@ -41,33 +41,34 @@ sam_long <- sam2lca %>%
                 values_to = "Fraction")
 
 sam_plot <- ggplot(sam_long, aes(x = Fraction,
-                  y = Sample, fill = name)) +
+                  y = Sample, fill = Taxa)) +
   geom_bar(stat = "identity") +
   scale_fill_brewer(palette = "Set2")
 
 ggplotly(sam_plot, tooltip = "all") 
 ```
 
-# Source tracking
+# Microbial source tracking
 
 **Figure 2.** **Stacked barplot of source prediction per sample based on the [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html) analysis.**
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 
 sp <- read.csv("coproid.report.sourcepredict.csv") 
+sp$X <- gsub("unknown", "Unknown", sp$X)
 sp$X <- gsub("_", " ", sp$X)
 spT <- t(sp[-1]) %>%
   as.data.frame()
 colnames(spT) <- sp$X
-spT <- rownames_to_column(spT, var = "sample")
+spT <- rownames_to_column(spT, var = "Sample")
 
 sp_long <- spT %>%
   pivot_longer(
     cols = c(,-1),
-    names_to = "taxa",
-    values_to = "fraction")
+    names_to = "Taxa",
+    values_to = "Fraction")
 
-portions <- ggplot(sp_long, aes(x = fraction, y = sample, fill = taxa)) +
+portions <- ggplot(sp_long, aes(x = Fraction, y = Sample, fill = Taxa)) +
   geom_col() +
   scale_fill_brewer(palette = "Set2") +
   theme(axis.text.x = element_text(hjust = 1, size = 8))
@@ -75,6 +76,8 @@ portions <- ggplot(sp_long, aes(x = fraction, y = sample, fill = taxa)) +
 interactive_plot <- ggplotly(portions, tooltip = "all")
 interactive_plot
 ```
+
+<p style="margin-bottom: 0.75cm;"></p>
 
 **Table 1. Source prediction per sample based on the [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html) analysis.**
 
@@ -90,12 +93,13 @@ kable(spT)
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 
 embedding <- read.csv(file = 'coproid.embedding.sourcepredict.csv')
-embedding$labels <- gsub("_", " ", embedding$labels)
-embedding$labels <- gsub("known", "Unknown", embedding$labels)
+colnames(embedding) <- gsub("labels", "Labels", colnames(embedding))
+embedding$Labels <- gsub("_", " ", embedding$Labels)
+embedding$Labels <- gsub("known", "Unknown", embedding$Labels)
 
 scatter <- ggplot(data = embedding, 
        mapping = aes(x = PC2, y = PC1 , 
-                     color = labels,  
+                     color = Labels,  
        text = paste("Name:", name))) + 
   geom_point() + theme_classic() +
   scale_colour_brewer(palette = "Set2") 
@@ -118,7 +122,7 @@ pydamage$log <- -log10(pydamage$pvalue)
 ggplot(pydamage, aes(x = damage_model_pmax, y = log, 
                       colour = Sample, shape = Taxa)) +
                   geom_point(size = 3) +
-                  labs(x = "Modelled amount of damage on '5 end", 
+                  labs(x = "Modelled amount of damage on 5' end", 
                        y = "-log(10)(p-value)",
                        title = "") +
                   guides(colour = guide_legend(title = "Sample"),
@@ -127,7 +131,7 @@ ggplot(pydamage, aes(x = damage_model_pmax, y = log,
 #ggplotly(pydamage_plot, tooltip = "all") 
 ```
 
-**Damage profiler**
+# Damage profiler
 
 **Figure 5. Individual damage plots with 5' end (left) and 3' end (right)**
 
@@ -135,7 +139,7 @@ ggplot(pydamage, aes(x = damage_model_pmax, y = log,
 
 damage <- read.csv("coproid.damageprofiler_merged_report.csv", header = TRUE, sep = "")
 colnames(damage) <- gsub("X", "", colnames(damage))
-damage$reference <- gsub("_", " ", damage$reference)
+damage$Reference <- gsub("_", " ", damage$Reference)
 
 damage_long <- damage %>%
   gather(key = "position", value = "value", 
@@ -147,13 +151,14 @@ damage_long <- damage_long %>%
 
 # Create the plot for each sample with 5pCtoT on the left and 3pGtoA on the right
 damage_plot <- ggplot(damage_long, aes(x = position, y = value, 
-                    color = reference, group = reference)) +
+                    color = Reference, group = Reference)) +
   geom_line() +
-  facet_grid(sample ~ prime_end, scales = "free_x") +
+  facet_grid(Sample ~ prime_end, scales = "free_x") +
   theme_minimal() +
   scale_colour_brewer(palette = "Set2") +
-  theme(strip.text.x = element_text(size = 12, face = "bold")) +
-  theme(strip.text.y = element_text(size = 10, face = "bold"))
+  labs(x = "Distance (bp)", y = "Deamination frequency") +
+  theme(panel.spacing = unit(1, "lines")) +
+  theme(strip.text.y = element_text(angle = 0, size = 8))
 
 # Set scales for each subplot
 position_scales <- list(
