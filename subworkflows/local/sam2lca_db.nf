@@ -5,6 +5,7 @@ include { SAM2LCA_UPDATEDB } from '../../modules/local/sam2lca/updatedb/main'
 workflow SAM2LCA_DB {
     take:
         genomes // meta, fasta
+        taxonomy_db_name // value
         taxo_nodes // nodes.dmp
         taxo_names // names.dmp
         taxo_merged // merged.dmp
@@ -21,7 +22,7 @@ workflow SAM2LCA_DB {
 
         SAM2LCA_UPDATEDB(
             "adnamap",
-            "ncbi_local",
+            taxonomy_db_name,
             taxo_nodes,
             taxo_names,
             taxo_merged,

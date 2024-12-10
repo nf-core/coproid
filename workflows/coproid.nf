@@ -7,21 +7,12 @@
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { FASTP                  } from '../modules/nf-core/fastp/main'
-include { BOWTIE2_BUILD          } from '../modules/nf-core/bowtie2/build/main'
-include { BOWTIE2_ALIGN          } from '../modules/nf-core/bowtie2/align/main'
-include { SAMTOOLS_INDEX         } from '../modules/nf-core/samtools/index/main'
 include { SAM2LCA_ANALYZE        } from '../modules/nf-core/sam2lca/analyze/main'
 include { DAMAGEPROFILER         } from '../modules/nf-core/damageprofiler/main'
 include { PYDAMAGE_ANALYZE       } from '../modules/nf-core/pydamage/analyze/main'
-include { BBMAP_BBDUK            } from '../modules/nf-core/bbmap/bbduk/main'
-include { KRAKEN2_KRAKEN2        } from '../modules/nf-core/kraken2/kraken2/main'
-include { KRAKEN_PARSE           } from '../modules/local/kraken_parse'
-include { KRAKEN_MERGE           } from '../modules/local/kraken_merge' 
 include { SAM2LCA_MERGE          } from '../modules/local/sam2lca_merge' 
 include { PYDAMAGE_MERGE         } from '../modules/local/pydamage_merge' 
 include { DAMAGEPROFILER_MERGE   } from '../modules/local/damageprofiler_merge' 
-include { SOURCEPREDICT          } from '../modules/nf-core/sourcepredict/main'
-include { QUARTONOTEBOOK         } from '../modules/nf-core/quartonotebook/main'   
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -43,13 +34,9 @@ include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporti
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-if (params.genome_sheet)              { ch_genomes    = Channel.fromPath(params.genome_sheet) } else { error("Genomes sheet not specified!") }
+if (params.genome_sheet)              { ch_size    = file(params.genome_sheet) } else { error("Genomes sheet not specified!") }
 if (params.sam2lca_db  )              { ch_sam2lca_db = file(params.sam2lca_db) } else { error("SAM2LCA database path not specified!") }
 if (params.kraken2_db  )              { ch_kraken2_db = file(params.kraken2_db) } else { error("Kraken2 database path not specified!") }
-//if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
-//if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
-//if (params.taxa_sqlite )              { ch_taxa_sqlite = file(params.taxa_sqlite) } else { error("Ete3 taxa.sqlite file not specified!") }
-//if (params.taxa_sqlite_traverse_pkl ) { ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) } else { error("Ete3 taxa.sqlite.traverse file not specified!") }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,7 +109,7 @@ workflow COPROID {
                 genome_index,
                 genome_fasta
             ]
-        } //.dump(tag: 'reads_genomes')
+        } 
         .set { ch_reads_genomes_index }
 
     ALIGN_INDEX (
@@ -140,12 +127,7 @@ workflow COPROID {
     ch_versions = ch_versions.mix(DAMAGEPROFILER.out.versions.first())
     ch_multiqc_files = ch_multiqc_files.mix(DAMAGEPROFILER.out.results.collect{it[1]})
 
-//    DAMAGEPROFILER.out.results.collect({it[1]})
-//    .dump(tag: 'damageprofiler_reports')
-//    .set { damageprofiler_reports }
-
     DAMAGEPROFILER.out.results.collect({it[1]})
-    .dump(tag: 'damageprofiler_reports')
     .set { damageprofiler_reports }
 
     DAMAGEPROFILER_MERGE(
@@ -156,7 +138,7 @@ workflow COPROID {
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name, 'genome_name':meta.genome_name], bam, bai] // meta.id, bam
-    } //.dump(tag: 'aligned_index')
+    }
     .set { aligned_index }
 
     PYDAMAGE_ANALYZE (
@@ -165,7 +147,6 @@ workflow COPROID {
     ch_versions = ch_versions.mix(PYDAMAGE_ANALYZE.out.versions.first())
 
     PYDAMAGE_ANALYZE.out.csv.collect({it[1]})
-//    .dump(tag: 'pydamage_reports')
     .set { pydamage_reports }
 
     PYDAMAGE_MERGE (
@@ -177,7 +158,7 @@ workflow COPROID {
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name], bam] // meta.id, bam
-    }.groupTuple() //.dump(tag: 'bams_synced')
+    }.groupTuple()
     .set { bams_synced }
 
     // SUBWORKFLOW: sort indices
@@ -186,14 +167,15 @@ workflow COPROID {
     )
     ch_versions = ch_versions.mix(MERGE_SORT_INDEX_SAMTOOLS.out.versions.first())
 
-//    SAM2LCA_DB(
-//        PREPARE_GENOMES.out.genomes.map {
-//            meta, fasta, index -> [meta, fasta]
-//        },
-//        [],
-//        [],
-//        []
-//    )
+    SAM2LCA_DB(
+        PREPARE_GENOMES.out.genomes.map {
+            meta, fasta, index -> [meta, fasta]
+        },
+        "ncbi",
+        [],
+        [],
+        []
+    )
 
     //
     // MODULE: Run sam2lca
@@ -230,6 +212,7 @@ workflow COPROID {
             KRAKEN2_CLASSIFICATION.out.sp_embedding.collectFile{it[1]},
             PYDAMAGE_MERGE.out.pydamage_merged_report,
             DAMAGEPROFILER_MERGE.out.damageprofiler_merged_report
+//            ch_size
         ).toList().dump(tag: 'quarto_input')
 
     //
