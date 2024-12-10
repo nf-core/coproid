@@ -17,6 +17,7 @@ include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_coproid_pipeline'
+include { UNTAR                  } from '../modules/nf-core/untar/main'   
 
 //
 // SUBWORKFLOWS: Consisting of a mix of local and nf-core/modules

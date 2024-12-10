@@ -2,6 +2,7 @@ include { KRAKEN2_KRAKEN2 } from '../../modules/nf-core/kraken2/kraken2/main'
 include { KRAKEN_PARSE    } from '../../modules/local/kraken_parse'
 include { KRAKEN_MERGE    } from '../../modules/local/kraken_merge'
 include { SOURCEPREDICT   } from '../../modules/nf-core/sourcepredict/main'
+include { UNTAR           } from '../../modules/nf-core/untar/main'     
 
 if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
 if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
@@ -12,11 +13,31 @@ workflow KRAKEN2_CLASSIFICATION {
     take:
         reads
         kraken2_db
+
     main:
         ch_versions = Channel.empty()
+
+    if (kraken2_db.name.endsWith( ".tar.gz" )) {
+            Channel
+            .value(kraken2_db)
+            .map {
+                kraken2_db -> [
+                    ['id' : 'kraken2_database'], 
+                    kraken2_db
+                    ] 
+                }.dump( tag : 'database')
+                .set { archive }
+
+            UNTAR ( archive )
+            database = UNTAR.out.untar.collect{ it[1] }
+
+    } else {
+            database = kraken2_db
+    }
+
         KRAKEN2_KRAKEN2(
             reads,
-            kraken2_db,
+            database,
             false,
             false
         )
@@ -40,7 +61,7 @@ workflow KRAKEN2_CLASSIFICATION {
                 ],
             kraken_merged_report
             ]
-        } //.dump(tag: 'kraken_tuple')
+        }
         .set { ch_kraken_merged }
 
     //
