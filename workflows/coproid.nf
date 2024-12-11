@@ -35,8 +35,6 @@ include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporti
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-if (params.genome_sheet)              { ch_size    = file(params.genome_sheet) } else { error("Genomes sheet not specified!") }
-if (params.sam2lca_db  )              { ch_sam2lca_db = file(params.sam2lca_db) } else { error("SAM2LCA database path not specified!") }
 if (params.kraken2_db  )              { ch_kraken2_db = file(params.kraken2_db) } else { error("Kraken2 database path not specified!") }
 
 /*
@@ -168,15 +166,21 @@ workflow COPROID {
     )
     ch_versions = ch_versions.mix(MERGE_SORT_INDEX_SAMTOOLS.out.versions.first())
 
-    SAM2LCA_DB(
-        PREPARE_GENOMES.out.genomes.map {
-            meta, fasta, index -> [meta, fasta]
-        },
-        "ncbi",
-        [],
-        [],
-        []
-    )
+    // Prepare SAM2LCA database channel
+    if (!params.sam2lca_db ) { 
+        SAM2LCA_DB(
+            PREPARE_GENOMES.out.genomes.map {
+                meta, fasta, index -> [meta, fasta]
+                },
+                "ncbi",
+                [],
+                [],
+                []
+            )
+        ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db
+    } else {
+        ch_sam2lca_db = file(params.sam2lca_db) 
+    }
 
     //
     // MODULE: Run sam2lca
@@ -185,8 +189,8 @@ workflow COPROID {
         MERGE_SORT_INDEX_SAMTOOLS.out.bam.join(
             MERGE_SORT_INDEX_SAMTOOLS.out.bai
         ),
+       ch_sam2lca_db
 //        SAM2LCA_DB.out.sam2lca_db
-        ch_sam2lca_db
     )
     ch_sam2lca = SAM2LCA_ANALYZE.out.csv
     ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())
@@ -208,12 +212,14 @@ workflow COPROID {
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_CLASSIFICATION.out.kraken_report.collect{it[1]})
     ch_versions = ch_versions.mix(KRAKEN2_CLASSIFICATION.out.versions.first())
  
+    ch_genome_meta = Channel.fromPath(params.genome_sheet)
+
     ch_quarto = SAM2LCA_MERGE.out.sam2lca_merged_report.mix(
             KRAKEN2_CLASSIFICATION.out.sp_report.collectFile{it[1]},
             KRAKEN2_CLASSIFICATION.out.sp_embedding.collectFile{it[1]},
             PYDAMAGE_MERGE.out.pydamage_merged_report,
-            DAMAGEPROFILER_MERGE.out.damageprofiler_merged_report
-//            ch_size
+            DAMAGEPROFILER_MERGE.out.damageprofiler_merged_report,
+            ch_genome_meta
         ).toList().dump(tag: 'quarto_input')
 
     //

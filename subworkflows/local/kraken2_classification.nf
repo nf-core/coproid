@@ -3,6 +3,7 @@ include { KRAKEN_PARSE    } from '../../modules/local/kraken_parse'
 include { KRAKEN_MERGE    } from '../../modules/local/kraken_merge'
 include { SOURCEPREDICT   } from '../../modules/nf-core/sourcepredict/main'
 include { UNTAR           } from '../../modules/nf-core/untar/main'     
+include { XZ_DECOMPRESS   } from '../../modules/nf-core/xz/decompress/main' 
 
 if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
 if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
@@ -25,7 +26,7 @@ workflow KRAKEN2_CLASSIFICATION {
                     ['id' : 'kraken2_database'], 
                     kraken2_db
                     ] 
-                }.dump( tag : 'database')
+                }
                 .set { archive }
 
             UNTAR ( archive )
@@ -64,6 +65,23 @@ workflow KRAKEN2_CLASSIFICATION {
         }
         .set { ch_kraken_merged }
 
+    if (ch_taxa_sqlite.name.endsWith( ".xz" )) {
+            Channel
+            .value(ch_taxa_sqlite)
+            .map {
+                ch_taxa_sqlite -> [
+                    ['id' : 'taxa_sqlite'], 
+                    ch_taxa_sqlite
+                    ] 
+                }.dump( tag : 'sqlite')
+                .set { xz_archive }
+
+            XZ_DECOMPRESS ( xz_archive )
+            sqlite = XZ_DECOMPRESS.out.file.collect{ it[1] }
+    } else {
+            sqlite = ch_taxa_sqlite
+    }
+    
     //
     // MODULE: Run sourcepredict
     //
@@ -71,7 +89,7 @@ workflow KRAKEN2_CLASSIFICATION {
         ch_kraken_merged,
         ch_sp_sources,
         ch_sp_labels,
-        ch_taxa_sqlite,
+        sqlite,
         ch_sqlite_traverse,
         true
     )
