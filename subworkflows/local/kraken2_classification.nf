@@ -7,7 +7,6 @@ include { XZ_DECOMPRESS   } from '../../modules/nf-core/xz/decompress/main'
 
 if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
 if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
-if (params.taxa_sqlite )              { ch_taxa_sqlite = file(params.taxa_sqlite) } else { error("Ete3 taxa.sqlite file not specified!") }
 if (params.taxa_sqlite_traverse_pkl ) { ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) } else { error("Ete3 taxa.sqlite.traverse file not specified!") }
 
 workflow KRAKEN2_CLASSIFICATION {
@@ -53,7 +52,7 @@ workflow KRAKEN2_CLASSIFICATION {
 
         // ch_versions = ch_versions.mix(KRAKEN_MERGE.out.versions.first())
 
-    KRAKEN_MERGE.out.kraken_merged_report //.dump(tag: 'kraken_parse')
+    KRAKEN_MERGE.out.kraken_merged_report
         .map { 
         kraken_merged_report ->
             [
@@ -65,21 +64,16 @@ workflow KRAKEN2_CLASSIFICATION {
         }
         .set { ch_kraken_merged }
 
-    if (ch_taxa_sqlite.name.endsWith( ".xz" )) {
-            Channel
-            .value(ch_taxa_sqlite)
-            .map {
-                ch_taxa_sqlite -> [
-                    ['id' : 'taxa_sqlite'], 
-                    ch_taxa_sqlite
-                    ] 
-                }.dump( tag : 'sqlite')
-                .set { xz_archive }
+    if (file(params.taxa_sqlite).name.endsWith( ".xz" )) {
 
-            XZ_DECOMPRESS ( xz_archive )
-            sqlite = XZ_DECOMPRESS.out.file.collect{ it[1] }
+            XZ_DECOMPRESS ( [
+                    [],
+                    file(params.taxa_sqlite) ]
+                )
+            sqlite = XZ_DECOMPRESS.out.file.map{ it[1] }
+            
     } else {
-            sqlite = ch_taxa_sqlite
+            sqlite = file(params.taxa_sqlite)
     }
     
     //

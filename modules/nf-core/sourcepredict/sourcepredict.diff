@@ -19,9 +19,12 @@ Changes in 'sourcepredict/meta.yml':
 Changes in 'sourcepredict/main.nf':
 --- modules/nf-core/sourcepredict/main.nf
 +++ modules/nf-core/sourcepredict/main.nf
-@@ -13,10 +13,12 @@
+@@ -11,12 +11,14 @@
+     tuple val(meta), path(kraken_parse)
+     path sources
      path labels
-     path(taxa_sqlite, stageAs: '.etetoolkit/*')
+-    path(taxa_sqlite, stageAs: '.etetoolkit/*')
++    path(taxa_sqlite, stageAs: '.etetoolkit/taxa.sqlite')
      path(taxa_sqlite_traverse_pkl, stageAs: '.etetoolkit/*')
 +    val save_embedding
  

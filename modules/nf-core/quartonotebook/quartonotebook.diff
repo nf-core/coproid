@@ -10,7 +10,7 @@ Changes in 'quartonotebook/main.nf':
      // you can see an example in this module's Dockerfile.
 -    container "docker.io/erikfas/quartonotebook"
 +
-+    container = 'library://meriamos/coproid/quarto_container'
++    container = 'library://meriamos/coproid/quarto_container:latest'
 + //   container "docker.io/erikfas/quartonotebook"
  
      input:

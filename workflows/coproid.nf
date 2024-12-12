@@ -16,8 +16,7 @@ include { DAMAGEPROFILER_MERGE   } from '../modules/local/damageprofiler_merge'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_coproid_pipeline'
-include { UNTAR                  } from '../modules/nf-core/untar/main'   
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_coproid_pipeline' 
 
 //
 // SUBWORKFLOWS: Consisting of a mix of local and nf-core/modules
@@ -177,7 +176,7 @@ workflow COPROID {
                 [],
                 []
             )
-        ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db
+        ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db.collect()
     } else {
         ch_sam2lca_db = file(params.sam2lca_db) 
     }
@@ -190,12 +189,11 @@ workflow COPROID {
             MERGE_SORT_INDEX_SAMTOOLS.out.bai
         ),
        ch_sam2lca_db
-//        SAM2LCA_DB.out.sam2lca_db
     )
     ch_sam2lca = SAM2LCA_ANALYZE.out.csv
     ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())
 
-    SAM2LCA_ANALYZE.out.csv.collect({it[1]}).dump(tag: 'sam2lca_reports')
+    SAM2LCA_ANALYZE.out.csv.collect({it[1]})
     .set { sam2lca_reports }
 
     SAM2LCA_MERGE (
@@ -211,16 +209,15 @@ workflow COPROID {
     )
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_CLASSIFICATION.out.kraken_report.collect{it[1]})
     ch_versions = ch_versions.mix(KRAKEN2_CLASSIFICATION.out.versions.first())
- 
-    ch_genome_meta = Channel.fromPath(params.genome_sheet)
 
+    // Collect all files for quarto
     ch_quarto = SAM2LCA_MERGE.out.sam2lca_merged_report.mix(
             KRAKEN2_CLASSIFICATION.out.sp_report.collectFile{it[1]},
             KRAKEN2_CLASSIFICATION.out.sp_embedding.collectFile{it[1]},
             PYDAMAGE_MERGE.out.pydamage_merged_report,
             DAMAGEPROFILER_MERGE.out.damageprofiler_merged_report,
-            ch_genome_meta
-        ).toList().dump(tag: 'quarto_input')
+            Channel.fromPath(params.genome_sheet)
+        ).toList()
 
     //
     // SUBWORKFLOW: quarto reporting

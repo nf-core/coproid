@@ -30,7 +30,7 @@ workflow QUARTO_REPORTING {
                 ],
             coproid_notebook
             ]
-        }.dump(tag: 'quarto_notebook') 
+        }
         .set { ch_coproid_notebook }
 
     QUARTONOTEBOOK (
