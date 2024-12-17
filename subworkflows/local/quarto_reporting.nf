@@ -16,7 +16,7 @@ workflow QUARTO_REPORTING {
     //
     // Quarto reports and extension files
     //
-    coproid_notebook = file("${projectDir}/bin/coproid_test_report.qmd", checkIfExists: true) 
+    coproid_notebook = file("${projectDir}/bin/coproid_quarto_report.qmd", checkIfExists: true) 
     extensions = Channel.fromPath("${projectDir}/assets/_extensions").collect()
 
     // Create a channel from the file

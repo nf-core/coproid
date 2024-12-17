@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["input", "genome_sheet", "outdir"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -72,6 +72,50 @@
         }
     ],
     "properties": {
+        "file_prefix": {
+            "type": "string",
+            "default": "'coproid'",
+            "description": "Used as a prefix for (merged) output reports"
+        },
+        "kraken2_db": {
+            "type": "string",
+            "description": "Path to a kraken2 database, can be a directory or *.tar.gz"
+        },
+        "sp_sources": {
+            "type": "string",
+            "description": "Sources TAXID count table in csv format for sourcepredict"
+        },
+        "sp_labels": {
+            "type": "string",
+            "description": "Labels for the sources table in csv format for sourcepredict"
+        },
+        "taxa_sqlite": {
+            "type": "string",
+            "default": "params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite.xz'",
+            "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite file, if not supplied it will be pulled from the test-data repository"
+        },
+        "taxa_sqlite_traverse_pkl": {
+            "type": "string",
+            "default": "params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl'",
+            "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite.traverse.pkl file, if not supplied it will be pulled from the test-data repository"
+        },
+        "sam2lca_db": {
+            "type": "string",
+            "description": "Path to pre-downloaded ~/.sam2lca directory, if not supplied a local database will be build from the reference genomes"
+        },
+        "sam2lca_acc2tax": {
+            "type": "string",
+            "default": "'adnamap'",
+            "description": "Sam2lca parameter --acc2tax, use default 'adnamap' when no sam2lca_db is supplied, change accordingly for sam2lca_db (e.g. 'nucl')"
+        },
+        "sam2lca_identity": {
+            "type": "number",
+            "default": 0.9,
+            "description": "Set the sam2lca --identity parameter"
+        },
+        "multiqc_logo": {
+            "type": "string"
+        },
         "igenomes_base": {
             "type": "string",
             "default": "s3://ngi-igenomes/igenomes/"
@@ -80,32 +124,12 @@
             "type": "boolean",
             "default": true
         },
-        "sam2lca_db": {
-            "type": "string"
-        },
-        "kraken2_db": {
-            "type": "string"
-        },
-        "sp_sources": {
-            "type": "string"
-        },
-        "sp_labels": {
-            "type": "string"
-        },
-        "taxa_sqlite": {
-            "type": "string"
-        },
-        "taxa_sqlite_traverse_pkl": {
-            "type": "string"
-        },
         "multiqc_config": {
             "type": "string"
         },
         "multiqc_title": {
-            "type": "string"
-        },
-        "multiqc_logo": {
-            "type": "string"
+            "type": "string",
+            "default": "coproid"
         },
         "max_multiqc_email_size": {
             "type": "string",
@@ -162,5 +186,5 @@
             "type": "string"
         }
     },
-    "required": ["genome_sheet"]
+    "required": ["kraken2_db", "sp_sources", "sp_labels"]
 }

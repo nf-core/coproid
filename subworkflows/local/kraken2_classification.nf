@@ -29,7 +29,7 @@ workflow KRAKEN2_CLASSIFICATION {
                 .set { archive }
 
             UNTAR ( archive )
-            database = UNTAR.out.untar.collect{ it[1] }
+            database = UNTAR.out.untar.map{ it -> it[1] }
 
     } else {
             database = kraken2_db

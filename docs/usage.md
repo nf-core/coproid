@@ -10,10 +10,20 @@
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use ```bash --input ``` to specify its location. It has to be a comma-separated file with 3 columns, with the following header:
 
-```bash
---input '[path to samplesheet file]'
+```bash sample,fastq_1,fastq_2 ```
+
+### Full samplesheet
+
+The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+
+```csv title="samplesheet.csv"
+sample,fastq_1,fastq_2
+PAIRED_END,PAIRED_END_S1_L002_R1_001.fastq.gz,PAIRED_END_S1_L002_R2_001.fastq.gz
+SINGLE_END,SINGLE_END_S4_L003_R1_001.fastq.gz,
 ```
 
 ### Multiple runs of the same sample
@@ -27,23 +37,6 @@ CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
 CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 ```
 
-### Full samplesheet
-
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
-
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
-
-```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
-```
-
 | Column    | Description                                                                                                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
@@ -52,12 +45,43 @@ TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
+## Genomesheet input
+
+You will need to create a genomesheet with information about the genomes you want your samples to be mapped against. Use ```bash --genome_sheet ``` to specify its location. It has to be a comma-separated file with 6 columns, with the following header:
+
+```bash 
+genome_name,taxid,genome_size,igenome,fasta,index
+```
+
+### Example genomesheet
+
+**! Make sure that your reference genomes are from ncbi, so sam2lca can extract the taxid !**
+
+When no index is provided, a bowtie2 index will be build.
+
+```csv title="genomesheet.csv"
+genome_name,taxid,genome_size,igenome,fasta,index
+Escherichia_coli,562,5000000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/ecoli/genome.fa,
+Bacillus_subtilis,1423,4200000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/bsubtilis/genome.fa,
+```
+
+Description                                                                                                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `genome_name`  | Name of reference species. Spaces in sample names are automatically converted to underscores (`_`). |
+| `taxid` | TAXID of reference genome. |
+| `genome_size` | The size of the refernce genome in bp. This is used to normalise the mapped number of reads per reference genome. |
+| `igenome`  | iGenome accession name if no fasta is provided. |
+| `fasta` | Full path to reference genome file. |
+| `index` | Path to the directory where the reference genome bowtie2 indices are stored. |
+
+An [example genomesheet](../assets/genomeheet.csv) has been provided with the pipeline.
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/coproid --input ./samplesheet.csv --outdir ./results --genome GRCh37 -profile docker
+nextflow run nf-core/coproid --input ./samplesheet.csv --genomesheet ./genomesheet.csv --outdir ./results -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.

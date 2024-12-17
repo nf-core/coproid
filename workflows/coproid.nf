@@ -176,9 +176,9 @@ workflow COPROID {
                 [],
                 []
             )
-        ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db.collect()
+        ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db.first()
     } else {
-        ch_sam2lca_db = file(params.sam2lca_db) 
+        ch_sam2lca_db = Channel.fromPath(params.sam2lca_db).first() 
     }
 
     //
@@ -210,22 +210,6 @@ workflow COPROID {
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_CLASSIFICATION.out.kraken_report.collect{it[1]})
     ch_versions = ch_versions.mix(KRAKEN2_CLASSIFICATION.out.versions.first())
 
-    // Collect all files for quarto
-    ch_quarto = SAM2LCA_MERGE.out.sam2lca_merged_report.mix(
-            KRAKEN2_CLASSIFICATION.out.sp_report.collectFile{it[1]},
-            KRAKEN2_CLASSIFICATION.out.sp_embedding.collectFile{it[1]},
-            PYDAMAGE_MERGE.out.pydamage_merged_report,
-            DAMAGEPROFILER_MERGE.out.damageprofiler_merged_report,
-            Channel.fromPath(params.genome_sheet)
-        ).toList()
-
-    //
-    // SUBWORKFLOW: quarto reporting
-    //
-    QUARTO_REPORTING (
-        ch_quarto
-    )
-
     //
     // Collate and save software versions
     //
@@ -236,6 +220,23 @@ workflow COPROID {
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
+
+    // Collect all files for quarto
+    ch_quarto = SAM2LCA_MERGE.out.sam2lca_merged_report.mix(
+            KRAKEN2_CLASSIFICATION.out.sp_report.collectFile{it[1]},
+            KRAKEN2_CLASSIFICATION.out.sp_embedding.collectFile{it[1]},
+            PYDAMAGE_MERGE.out.pydamage_merged_report,
+            DAMAGEPROFILER_MERGE.out.damageprofiler_merged_report,
+            Channel.fromPath(params.genome_sheet),
+            ch_collated_versions
+        ).toList()
+
+    //
+    // SUBWORKFLOW: quarto reporting
+    //
+    QUARTO_REPORTING (
+        ch_quarto
+    )
 
     //
     // MODULE: MultiQC
