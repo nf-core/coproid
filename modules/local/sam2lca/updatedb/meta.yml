@@ -20,43 +20,43 @@ tools:
       identifier: ""
 
 input:
-  -  - acc2tax_name:
+  - - acc2tax_name:
         type: string
         description: Name of accession2taxid type to use
-  -  - taxo_db_name:
+  - - taxo_db_name:
         type: string
         description: Name of taxonomy dabase type to use
-  -  - taxo_nodes:
+  - - taxo_nodes:
         type: file
         description: "NCBI taxonomy nodes file"
         pattern: "*.dmp"
         ontologies:
           - edam: http://edamontology.org/format_2330
-  -  - taxo_names:
+  - - taxo_names:
         type: file
         description: NCBI taxonomy names file
         pattern: "*.dmp"
         ontologies:
           - edam: http://edamontology.org/format_2330
-  -  - taxo_merged:
+  - - taxo_merged:
         type: file
         description: NCBI taxonomy merged file
         pattern: "*.dmp"
         ontologies:
           - edam: http://edamontology.org/format_2330
-  -  - acc2tax_json:
+  - - acc2tax_json:
         type: file
         description: JSON file listing accession2taxid mapping files. Only required if using a custom database
         pattern: "*.json"
         ontologies:
           - edam: "http://edamontology.org/format_3464"
-  -  - acc2tax:
+  - - acc2tax:
         type: string
         description: accession2taxid mapping file compressed with gzip. Only required if using a custom database
         pattern: "*.gz"
         ontologies:
           - edam: http://edamontology.org/format_3989
-  -  - acc2tax_md5:
+  - - acc2tax_md5:
         type: file
         description: MD5 checksum of the accession2taxid mapping file. Only required if using a custom database
         pattern: "*.md5"
@@ -65,14 +65,14 @@ input:
 
 output:
   - sam2lca_db:
-    - sam2lca_db:
-        type: directory
-        description: "sam2lca database"
+      - sam2lca_db:
+          type: directory
+          description: "sam2lca database"
   - versions:
-    - "versions.yml":
-        type: file
-        description: File containing software versions
-        pattern: "versions.yml"
+      - "versions.yml":
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
 
 authors:
   - "@maxibor"

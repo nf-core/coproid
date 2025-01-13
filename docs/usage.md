@@ -10,9 +10,9 @@
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use ```bash --input ``` to specify its location. It has to be a comma-separated file with 3 columns, with the following header:
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use `bash --input ` to specify its location. It has to be a comma-separated file with 3 columns, with the following header:
 
-```bash sample,fastq_1,fastq_2 ```
+`bash sample,fastq_1,fastq_2 `
 
 ### Full samplesheet
 
@@ -47,9 +47,9 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 
 ## Genomesheet input
 
-You will need to create a genomesheet with information about the genomes you want your samples to be mapped against. Use ```bash --genome_sheet ``` to specify its location. It has to be a comma-separated file with 6 columns, with the following header:
+You will need to create a genomesheet with information about the genomes you want your samples to be mapped against. Use `bash --genome_sheet ` to specify its location. It has to be a comma-separated file with 6 columns, with the following header:
 
-```bash 
+```bash
 genome_name,taxid,genome_size,igenome,fasta,index
 ```
 
@@ -65,14 +65,14 @@ Escherichia_coli,562,5000000,,https://github.com/nf-core/test-datasets/raw/copro
 Bacillus_subtilis,1423,4200000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/bsubtilis/genome.fa,
 ```
 
-Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `genome_name`  | Name of reference species. Spaces in sample names are automatically converted to underscores (`_`). |
-| `taxid` | TAXID of reference genome. |
+| Description   |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `genome_name` | Name of reference species. Spaces in sample names are automatically converted to underscores (`_`).               |
+| `taxid`       | TAXID of reference genome.                                                                                        |
 | `genome_size` | The size of the refernce genome in bp. This is used to normalise the mapped number of reads per reference genome. |
-| `igenome`  | iGenome accession name if no fasta is provided. |
-| `fasta` | Full path to reference genome file. |
-| `index` | Path to the directory where the reference genome bowtie2 indices are stored. |
+| `igenome`     | iGenome accession name if no fasta is provided.                                                                   |
+| `fasta`       | Full path to reference genome file.                                                                               |
+| `index`       | Path to the directory where the reference genome bowtie2 indices are stored.                                      |
 
 An [example genomesheet](../assets/genomeheet.csv) has been provided with the pipeline.
 
