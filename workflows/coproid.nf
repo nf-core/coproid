@@ -10,9 +10,9 @@ include { FASTP                  } from '../modules/nf-core/fastp/main'
 include { SAM2LCA_ANALYZE        } from '../modules/nf-core/sam2lca/analyze/main'
 include { DAMAGEPROFILER         } from '../modules/nf-core/damageprofiler/main'
 include { PYDAMAGE_ANALYZE       } from '../modules/nf-core/pydamage/analyze/main'
-include { SAM2LCA_MERGE          } from '../modules/local/sam2lca_merge' 
-include { PYDAMAGE_MERGE         } from '../modules/local/pydamage_merge' 
-include { DAMAGEPROFILER_MERGE   } from '../modules/local/damageprofiler_merge' 
+include { SAM2LCA_MERGE          } from '../modules/local/sam2lca/merge/main' 
+include { PYDAMAGE_MERGE         } from '../modules/local/pydamage/merge/main' 
+include { DAMAGEPROFILER_MERGE   } from '../modules/local/damageprofiler/merge/main' 
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -21,12 +21,12 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_copr
 //
 // SUBWORKFLOWS: Consisting of a mix of local and nf-core/modules
 //
-include { PREPARE_GENOMES           } from '../subworkflows/local/prepare_genome_indices'
-include { SAM2LCA_DB                } from '../subworkflows/local/sam2lca_db'
-include { ALIGN_INDEX               } from '../subworkflows/local/align_index'
-include { MERGE_SORT_INDEX_SAMTOOLS } from '../subworkflows/local/merge_sort_index_samtools'
-include { KRAKEN2_CLASSIFICATION    } from '../subworkflows/local/kraken2_classification'
-include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporting'
+include { PREPARE_GENOMES           } from '../subworkflows/local/prepare_genome_indices/main'
+include { SAM2LCA_DB                } from '../subworkflows/local/sam2lca_db/main'
+include { ALIGN_INDEX               } from '../subworkflows/local/align_index/main'
+include { MERGE_SORT_INDEX_SAMTOOLS } from '../subworkflows/local/merge_sort_index_samtools/main'
+include { KRAKEN2_CLASSIFICATION    } from '../subworkflows/local/kraken2_classification/main'
+include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporting/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

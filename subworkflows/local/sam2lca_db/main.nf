@@ -1,4 +1,4 @@
-include { CREATE_ACC2TAX } from '../../modules/local/create_acc2tax'
+include { CREATE_ACC2TAX } from '../../modules/local/create_acc2tax/main'
 include { SAM2LCA_PREPDB } from '../../modules/local/sam2lca/prep_db/main'
 include { SAM2LCA_UPDATEDB } from '../../modules/local/sam2lca/updatedb/main'
 

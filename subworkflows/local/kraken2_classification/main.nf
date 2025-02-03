@@ -1,6 +1,6 @@
 include { KRAKEN2_KRAKEN2 } from '../../modules/nf-core/kraken2/kraken2/main'
-include { KRAKEN_PARSE    } from '../../modules/local/kraken_parse'
-include { KRAKEN_MERGE    } from '../../modules/local/kraken_merge'
+include { KRAKEN_PARSE    } from '../../modules/local/kraken/parse/main'
+include { KRAKEN_MERGE    } from '../../modules/local/kraken/merge/main'
 include { SOURCEPREDICT   } from '../../modules/nf-core/sourcepredict/main'
 include { UNTAR           } from '../../modules/nf-core/untar/main'     
 include { XZ_DECOMPRESS   } from '../../modules/nf-core/xz/decompress/main' 
