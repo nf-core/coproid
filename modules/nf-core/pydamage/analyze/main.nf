@@ -26,7 +26,7 @@ process PYDAMAGE_ANALYZE {
         $args \\
         -p $task.cpus \\
         $bam
-    
+
     mv pydamage_results/pydamage_results.csv pydamage_results/${prefix}_pydamage_results.csv
 
     cat <<-END_VERSIONS > versions.yml
