@@ -1,4 +1,4 @@
-include { BOWTIE2_BUILD } from '../../modules/nf-core/bowtie2/build/main'
+include { BOWTIE2_BUILD } from '../../../modules/nf-core/bowtie2/build/main'
 
 workflow PREPARE_GENOMES {
     take:

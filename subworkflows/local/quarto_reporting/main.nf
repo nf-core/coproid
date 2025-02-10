@@ -2,7 +2,7 @@
 // Subworkflow for quarto reporting
 //
 
-include { QUARTONOTEBOOK  } from '../../modules/nf-core/quartonotebook/main'
+include { QUARTONOTEBOOK  } from '../../../modules/nf-core/quartonotebook/main'
 
 workflow QUARTO_REPORTING {
 

@@ -1,6 +1,6 @@
-include { SAMTOOLS_MERGE } from  '../../modules/nf-core/samtools/merge/main'
-include { SAMTOOLS_SORT  } from  '../../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX } from  '../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_MERGE } from  '../../../modules/nf-core/samtools/merge/main'
+include { SAMTOOLS_SORT  } from  '../../../modules/nf-core/samtools/sort/main'
+include { SAMTOOLS_INDEX } from  '../../../modules/nf-core/samtools/index/main'
 
 workflow MERGE_SORT_INDEX_SAMTOOLS {
     take:

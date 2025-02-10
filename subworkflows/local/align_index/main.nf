@@ -1,5 +1,5 @@
-include { BOWTIE2_ALIGN } from '../../modules/nf-core/bowtie2/align/main'
-include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main'
+include { BOWTIE2_ALIGN } from '../../../modules/nf-core/bowtie2/align/main'
+include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index/main'
 
 workflow ALIGN_INDEX {
     take:

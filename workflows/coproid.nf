@@ -181,7 +181,7 @@ workflow COPROID {
         ch_sam2lca_db = Channel.fromPath(params.sam2lca_db).first()
     }
 
-    ch_versions = ch_versions.mix(SAM2LCA_DB.out.versions.first())
+//    ch_versions = ch_versions.mix(SAM2LCA_DB.out.versions.first())
 
     //
     // MODULE: Run sam2lca
@@ -276,7 +276,9 @@ workflow COPROID {
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
         ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
+        ch_multiqc_logo.toList(),
+        [],
+        []
     )
 
     emit:

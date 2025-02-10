@@ -1,9 +1,9 @@
-include { KRAKEN2_KRAKEN2 } from '../../modules/nf-core/kraken2/kraken2/main'
-include { KRAKEN_PARSE    } from '../../modules/local/kraken/parse/main'
-include { KRAKEN_MERGE    } from '../../modules/local/kraken/merge/main'
-include { SOURCEPREDICT   } from '../../modules/nf-core/sourcepredict/main'
-include { UNTAR           } from '../../modules/nf-core/untar/main'
-include { XZ_DECOMPRESS   } from '../../modules/nf-core/xz/decompress/main'
+include { KRAKEN2_KRAKEN2 } from '../../../modules/nf-core/kraken2/kraken2/main'
+include { KRAKEN_PARSE    } from '../../../modules/local/kraken/parse/main'
+include { KRAKEN_MERGE    } from '../../../modules/local/kraken/merge/main'
+include { SOURCEPREDICT   } from '../../../modules/nf-core/sourcepredict/main'
+include { UNTAR           } from '../../../modules/nf-core/untar/main'
+include { XZ_DECOMPRESS   } from '../../../modules/nf-core/xz/decompress/main'
 
 if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
 if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
@@ -52,8 +52,8 @@ workflow KRAKEN2_CLASSIFICATION {
 
         KRAKEN_MERGE(kraken_read_count)
 
-    ch_versions = ch_versions.mix(KRAKEN_MERGE.out.versions.first())
-    ch_versions = ch_versions.mix(KRAKEN_PARSE.out.versions.first())
+//    ch_versions = ch_versions.mix(KRAKEN_MERGE.out.versions.first())
+//    ch_versions = ch_versions.mix(KRAKEN_PARSE.out.versions.first())
 
     KRAKEN_MERGE.out.kraken_merged_report
         .map {
