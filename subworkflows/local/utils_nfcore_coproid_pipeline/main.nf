@@ -11,7 +11,7 @@
 include { UTILS_NFSCHEMA_PLUGIN                 } from '../../nf-core/utils_nfschema_plugin'
 include { paramsSummaryMap                      } from 'plugin/nf-schema'
 include { samplesheetToList                     } from 'plugin/nf-schema'
-include { samplesheetToList as genomesToList    } from 'plugin/nf-schema' 
+include { samplesheetToList as genomesToList    } from 'plugin/nf-schema'
 include { UTILS_NEXTFLOW_PIPELINE               } from '../../nf-core/utils_nextflow_pipeline'
 include { UTILS_NFCORE_PIPELINE                 } from '../../nf-core/utils_nfcore_pipeline'
 include { completionEmail                       } from '../../nf-core/utils_nfcore_pipeline'
@@ -31,10 +31,10 @@ workflow PIPELINE_INITIALISATION {
     version           // boolean: Display version and exit
     validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
     monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args 
+    nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
-    genome_sheet      //  string: Path to reference genomesheet 
+    genome_sheet      //  string: Path to reference genomesheet
 
     main:
 
@@ -75,8 +75,7 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
     Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json")) 
-//        .dump(tag: 'sample_sheet')
+        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map {
             meta, fastq_1, fastq_2 ->
                 if (!fastq_2) {
@@ -115,7 +114,7 @@ workflow PIPELINE_INITIALISATION {
                 'fasta' : fasta,
                 'index' : index
             ]
-       } //.dump(tag: 'genome_hash')
+        }
         .set { ch_genomesheet }
 
     emit:
@@ -174,10 +173,8 @@ workflow PIPELINE_COMPLETION {
 // Check and validate pipeline parameters
 //
 def validateInputParameters() {
-    
     if (!params.input       ) { error("Input samplesheet not specified!") }
     if (!params.genome_sheet) { error("Genomes sheet not specified!") }
-    
 }
 
 //
@@ -198,31 +195,25 @@ def validateInputSamplesheet(input) {
 //
 // Generate methods description for MultiQC
 //
-def toolCitationText() {
-    // TODO nf-core: Optionally add in-text citation tools to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
-    def citation_text = [
-            "Tools used in the workflow included:",
-            "FastQC (Andrews 2010),",
-            "MultiQC (Ewels et al. 2016)",
-            "."
-        ].join(' ').trim()
+//def toolCitationText() {
+//    def citation_text = [
+//           "Tools used in the workflow included:",
+//            "FastQC (Andrews 2010),",
+//            "MultiQC (Ewels et al. 2016)",
+//            "."
+//        ].join(' ').trim()
+//
+//    return citation_text
+//}
 
-    return citation_text
-}
-
-def toolBibliographyText() {
-    // TODO nf-core: Optionally add bibliographic entries to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
-    def reference_text = [
-            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
-            "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
-        ].join(' ').trim()
-
-    return reference_text
-}
+//def toolBibliographyText() {
+//    def reference_text = [
+//            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
+//            "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
+//        ].join(' ').trim()
+//
+//    return reference_text
+//}
 
 def methodsDescriptionText(mqc_methods_yaml) {
     // Convert  to a named map so can be used as with familar NXF ${workflow} variable syntax in the MultiQC YML file

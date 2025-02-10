@@ -7,60 +7,60 @@
                 "nf-core": {
                     "bbmap/bbduk": {
                         "branch": "master",
-                        "git_sha": "a1abf90966a2a4016d3c3e41e228bfcbd4811ccc",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "bowtie2/align": {
                         "branch": "master",
-                        "git_sha": "0e9cb409c32d3ec4f0d3804588e4778971c09b7e",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/bowtie2/align/bowtie2-align.diff"
                     },
                     "bowtie2/build": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "damageprofiler": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "fastp": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {
                         "branch": "master",
-                        "git_sha": "08108058ea36a63f141c25c4e75f9f872a5b2296",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "kraken2/kraken2": {
                         "branch": "master",
-                        "git_sha": "0e9cb409c32d3ec4f0d3804588e4778971c09b7e",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
                         "branch": "master",
-                        "git_sha": "f0719ae309075ae4a291533883847c3f7c441dad",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "pydamage/analyze": {
                         "branch": "master",
-                        "git_sha": "f5de03e33783fe0a303d9f5732e4d3782aa545ed",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/pydamage/analyze/pydamage-analyze.diff"
                     },
                     "quartonotebook": {
                         "branch": "master",
-                        "git_sha": "0e9cb409c32d3ec4f0d3804588e4778971c09b7e",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/quartonotebook/quartonotebook.diff"
                     },
                     "sam2lca/analyze": {
                         "branch": "master",
-                        "git_sha": "0e9cb409c32d3ec4f0d3804588e4778971c09b7e",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "samtools/index": {
@@ -81,18 +81,18 @@
                     },
                     "sourcepredict": {
                         "branch": "master",
-                        "git_sha": "fba537c95064a1ab27b1d82afcd3c876a5658b70",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/sourcepredict/sourcepredict.diff"
                     },
                     "untar": {
                         "branch": "master",
-                        "git_sha": "3e548877f25a5980a177cc4f81d2d2e8c24164ef",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "xz/decompress": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     }
                 }

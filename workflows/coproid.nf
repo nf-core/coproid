@@ -10,13 +10,13 @@ include { FASTP                  } from '../modules/nf-core/fastp/main'
 include { SAM2LCA_ANALYZE        } from '../modules/nf-core/sam2lca/analyze/main'
 include { DAMAGEPROFILER         } from '../modules/nf-core/damageprofiler/main'
 include { PYDAMAGE_ANALYZE       } from '../modules/nf-core/pydamage/analyze/main'
-include { SAM2LCA_MERGE          } from '../modules/local/sam2lca/merge/main' 
-include { PYDAMAGE_MERGE         } from '../modules/local/pydamage/merge/main' 
-include { DAMAGEPROFILER_MERGE   } from '../modules/local/damageprofiler/merge/main' 
+include { SAM2LCA_MERGE          } from '../modules/local/sam2lca/merge/main'
+include { PYDAMAGE_MERGE         } from '../modules/local/pydamage/merge/main'
+include { DAMAGEPROFILER_MERGE   } from '../modules/local/damageprofiler/merge/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_coproid_pipeline' 
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_coproid_pipeline'
 
 //
 // SUBWORKFLOWS: Consisting of a mix of local and nf-core/modules
@@ -107,7 +107,7 @@ workflow COPROID {
                 genome_index,
                 genome_fasta
             ]
-        } 
+        }
         .set { ch_reads_genomes_index }
 
     ALIGN_INDEX (
@@ -166,7 +166,7 @@ workflow COPROID {
     ch_versions = ch_versions.mix(MERGE_SORT_INDEX_SAMTOOLS.out.versions.first())
 
     // Prepare SAM2LCA database channel
-    if (!params.sam2lca_db ) { 
+    if (!params.sam2lca_db ) {
         SAM2LCA_DB(
             PREPARE_GENOMES.out.genomes.map {
                 meta, fasta, index -> [meta, fasta]
@@ -178,8 +178,10 @@ workflow COPROID {
             )
         ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db.first()
     } else {
-        ch_sam2lca_db = Channel.fromPath(params.sam2lca_db).first() 
+        ch_sam2lca_db = Channel.fromPath(params.sam2lca_db).first()
     }
+
+    ch_versions = ch_versions.mix(SAM2LCA_DB.out.versions.first())
 
     //
     // MODULE: Run sam2lca
@@ -188,7 +190,7 @@ workflow COPROID {
         MERGE_SORT_INDEX_SAMTOOLS.out.bam.join(
             MERGE_SORT_INDEX_SAMTOOLS.out.bai
         ),
-       ch_sam2lca_db
+        ch_sam2lca_db
     )
     ch_sam2lca = SAM2LCA_ANALYZE.out.csv
     ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())

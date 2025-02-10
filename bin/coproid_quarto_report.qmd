@@ -1,6 +1,6 @@
 ---
 title: "coproID report test"
-format: 
+format:
     nf-core-html: default
 editor: visual
 ---
@@ -39,7 +39,7 @@ colnames(sam2lca) <- gsub("name", "Taxa", colnames(sam2lca))
 genomes <- read.csv("genomesheet.csv")
 colnames(genomes) <- gsub("taxid", "TAXID", colnames(genomes))
 
-sam2lca <- merge(sam2lca, genomes[, c("TAXID", "genome_size")], 
+sam2lca <- merge(sam2lca, genomes[, c("TAXID", "genome_size")],
                  by = "TAXID", all.x = TRUE)
 sam2lca <- sam2lca[, c(setdiff(colnames(sam2lca), "genome_size")[1:3],
             "genome_size", setdiff(colnames(sam2lca), "genome_size")[-(1:3)])]
@@ -79,7 +79,7 @@ sam_long_norm <- sam_long[grep("_normalised", sam_long$Sample), ]
 sam_long_norm$Sample <- gsub("_normalised", "", sam_long_norm$Sample)
 
 
-sp <- read.csv("coproid.report.sourcepredict.csv") 
+sp <- read.csv("coproid.report.sourcepredict.csv")
 sp$X <- gsub("unknown", "Unknown", sp$X)
 sp$X <- gsub("_", " ", sp$X)
 spT <- t(sp[-1]) %>%
@@ -107,22 +107,22 @@ x_col <- colnames(prob_wide)[2]
 y_col <- colnames(prob_wide)[3]
 
 prob_plot <- ggplot(prob_wide, aes(x = .data[[x_col]], y = .data[[y_col]], colour = Sample)) +
-  geom_rect(aes(xmin = 0, xmax = 0.5, ymin = 0, ymax = 0.5), 
-        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") + 
-  geom_rect(aes(xmin = 0.5, xmax = 1, ymin = 0, ymax = 0.5), 
-        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") + 
-  geom_rect(aes(xmin = 0, xmax = 0.5, ymin = 0.5, ymax = 1), 
-        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") + 
-  geom_rect(aes(xmin = 0.5, xmax = 1, ymin = 0.5, ymax = 1), 
-        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") + 
-  annotate("text", x = 0.25, y = 0.25, label = "Unknown", size = 5, colour = "darkgray") + 
-  annotate("text", x = 0.75, y = 0.25, label = gsub("Probability", "", colnames(prob_wide)[2]), size = 5, colour = "darkgray") + 
-  annotate("text", x = 0.25, y = 0.75, label = gsub("Probability", "", colnames(prob_wide)[3]), size = 5, colour = "darkgray") + 
+  geom_rect(aes(xmin = 0, xmax = 0.5, ymin = 0, ymax = 0.5),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  geom_rect(aes(xmin = 0.5, xmax = 1, ymin = 0, ymax = 0.5),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  geom_rect(aes(xmin = 0, xmax = 0.5, ymin = 0.5, ymax = 1),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  geom_rect(aes(xmin = 0.5, xmax = 1, ymin = 0.5, ymax = 1),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  annotate("text", x = 0.25, y = 0.25, label = "Unknown", size = 5, colour = "darkgray") +
+  annotate("text", x = 0.75, y = 0.25, label = gsub("Probability", "", colnames(prob_wide)[2]), size = 5, colour = "darkgray") +
+  annotate("text", x = 0.25, y = 0.75, label = gsub("Probability", "", colnames(prob_wide)[3]), size = 5, colour = "darkgray") +
   annotate("text", x = 0.75, y = 0.75, label = "Unknown", size = 5, colour = "darkgray") +
   geom_point(size = 3) + xlim(0,1) + ylim(0,1) +
   labs(colour = "Predicted Organism")
 
-ggplotly(prob_plot, tooltip = "all") 
+ggplotly(prob_plot, tooltip = "all")
 
 ```
 
@@ -130,7 +130,7 @@ ggplotly(prob_plot, tooltip = "all")
 
 Figure 2 shows the prediction per source species based on the genome references provided.
 
-The host DNA prediction was calculated by aligning the pre-processed reads to the different reference genomes. Alignments were then analysed with sam2lca to retain only reads that are specific to a reference (see Table 1). Reads that aligned equally well to multiple references were identify as belonging to a Common Lower Ancestor and removed from the read counts. 
+The host DNA prediction was calculated by aligning the pre-processed reads to the different reference genomes. Alignments were then analysed with sam2lca to retain only reads that are specific to a reference (see Table 1). Reads that aligned equally well to multiple references were identify as belonging to a Common Lower Ancestor and removed from the read counts.
 
 The sam2lca read count was then normalised by the size of the genome. First a normalisation factor was calculation per reference, or source species (sp):
 
@@ -153,7 +153,7 @@ sam_plot <- ggplot(sam_long_norm, aes(x = Fraction,
   geom_bar(stat = "identity") +
   scale_fill_brewer(palette = "Set2")
 
-ggplotly(sam_plot, tooltip = "all") 
+ggplotly(sam_plot, tooltip = "all")
 ```
 <p style="margin-bottom: 0.75cm;"></p>
 
@@ -162,8 +162,8 @@ ggplotly(sam_plot, tooltip = "all")
 
 table <- table %>%
   mutate(
-    normalisation_factor = sprintf("%.2f", normalisation_factor), 
-    across(where(is.numeric) & !matches("normalisation_factor"), ~ round(., 0)) 
+    normalisation_factor = sprintf("%.2f", normalisation_factor),
+    across(where(is.numeric) & !matches("normalisation_factor"), ~ round(., 0))
   )
 
 table <- table[, -c(1,3)]
@@ -173,12 +173,12 @@ table_wide <- table %>%
   pivot_longer(cols = -c(1:3),
                names_to = "Sample",
                values_to = "value") %>%
-  mutate(normalised = ifelse(grepl("_normalised$", Sample), "yes", "no")) 
+  mutate(normalised = ifelse(grepl("_normalised$", Sample), "yes", "no"))
 table_wide$Sample <- gsub("_normalised", "", table_wide$Sample)
 table_wider <- table_wide %>%
-  pivot_wider(names_from = normalised, values_from = value, 
+  pivot_wider(names_from = normalised, values_from = value,
               names_prefix = "value_normalised_") %>%
-  select(Taxa, genome_size, normalisation_factor, Sample, 
+  select(Taxa, genome_size, normalisation_factor, Sample,
          value_normalised_no, value_normalised_yes) %>%
   select(Sample, everything()) %>%
   arrange(desc(Sample))
@@ -205,7 +205,7 @@ portions <- ggplot(sp_long, aes(x = Fraction, y = Sample, fill = Taxa)) +
   geom_col() +
   scale_fill_brewer(palette = "Set2") +
   theme(axis.text.x = element_text(hjust = 1, size = 8))
-  
+
 interactive_plot <- ggplotly(portions, tooltip = "all")
 interactive_plot
 ```
@@ -232,12 +232,12 @@ colnames(embedding) <- gsub("labels", "Labels", colnames(embedding))
 embedding$Labels <- gsub("_", " ", embedding$Labels)
 embedding$Labels <- gsub("known", "Unknown", embedding$Labels)
 
-scatter <- ggplot(data = embedding, 
-       mapping = aes(x = PC2, y = PC1 , 
-                     color = Labels,  
-       text = paste("Name:", name))) + 
+scatter <- ggplot(data = embedding,
+       mapping = aes(x = PC2, y = PC1 ,
+                     color = Labels,
+       text = paste("Name:", name))) +
   geom_point() + theme_classic() +
-  scale_colour_brewer(palette = "Set2") 
+  scale_colour_brewer(palette = "Set2")
 
 interactive_plot <- ggplotly(scatter, tooltip = "all")
 interactive_plot
@@ -248,7 +248,7 @@ interactive_plot
 
 Figure 5 shows the damage on the '5 end and the -log(10)(p-value). The higher the damage on the '5 end the more likely that the DNA is ancient. A high -log(10)(p-value), means a low p-value, meaning the damage model is a good fit. For further documentation see [pydamage](https://pydamage.readthedocs.io/en/latest/index.html).
 
-**Warning**: If only a few reads align to the reference (see table 1), the pydamge results are not accurate. If this is the case, check the predicted accuracy in the pyDamage output tables. 
+**Warning**: If only a few reads align to the reference (see table 1), the pydamge results are not accurate. If this is the case, check the predicted accuracy in the pyDamage output tables.
 
 **Figure 5. Pydamage results**
 
@@ -259,16 +259,16 @@ pydamage$Taxa <- gsub("_", " ", pydamage$Taxa)
 pydamage$pvalue <- pydamage$pvalue + 10^(-6)
 pydamage$log <- -log10(pydamage$pvalue)
 
-ggplot(pydamage, aes(x = damage_model_pmax, y = log, 
+ggplot(pydamage, aes(x = damage_model_pmax, y = log,
                       colour = Sample, shape = Taxa)) +
                   geom_point(size = 3) +
-                  labs(x = "Modelled amount of damage on 5' end", 
+                  labs(x = "Modelled amount of damage on 5' end",
                        y = "-log(10)(p-value)",
                        title = "") +
                   guides(colour = guide_legend(title = "Sample"),
                          shape = guide_legend(title = "Taxa"))
 
-#ggplotly(pydamage_plot, tooltip = "all") 
+#ggplotly(pydamage_plot, tooltip = "all")
 ```
 
 **Figure 6. Individual [damage profiler](https://damageprofiler.readthedocs.io/en/latest/) plots with 5' end (left) and 3' end (right)**
@@ -280,7 +280,7 @@ colnames(damage) <- gsub("X", "", colnames(damage))
 damage$Reference <- gsub("_", " ", damage$Reference)
 
 damage_long <- damage %>%
-  gather(key = "position", value = "value", 
+  gather(key = "position", value = "value",
          -c(1:3)) %>%
   mutate(position = as.numeric(position))
 
@@ -288,7 +288,7 @@ damage_long <- damage_long %>%
   mutate(prime_end = factor(prime_end, levels = c("5pCtoT", "3pGtoA")))
 
 # Create the plot for each sample with 5pCtoT on the left and 3pGtoA on the right
-damage_plot <- ggplot(damage_long, aes(x = position, y = value, 
+damage_plot <- ggplot(damage_long, aes(x = position, y = value,
                     color = Reference, group = Reference)) +
   geom_line() +
   facet_grid(Sample ~ prime_end, scales = "free_x") +
@@ -305,5 +305,4 @@ position_scales <- list(
 damage_plot <- damage_plot + facetted_pos_scales(x = position_scales)
 # Final plot
 damage_plot
-
 ```

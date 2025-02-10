@@ -20,10 +20,10 @@ filtered_data = []
 for file in csv_files:
     # Extract sample name from the file name
     sample_name = os.path.basename(file).split(".")[0]
-    
+
     # Read the CSV file
     df = pd.read_csv(file)
-    
+
     # Filter rows where 'count_taxon' > 0
     df_filtered = df[df['count_taxon'] > 0].copy()
 
@@ -32,7 +32,7 @@ for file in csv_files:
 
     # Keep relevant columns and rename 'count_taxon' to the sample name
     df_filtered = df_filtered[['TAXID', 'name', 'rank', 'count_taxon']].rename(columns={'count_taxon': sample_name})
-    
+
     # Append to the list
     filtered_data.append(df_filtered)
 

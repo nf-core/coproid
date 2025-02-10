@@ -16,15 +16,15 @@ workflow QUARTO_REPORTING {
     //
     // Quarto reports and extension files
     //
-    coproid_notebook = file("${projectDir}/bin/coproid_quarto_report.qmd", checkIfExists: true) 
+    coproid_notebook = file("${projectDir}/bin/coproid_quarto_report.qmd", checkIfExists: true)
     extensions = Channel.fromPath("${projectDir}/assets/_extensions").collect()
 
     // Create a channel from the file
     Channel
         .of(coproid_notebook)
-        .map { 
+        .map {
         coproid_notebook ->
-            [   
+            [
                 [
                 'id': 'quarto_notebook'
                 ],
@@ -39,6 +39,8 @@ workflow QUARTO_REPORTING {
         ch_quarto,
         extensions
     )
+
+    ch_versions = ch_versions.mix(QUARTONOTEBOOK.out.versions.first())
 
     emit:
     versions          = ch_versions

@@ -7,7 +7,7 @@ process DAMAGEPROFILER_MERGE {
         'biocontainers/pandas:1.4.3' }"
 
     input:
-    path damageprofiler_reports 
+    path damageprofiler_reports
 
     output:
     path("*.csv"), emit: damageprofiler_merged_report

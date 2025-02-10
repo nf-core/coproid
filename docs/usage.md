@@ -6,8 +6,6 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
-
 ## Samplesheet input
 
 You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use `bash --input ` to specify its location. It has to be a comma-separated file with 3 columns, with the following header:
@@ -76,15 +74,31 @@ Bacillus_subtilis,1423,4200000,,https://github.com/nf-core/test-datasets/raw/cop
 
 An [example genomesheet](../assets/genomeheet.csv) has been provided with the pipeline.
 
+## kraken2 database
+
+Before running the pipeline, you need to download a kraken2 database, and supply this to the pipeline using --kraken2_db
+The kraken2 database can be a directory or \*.tar.gz
+
+## sourcepredict files
+
+You also need to create/download the reference files for sourcepredict. These include the source anf label files, for more information see [`sourcepredict`](https://sourcepredict.readthedocs.io/)
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/coproid --input ./samplesheet.csv --genomesheet ./genomesheet.csv --outdir ./results -profile docker
+nextflow run nf-core/coproid \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --genome_sheet genomesheet.csv \
+   --kraken2_db 'PATH/TO/KRAKENDB' \
+   --sp_sources 'PATH/TO/SOURCEPREDICT/SOURCES/FILE' \
+   --sp_labels 'PATH/TO/SOURCEPREDICT/LABELS/FILE' \
+   --outdir <OUTDIR>
 ```
 
-This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
+This will launch the pipeline with the `docker/singularity/.../institute` configuration profile. See below for more information about profiles.
 
 Note that the pipeline will create the following files in your working directory:
 
@@ -113,8 +127,8 @@ with `params.yaml` containing:
 
 ```yaml
 input: './samplesheet.csv'
+genome_sheet: './genomesheet.csv'
 outdir: './results/'
-genome: 'GRCh37'
 <...>
 ```
 

@@ -10,11 +10,11 @@ workflow ALIGN_INDEX {
         BOWTIE2_ALIGN (
             reads_genomes,
             true,
-            true 
+            true
             )
 
         SAMTOOLS_INDEX(BOWTIE2_ALIGN.out.bam)
-        
+
         ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions.first())
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 

@@ -31,6 +31,10 @@ workflow SAM2LCA_DB {
             SAM2LCA_PREPDB.out.acc2tax_md5
         )
 
+        ch_versions = ch_versions.mix(CREATE_ACC2TAX.out.versions.first())
+        ch_versions = ch_versions.mix(SAM2LCA_PREPDB.out.versions.first())
+        ch_versions = ch_versions.mix(SAM2LCA_UPDATEDB.out.versions.first())
     emit:
         sam2lca_db = SAM2LCA_UPDATEDB.out.sam2lca_db
+        versions = ch_versions
 }

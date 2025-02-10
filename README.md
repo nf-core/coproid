@@ -19,50 +19,71 @@
 
 ## Introduction
 
-**nf-core/coproid** is a bioinformatics pipeline that ...
+**nf-core/coproid** is a bioinformatics pipeline that helps you identify the "true maker" of Illumina sequenced (Paleo)faeces by checking the microbiome composition and the endogenous host DNA.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+It combines the analysis of putative host (ancient) DNA with a machine learning prediction of the faeces source based on microbiome taxonomic composition:
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
+(A) First coproID performs comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and potentially genome3) and computes a host-DNA species ratio (NormalisedProportion).
+(B) Then coproID performs metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using machine learning, coproID then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
+
+Finally, coproID combines A and B proportions to predict the likely host of the metagenomic sample.
+
+**Wokflow overview**
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+3. Fastp to remove adapters and low-complexity reads ([`fastp`](https://doi.org/10.1002/imt2.107))
+4. Mapping or reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2))
+5. Lowest Common Ancestor analysis to retain only genome specific reads ([`sam2lca`](github.com/maxibor/sam2lca))
+6. Taxonomic profiling of unmapped reads ([`kraken2`](https://ccb.jhu.edu/software/kraken2/))
+7. Source predicting based on taxonic profiles ([`sourcepredict`](https://sourcepredict.readthedocs.io/))
+8. Combining host and microbial predictions to calculate overall proportions.
+
+The coproID pipeline is built using Nextflow, a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible. The Nextflow DSL2 implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from nf-core/modules in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
+Pipeline usage
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
-```csv
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+PAIRED_END,PAIRED_END_S1_L002_R1_001.fastq.gz,PAIRED_END_S1_L002_R2_001.fastq.gz
+SINGLE_END,SINGLE_END_S4_L003_R1_001.fastq.gz,
 ```
 
 Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
 
--->
+Second, prepare a genomesheet with your input genome references that looks as follows:
+
+`genomesheet.csv`:
+
+```csv title="genomesheet.csv"
+genome_name,taxid,genome_size,igenome,fasta,index
+Escherichia_coli,562,5000000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/ecoli/genome.fa,
+Bacillus_subtilis,1423,4200000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/bsubtilis/genome.fa,
+```
+
+Before running the pipeline, you need to download a kraken2 database, and supply this to the pipeline using --kraken2_db
+The kraken2 database can be a directory or \*.tar.gz
+
+You also need to create/download the reference files for sourcepredict. These include the source anf label files, for more information see [`sourcepredict`](https://sourcepredict.readthedocs.io/)
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run nf-core/coproid \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
+   --genome_sheet genomesheet.csv \
+   --kraken2_db 'PATH/TO/KRAKENDB' \
+   --sp_sources 'PATH/TO/SOURCEPREDICT/SOURCES/FILE' \
+   --sp_labels 'PATH/TO/SOURCEPREDICT/LABELS/FILE' \
    --outdir <OUTDIR>
 ```
 

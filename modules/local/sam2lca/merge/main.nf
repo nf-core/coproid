@@ -17,7 +17,7 @@ process SAM2LCA_MERGE {
     def args = task.ext.args   ?: ''
     prefix   = task.ext.prefix
     """
-    sam2lca_merge.py ${prefix}.sam2lca_merged_report.csv $sam2lca_reports 
+    sam2lca_merge.py ${prefix}.sam2lca_merged_report.csv $sam2lca_reports
 
     """
 

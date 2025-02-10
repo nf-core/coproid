@@ -40,39 +40,17 @@
                 }
             }
         },
-        "generic_options": {
-            "title": "Generic options",
-            "type": "object",
-            "fa_icon": "fas fa-file-import",
-            "description": "Less common options for the pipeline, typically set in a config file.",
-            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
-            "properties": {
-                "file_prefix": {
-                    "type": "string",
-                    "default": "coproid",
-                    "description": "Used as a prefix for (merged) output reports"
-                },
-                "version": {
-                    "type": "boolean",
-                    "description": "Display version and exit.",
-                    "fa_icon": "fas fa-question-circle",
-                    "hidden": true
-                },
-                "validate_params": {
-                    "type": "boolean",
-                    "description": "Boolean whether to validate parameters against the schema at runtime",
-                    "default": true,
-                    "fa_icon": "fas fa-check-square",
-                    "hidden": true
-                }
-            }
-        },
         "pipeline_options": {
             "title": "Pipeline options",
             "type": "object",
             "description": "",
             "default": "",
             "properties": {
+                "file_prefix": {
+                    "type": "string",
+                    "default": "coproid",
+                    "description": "Used as a prefix for (merged) output reports"
+                },
                 "kraken2_db": {
                     "type": "string",
                     "description": "Path to a kraken2 database, can be a directory or *.tar.gz"
@@ -112,83 +90,138 @@
             },
             "required": ["kraken2_db", "sp_sources", "sp_labels"]
         },
-        "other_running_options": {
-            "title": "Other running options",
+        "generic_options": {
+            "title": "Generic options",
             "type": "object",
-            "description": "",
-            "default": "",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
             "properties": {
-                "igenomes_base": {
-                    "type": "string",
-                    "default": "s3://ngi-igenomes/igenomes/"
-                },
-                "igenomes_ignore": {
+                "version": {
                     "type": "boolean",
-                    "default": true
+                    "description": "Display version and exit.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
                 },
-                "multiqc_logo": {
-                    "type": "string"
-                },
-                "multiqc_config": {
-                    "type": "string"
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
                 },
                 "multiqc_title": {
                     "type": "string",
-                    "default": "coproid"
-                },
-                "multiqc_methods_description": {
-                    "type": "string"
-                },
-                "max_multiqc_email_size": {
-                    "type": "string",
-                    "default": "25.MB"
-                },
-                "publish_dir_mode": {
-                    "type": "string",
-                    "default": "copy"
+                    "default": "coproid",
+                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits.",
+                    "hidden": true
                 },
                 "email_on_fail": {
-                    "type": "string"
+                    "type": "string",
+                    "hidden": true,
+                    "description": "This works exactly as with --email, except emails are only sent if the workflow is not successful."
                 },
-                "plaintext_email": {
-                    "type": "boolean"
+                "igenomes_base": {
+                    "type": "string",
+                    "default": "s3://ngi-igenomes/igenomes/",
+                    "description": "Path to igenomes base",
+                    "hidden": true
                 },
-                "monochrome_logs": {
-                    "type": "boolean"
+                "igenomes_ignore": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Boolean whether to ignore igenomes",
+                    "hidden": true
                 },
-                "hook_url": {
-                    "type": "string"
+                "multiqc_methods_description": {
+                    "type": "string",
+                    "description": "Custom MultiQC yaml file containing HTML including a methods description.",
+                    "hidden": true
                 },
                 "modules_testdata_base_path": {
                     "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data"
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data",
+                    "description": "Base path to test data.",
+                    "hidden": true
                 },
                 "pipelines_testdata_base_path": {
                     "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/"
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "description": "Base path to pipelines data.",
+                    "hidden": true
                 },
                 "config_profile_name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Name of the config profile.",
+                    "hidden": true
                 },
                 "config_profile_description": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Description of the config profile.",
+                    "hidden": true
                 },
                 "custom_config_version": {
                     "type": "string",
-                    "default": "master"
+                    "default": "master",
+                    "description": "Provide git commit id for custom Institutional configs hosted at nf-core/configs. This was implemented for reproducibility purposes. Default: master.",
+                    "hidden": true
                 },
                 "custom_config_base": {
                     "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/configs/master"
+                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+                    "description": "Base path to custom config files.",
+                    "hidden": true
                 },
                 "config_profile_contact": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Contact of the config profile.",
+                    "hidden": true
                 },
                 "config_profile_url": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "URL to config file.",
+                    "hidden": true
+                },
+                "multiqc_config": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Config file for multiQC."
+                },
+                "multiqc_logo": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Logo for multiQC."
+                },
+                "max_multiqc_email_size": {
+                    "type": "string",
+                    "default": "25.MB",
+                    "hidden": true,
+                    "description": "Maximum email size."
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "hidden": true,
+                    "description": "Value passed to Nextflow publishDir directive for publishing results in the output directory. Available: 'symlink', 'rellink', 'link', 'copy', 'copyNoFollow' and 'move' (Default: 'copy')."
+                },
+                "plaintext_email": {
+                    "type": "boolean",
+                    "hidden": true,
+                    "description": "Set to receive plain-text e-mails instead of HTML formatted."
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "hidden": true,
+                    "description": "Set to disable colourful command line output and live life in monochrome."
+                },
+                "hook_url": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Specify YOUR-HOOK-URL to receive notifications from your pipeline in Microsoft Teams or Slack."
                 }
             }
         }
@@ -198,13 +231,10 @@
             "$ref": "#/$defs/input_output_options"
         },
         {
-            "$ref": "#/$defs/generic_options"
-        },
-        {
             "$ref": "#/$defs/pipeline_options"
         },
         {
-            "$ref": "#/$defs/other_running_options"
+            "$ref": "#/$defs/generic_options"
         }
     ]
 }

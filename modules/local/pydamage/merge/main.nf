@@ -7,7 +7,7 @@ process PYDAMAGE_MERGE {
         'biocontainers/pandas:1.4.3' }"
 
     input:
-    path pydamage_reports 
+    path pydamage_reports
 
     output:
     path("*.csv"), emit: pydamage_merged_report

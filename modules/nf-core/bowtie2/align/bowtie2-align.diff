@@ -1,4 +1,4 @@
-Changes in module 'nf-core/bowtie2/align'
+Changes in component 'nf-core/bowtie2/align'
 'modules/nf-core/bowtie2/align/environment.yml' is unchanged
 Changes in 'bowtie2/align/main.nf':
 --- modules/nf-core/bowtie2/align/main.nf
