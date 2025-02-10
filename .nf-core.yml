@@ -3,3 +3,7 @@ repository_type: pipeline
 template:
   prefix: nf-core
   skip: []
+lint:
+  files_unchanged:
+    - docs/images/nf-core-coproid_logo_light.png
+    - docs/images/nf-core-coproid_logo_dark.png
