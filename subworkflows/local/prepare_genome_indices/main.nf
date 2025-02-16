@@ -5,36 +5,37 @@ workflow PREPARE_GENOMES {
         ch_genomesheet
 
     main:
-        ch_versions = Channel.empty()
 
-        ch_genomesheet
-            .map { create_genome_channel(it) }
-            .set { genomes }
+    ch_versions = Channel.empty()
 
-        genomes
-            .branch {
-                index_avail: it.size() > 2
-                no_index_avail: it.size() == 2
-            }
-            .set { genomes_fork }
+    ch_genomesheet
+        .map { create_genome_channel(it) }
+        .set { genomes }
 
-        BOWTIE2_BUILD (
-            genomes_fork.no_index_avail
-        )
-
-        genomes_fork.no_index_avail.join(
-            BOWTIE2_BUILD.out.index
-        ).mix(
-            genomes_fork.index_avail
-        ).set {
-            ch_genomes
+    genomes
+        .branch {
+            index_avail: it.size() > 2
+            no_index_avail: it.size() == 2
         }
+        .set { genomes_fork }
 
-        ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions.first())
+    BOWTIE2_BUILD (
+        genomes_fork.no_index_avail
+    )
+
+    genomes_fork.no_index_avail.join(
+        BOWTIE2_BUILD.out.index
+    ).mix(
+        genomes_fork.index_avail
+    ).set {
+        ch_genomes
+    }
+
+    ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions.first())
 
     emit:
-        genomes = ch_genomes
-        versions = ch_versions
+    genomes = ch_genomes
+    versions = ch_versions
 }
 
 def create_genome_channel(LinkedHashMap row) {
