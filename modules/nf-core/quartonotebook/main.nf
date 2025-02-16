@@ -9,8 +9,7 @@ process QUARTONOTEBOOK {
     tag "${meta.id}"
     label 'process_low'
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://cloud.sylabs.io/library/meriamos/coproid/quarto_container:latest' }"
+    container = 'library://meriamos/coproid/quarto_container:latest'
 
     input:
     tuple val(meta), path(notebook)
