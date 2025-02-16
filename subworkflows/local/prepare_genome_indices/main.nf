@@ -2,13 +2,12 @@ include { BOWTIE2_BUILD } from '../../../modules/nf-core/bowtie2/build/main'
 
 workflow PREPARE_GENOMES {
     take:
-        ch_genomesheet  // [meta["genome_name": genome_name], val(igenome), file(fasta), file(index)]
+        ch_genomesheet
 
     main:
         ch_versions = Channel.empty()
 
         ch_genomesheet
-//            .splitCsv(header:true, sep:',')
             .map { create_genome_channel(it) }
             .set { genomes }
 
@@ -34,7 +33,7 @@ workflow PREPARE_GENOMES {
         ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions.first())
 
     emit:
-        genomes = ch_genomes // [meta["genome_name": genome_name], path(fasta), path(index)]
+        genomes = ch_genomes
         versions = ch_versions
 }
 
