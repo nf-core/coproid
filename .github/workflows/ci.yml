@@ -29,7 +29,12 @@ jobs:
           - "23.10.0"
           - "latest-everything"
         profile:
+          - "docker"
           - "singularity"
+        # Exclude singularity on dev
+        exclude:
+          - isMaster: false
+            profile: "singularity"
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
