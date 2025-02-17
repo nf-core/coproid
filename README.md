@@ -31,13 +31,14 @@ Finally, coproID combines A and B proportions to predict the likely host of the 
 **Wokflow overview**
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
-3. Fastp to remove adapters and low-complexity reads ([`fastp`](https://doi.org/10.1002/imt2.107))
-4. Mapping or reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2))
-5. Lowest Common Ancestor analysis to retain only genome specific reads ([`sam2lca`](github.com/maxibor/sam2lca))
-6. Taxonomic profiling of unmapped reads ([`kraken2`](https://ccb.jhu.edu/software/kraken2/))
-7. Source predicting based on taxonic profiles ([`sourcepredict`](https://sourcepredict.readthedocs.io/))
-8. Combining host and microbial predictions to calculate overall proportions.
+1. Fastp to remove adapters and low-complexity reads ([`fastp`](https://doi.org/10.1002/imt2.107))
+1. Mapping or reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2))
+1. Lowest Common Ancestor analysis to retain only genome specific reads ([`sam2lca`](github.com/maxibor/sam2lca))
+1. Taxonomic profiling of unmapped reads ([`kraken2`](https://ccb.jhu.edu/software/kraken2/))
+1. Source predicting based on taxonic profiles ([`sourcepredict`](https://sourcepredict.readthedocs.io/))
+1. Combining host and microbial predictions to calculate overall proportions.
+1. ([`MultiQC`](http://multiqc.info/)) aggregate results of several individual modules.
+1. ([Quartonotebook])(https://quarto.org/) creates a report with sample results.
 
 The coproID pipeline is built using Nextflow, a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible. The Nextflow DSL2 implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from nf-core/modules in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
@@ -58,6 +59,10 @@ SINGLE_END,SINGLE_END_S4_L003_R1_001.fastq.gz,
 ```
 
 Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+
+:::warning
+Make sure that your reference genomes are from ncbi, so sam2lca can extract the taxid!
+:::
 
 Second, prepare a genomesheet with your input genome references that looks as follows:
 
@@ -103,9 +108,7 @@ For more details about the output files and reports, please refer to the
 
 nf-core/coproid was originally written by Maxime Borry & Meriam Van Os.
 
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+<!-- We thank the following people for their extensive assistance in the development of this pipeline: -->
 
 ## Contributions and Support
 
@@ -116,8 +119,6 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 ## Citations
 
 If you use nf-core/coproid for your analysis, please cite it using the following doi: [10.5281/zenodo.7292889](https://doi.org/10.5281/zenodo.7292889)
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

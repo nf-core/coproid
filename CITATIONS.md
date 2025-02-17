@@ -10,13 +10,51 @@
 
 ## Pipeline tools
 
+- [BBnorm/BBTools](http://sourceforge.net/projects/bbmap/)
+
+- [Bowtie2](https:/dx.doi.org/10.1038/nmeth.1923)
+
+  > Langmead, B. and Salzberg, S. L. 2012 Fast gapped-read alignment with Bowtie 2. Nature methods, 9(4), p. 357–359. doi: 10.1038/nmeth.1923.
+
+- [damageprofiler]()
+
+  > Neukamm, J, Peltzer, A, and Nieselt, K. (2020). DamageProfiler: Fast damage pattern calculation for ancient DNA. Bioinformatics. doi: 10.1093/bioinformatics/btab190
+
+- [FastP](https://doi.org/10.1093/bioinformatics/bty560)
+
+  > Chen, S., Zhou, Y., Chen, Y., & Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics , 34(17), i884–i890. doi: 10.1093/bioinformatics/bty560.
+
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
   > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
 
+- [Kraken2](https://doi.org/10.1186/s13059-019-1891-0)
+
+  > Wood, D et al., 2019. Improved metagenomic analysis with Kraken 2. Genome Biology volume 20, Article number: 257. doi: 10.1186/s13059-019-1891-0.
+
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
+
+- [PyDamage](https://doi.org/10.7717/peerj.11845)
+
+  > Borry M, Hübner A, Rohrlach AB, Warinner C. 2021. PyDamage: automated ancient damage identification and estimation for contigs in ancient DNA de novo assembly. PeerJ 9:e11845 doi: 10.7717/peerj.11845.
+
+- [Quarto](https://quarto.org/)
+
+  > Allaire J, Teague C, Scheidegger C, Xie Y, Dervieux C. Quarto (2022). doi: 10.5281/zenodo.5960048
+
+- [Sam2lca]()
+
+  > Borry M, Hübner A, Warinner C. 2021. sam2lca: Lowest Common Ancestor for SAM/BAM/CRAM alignment files. The Open Journal. doi: 10.21105/joss.04360.
+
+- [SAMtools](https://doi.org/10.1093/bioinformatics/btp352)
+
+  > Li, H., Handsaker, B., Wysoker, A., Fennell, T., Ruan, J., Homer, N., … 1000 Genome Project Data Processing Subgroup. (2009). The Sequence Alignment/Map format and SAMtools. Bioinformatics , 25(16), 2078–2079. doi: 10.1093/bioinformatics/btp352.
+
+- [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/intro.html)
+
+  > Borry, Maxime. 2019. Sourcepredict: Prediction of metagenomic sample sources using dimension reduction followed by machine learning classification. Journal of Open Source Software. doi: 10.21105/joss.01540.
 
 ## Software packaging/containerisation tools
 
