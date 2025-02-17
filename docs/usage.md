@@ -64,8 +64,9 @@ genome_name,taxid,genome_size,igenome,fasta,index
 Escherichia_coli,562,5000000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/ecoli/genome.fa,
 Bacillus_subtilis,1423,4200000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/bsubtilis/genome.fa,
 ```
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
+| Column        | Description                                                                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `genome_name` | Name of reference species. Spaces in sample names are automatically converted to underscores (`_`).               |
 | `taxid`       | TAXID of reference genome.                                                                                        |
 | `genome_size` | The size of the refernce genome in bp. This is used to normalise the mapped number of reads per reference genome. |

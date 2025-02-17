@@ -9,14 +9,15 @@ The directories listed below will be created in the results directory after the 
 ## Pipeline overview
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
- - Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
- - Fastp to remove adapters and low-complexity reads ([`fastp`](https://doi.org/10.1002/imt2.107))
- - Mapping or reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2))
- - Lowest Common Ancestor analysis to retain only genome specific reads ([`sam2lca`](github.com/maxibor/sam2lca))
- - Taxonomic profiling of unmapped reads ([`kraken2`](https://ccb.jhu.edu/software/kraken2/))
- - Source predicting based on taxonic profiles ([`sourcepredict`](https://sourcepredict.readthedocs.io/))
- - Combining host and microbial predictions to calculate overall proportions.
- - Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
+- Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+- Fastp to remove adapters and low-complexity reads ([`fastp`](https://doi.org/10.1002/imt2.107))
+- Mapping or reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2))
+- Lowest Common Ancestor analysis to retain only genome specific reads ([`sam2lca`](github.com/maxibor/sam2lca))
+- Taxonomic profiling of unmapped reads ([`kraken2`](https://ccb.jhu.edu/software/kraken2/))
+- Source predicting based on taxonic profiles ([`sourcepredict`](https://sourcepredict.readthedocs.io/))
+- Combining host and microbial predictions to calculate overall proportions.
+- Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
 ### FastQC
 
