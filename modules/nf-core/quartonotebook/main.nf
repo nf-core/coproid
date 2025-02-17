@@ -9,8 +9,10 @@ process QUARTONOTEBOOK {
     tag "${meta.id}"
     label 'process_low'
     conda "${moduleDir}/environment.yml"
-    container = 'library://meriamos/coproid/quarto_container:latest'
-
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'library://meriamos/coproid/quarto_container:latest' : 
+        'community.wave.seqera.io/library/jupyter_libxml2-conda-x86_64_libxml2-devel-conda-x86_64_matplotlib_pruned:2dd96cf374fa50cb' }"
+    
     input:
     tuple val(meta), path(notebook)
     val parameters
