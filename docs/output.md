@@ -70,9 +70,9 @@ It is used with nf-core/taxprofiler to allow removal of 'host' (e.g. human) and/
 <summary>Output files</summary>
 
 - `bowtie2/`
-    - `<sample_id>.bam`: BAM file containing reads that aligned against the user-supplied reference genome as well as unmapped reads.
-    - `<sample_id>.bowtie2.log`: log file about the mapped reads.
-    - `<sample_id>.unmapped.fastq.gz`: the off-target reads from the mapping that is used in downstream steps.
+  - `<sample_id>.bam`: BAM file containing reads that aligned against the user-supplied reference genome as well as unmapped reads.
+  - `<sample_id>.bowtie2.log`: log file about the mapped reads.
+  - `<sample_id>.unmapped.fastq.gz`: the off-target reads from the mapping that is used in downstream steps.
 
 </details>
 
@@ -111,10 +111,10 @@ It is used with nf-core/taxprofiler to allow removal of 'host' (e.g. human) and/
 <summary>Output files</summary>
 
 - `sam2lca/`
-    - `<sample_id>.sam2lca.csv`: sam2lca csv report per sample, summarising the mapped reads per TAXID.
-    - `<sample_id>.sam2lca.json`: sam2lca json report per sample, summarising the mapped reads per TAXID.
-    - `<file_prefix>.sam2lca_merged_report.csv`: merged csv report of all samples.
-    - `<sam2lca_acc2tax>.*`: sam2lca taxonomy files.
+  - `<sample_id>.sam2lca.csv`: sam2lca csv report per sample, summarising the mapped reads per TAXID.
+  - `<sample_id>.sam2lca.json`: sam2lca json report per sample, summarising the mapped reads per TAXID.
+  - `<file_prefix>.sam2lca_merged_report.csv`: merged csv report of all samples.
+  - `<sam2lca_acc2tax>.*`: sam2lca taxonomy files.
   - `sam2lca_db/`: directory containing sam2lca database files.
 
 </details>
@@ -176,6 +176,8 @@ xz is used in nf-core/coproid to decompress the taxa_sqlite file for sourcepredi
 ## Reporting
 
 ### Quarto notebook
+
+A HTML report is created with [Quarto](https://quarto.org/), summarising the results in tables and figures.
 
 <details markdown="1">
 <summary>Output files</summary>
