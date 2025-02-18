@@ -11,7 +11,7 @@ process QUARTONOTEBOOK {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'library://meriamos/coproid/quarto_container:latest' : 
-        'community.wave.seqera.io/library/jupyter_libxml2-conda-x86_64_libxml2-devel-conda-x86_64_matplotlib_pruned:2dd96cf374fa50cb' }"
+        'community.wave.seqera.io/library/jupyter_libxml2-conda-x86_64_libxml2-devel-conda-x86_64_matplotlib_pruned:a244b989a0cdf3e5' }"
     
     input:
     tuple val(meta), path(notebook)
