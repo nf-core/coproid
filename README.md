@@ -1,115 +1,131 @@
-# ![nf-core/coproid](assets/img/coproid_logo.png)
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/nf-core-coproid_logo_dark.png">
+    <img alt="nf-core/coproid" src="docs/images/nf-core-coproid_logo_light.png">
+  </picture>
+</h1>
 
-## A fully reproducible pipeline for COPROlite and paleofeces host IDentification
+[![GitHub Actions CI Status](https://github.com/nf-core/coproid/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/coproid/actions/workflows/ci.yml)
+[![GitHub Actions Linting Status](https://github.com/nf-core/coproid/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/coproid/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/coproid/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.7292889-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.7292889)
+[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
-[![GitHub Actions CI Status](https://github.com/nf-core/coproid/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/coproid/actions)
-[![GitHub Actions Linting Status](https://github.com/nf-core/coproid/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/coproid/actions)
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/nfcore/coproid.svg)](https://hub.docker.com/r/nfcore/coproid)
-![Singularity Container available](https://img.shields.io/badge/singularity-available-7E4C74.svg)
-[![Documentation Status](https://readthedocs.org/projects/coproid/badge/?version=latest)](https://coproid.readthedocs.io/en/latest/?badge=latest)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2653756.svg)](https://doi.org/10.5281/zenodo.2653756)
-[![Joins us on Slack](https://img.shields.io/badge/slack-nfcore/coproid-blue.svg)](https://nfcore.slack.com/channels/coproid)
-[![Published in PeerJ](https://img.shields.io/badge/peerj-published-%2300B2FF)](https://peerj.com/articles/9001)
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.10.0-23aa62.svg)](https://www.nextflow.io/)
+[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
+[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
+[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
+[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/coproid)
 
-**CoproID** helps you to identify the _"true maker"_ of Illumina sequenced Coprolites/Paleofaeces by checking the microbiome composition and the endogenous DNA.
+[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23coproid-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/coproid)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
 
-It combines the analysis of putative host ancient DNA with a machine learning prediction of the feces source based on microbiome taxonomic composition:
+## Introduction
 
-- (**A**) First coproID performs a comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and eventually genome3) and computes a host-DNA species ratio (_NormalizedRatio_)
-- (**B**) Then coproID performs a metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using [machine learning](https://joss.theoj.org/papers/10.21105/joss.01540), coproID then estimates the host source from the metagenomic taxonomic composition (_prop_microbiome_).
-- Finally, coproID combines **A** and **B** to predict the likely host of the metagenomic sample.
+**nf-core/coproid** is a bioinformatics pipeline that helps you identify the "true maker" of Illumina sequenced (Paleo)faeces by checking the microbiome composition and the endogenous host DNA.
 
-The coproID pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
+It combines the analysis of putative host (ancient) DNA with a machine learning prediction of the faeces source based on microbiome taxonomic composition:
 
-A detailed description of coproID can be found in the [article published in PeerJ](https://peerj.com/articles/9001).
+(A) First coproID performs comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and potentially genome3) and computes a host-DNA species ratio (NormalisedProportion).
+(B) Then coproID performs metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using machine learning, coproID then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
 
-## Quick Start
+Finally, coproID combines A and B proportions to predict the likely host of the metagenomic sample.
 
-i. Install [`nextflow`](https://nf-co.re/usage/installation)
+**Wokflow overview**
 
-ii. Install either [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) for full pipeline reproducibility (please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))
+1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+1. Fastp to remove adapters and low-complexity reads ([`fastp`](https://doi.org/10.1002/imt2.107))
+1. Mapping or reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2))
+1. Lowest Common Ancestor analysis to retain only genome specific reads ([`sam2lca`](github.com/maxibor/sam2lca))
+1. Taxonomic profiling of unmapped reads ([`kraken2`](https://ccb.jhu.edu/software/kraken2/))
+1. Source predicting based on taxonic profiles ([`sourcepredict`](https://sourcepredict.readthedocs.io/))
+1. Combining host and microbial predictions to calculate overall proportions.
+1. ([`MultiQC`](http://multiqc.info/)) aggregate results of several individual modules.
+1. ([Quartonotebook])(https://quarto.org/) creates a report with sample results.
 
-iii. Download the pipeline and test it on a minimal dataset with a single command
+The coproID pipeline is built using Nextflow, a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible. The Nextflow DSL2 implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from nf-core/modules in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
-```bash
-nextflow run nf-core/coproid -profile test,<docker/singularity/conda/institute>
+## Usage
+
+> [!NOTE]
+> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+
+Pipeline usage
+First, prepare a samplesheet with your input data that looks as follows:
+
+`samplesheet.csv`:
+
+```csv title="samplesheet.csv"
+sample,fastq_1,fastq_2
+PAIRED_END,PAIRED_END_S1_L002_R1_001.fastq.gz,PAIRED_END_S1_L002_R2_001.fastq.gz
+SINGLE_END,SINGLE_END_S4_L003_R1_001.fastq.gz,
 ```
 
-> Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile institute` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
 
-iv. Start running your own analysis!
+:::warning
+Make sure that your reference genomes are from ncbi, so sam2lca can extract the taxid!
+:::
 
-```bash
-nextflow run maxibor/coproid --genome1 'GRCh37' --genome2 'CanFam3.1' --name1 'Homo_sapiens' --name2 'Canis_familiaris' --reads '*_R{1,2}.fastq.gz' --krakendb 'path/to/minikraken_db' -profile docker
+Second, prepare a genomesheet with your input genome references that looks as follows:
+
+`genomesheet.csv`:
+
+```csv title="genomesheet.csv"
+genome_name,taxid,genome_size,igenome,fasta,index
+Escherichia_coli,562,5000000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/ecoli/genome.fa,
+Bacillus_subtilis,1423,4200000,,https://github.com/nf-core/test-datasets/raw/coproid/genomes/bsubtilis/genome.fa,
 ```
 
-This command runs coproID to estimate whether the source of test samples (`--reads '*_R{1,2}.fastq.gz'`) are coming from a human (`--genome1 'GRCh37' -name1 'Homo_sapiens'`) or a dog (`--genome2 'CanFam3.1' --name2 'Canis_familiaris'`), and specifies the path to the minikraken database (`--krakendb 'path/to/minikraken_db'`).
+Before running the pipeline, you need to download a kraken2 database, and supply this to the pipeline using --kraken2_db
+The kraken2 database can be a directory or \*.tar.gz
 
-> NB: The example above assumes access to [iGenomes](https://nf-co.re/usage/reference_genomes).
+You also need to create/download the reference files for sourcepredict. These include the source anf label files, for more information see [`sourcepredict`](https://sourcepredict.readthedocs.io/)
 
-See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
+Now, you can run the pipeline using:
 
-## Documentation
+```bash
+nextflow run nf-core/coproid \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --genome_sheet genomesheet.csv \
+   --kraken2_db 'PATH/TO/KRAKENDB' \
+   --sp_sources 'PATH/TO/SOURCEPREDICT/SOURCES/FILE' \
+   --sp_labels 'PATH/TO/SOURCEPREDICT/LABELS/FILE' \
+   --outdir <OUTDIR>
+```
 
-The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory:
+> [!WARNING]
+> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
+> see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-The nf-core/coproid pipeline comes with documentation about the pipeline, found in the `docs/` directory and at the following address: [coproid.readthedocs.io](https://coproid.readthedocs.io)
+For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/coproid/usage) and the [parameter documentation](https://nf-co.re/coproid/parameters).
 
-1. [Installation](https://nf-co.re/usage/installation)
-2. Pipeline configuration
-    - [Local installation](https://nf-co.re/usage/local_installation)
-    - [Adding your own system config](https://nf-co.re/usage/adding_own_config)
-    - [Reference genomes](https://nf-co.re/usage/reference_genomes)
-3. [Running the pipeline](docs/usage.md)
-4. [Output and how to interpret the results](docs/output.md)
-5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+## Pipeline output
+
+To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/coproid/results) tab on the nf-core website pipeline page.
+For more details about the output files and reports, please refer to the
+[output documentation](https://nf-co.re/coproid/output).
 
 ## Credits
 
-nf-core/coproid was written by [Maxime Borry](https://github.com/maxibor).
+nf-core/coproid was originally written by Maxime Borry & Meriam Van Os.
+
+<!-- We thank the following people for their extensive assistance in the development of this pipeline: -->
 
 ## Contributions and Support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
-For further information or help, don't hesitate to get in touch on [Slack](https://nfcore.slack.com/channels/coproid) (you can join with [this invite](https://nf-co.re/join/slack)).
+For further information or help, don't hesitate to get in touch on the [Slack `#coproid` channel](https://nfcore.slack.com/channels/coproid) (you can join with [this invite](https://nf-co.re/join/slack)).
 
-## Citing
+## Citations
 
-coproID has been published in [peerJ](https://peerj.com/articles/9001). The bibtex citation is available below:
+If you use nf-core/coproid for your analysis, please cite it using the following doi: [10.5281/zenodo.7292889](https://doi.org/10.5281/zenodo.7292889)
 
-```bibtex
-@article{borry_coproid_2020,
- title = {{CoproID} predicts the source of coprolites and paleofeces using microbiome composition and host {DNA} content},
- volume = {8},
- issn = {2167-8359},
- url = {https://peerj.com/articles/9001},
- doi = {10.7717/peerj.9001},
- language = {en},
- urldate = {2020-04-20},
- journal = {PeerJ},
- author = {Borry, Maxime and Cordova, Bryan and Perri, Angela and Wibowo, Marsha and Honap, Tanvi Prasad and Ko, Jada and Yu, Jie and Britton, Kate and Girdland-Flink, Linus and Power, Robert C. and Stuijts, Ingelise and Salazar-García, Domingo C. and Hofman, Courtney and Hagan, Richard and Kagoné, Thérèse Samdapawindé and Meda, Nicolas and Carabin, Helene and Jacobson, David and Reinhard, Karl and Lewis, Cecil and Kostic, Aleksandar and Jeong, Choongwon and Herbig, Alexander and Hübner, Alexander and Warinner, Christina},
- month = apr,
- year = {2020},
- note = {Publisher: PeerJ Inc.},
- pages = {e9001}
-}
-```
+An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
-## Contributors
+You can cite the `nf-core` publication as follows:
 
-[James A. Fellows Yates](https://github.com/jfy133)
-
-## Tool references
-
-- **AdapterRemoval v2** Schubert, M., Lindgreen, S., & Orlando, L. (2016). AdapterRemoval v2: rapid adapter trimming, identification, and read merging. BMC Research Notes, 9, 88. [https://doi.org/10.1186/s13104-016-1900-2](https://doi.org/10.1186/s13104-016-1900-2)
-- **FastQC** [https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
-- **Bowtie2** Langmead, B., & Salzberg, S. L. (2012). Fast gapped-read alignment with Bowtie 2. Nature methods, 9(4), 357. [https://dx.doi.org/10.1038%2Fnmeth.1923](https://dx.doi.org/10.1038%2Fnmeth.1923)
-- **Samtools** Li, H., Handsaker, B., Wysoker, A., Fennell, T., Ruan, J., Homer, N., … 1000 Genome Project Data Processing Subgroup. (2009). The Sequence Alignment/Map format and SAMtools. Bioinformatics , 25(16), 2078–2079. [https://doi.org/10.1093/bioinformatics/btp352](https://doi.org/10.1093/bioinformatics/btp352)
-- **Kraken2** Wood, D. E., Lu, J., & Langmead, B. (2019). Improved metagenomic analysis with Kraken 2. BioRxiv, 762302. [https://doi.org/10.1101/762302](https://doi.org/10.1101/762302)
-- **PMDTools** Skoglund, P., Northoff, B. H., Shunkov, M. V., Derevianko, A. P., Pääbo, S., Krause, J., & Jakobsson, M. (2014). Separating endogenous ancient DNA from modern day contamination in a Siberian Neandertal. Proceedings of the National Academy of Sciences of the United States of America, 111(6), 2229–2234. [https://doi.org/10.1073/pnas.1318934111](https://doi.org/10.1073/pnas.1318934111)
-- **DamageProfiler** Judith Neukamm (Unpublished): [10.5281/zenodo.1064062](https://doi.org/10.5281/zenodo.1064062)
-- **Sourcepredict** Borry, M. (2019). Sourcepredict: Prediction of metagenomic sample sources using dimension reduction followed by machine learning classification. The Journal of Open Source Software. [https://doi.org/10.21105/joss.01540](https://doi.org/10.21105/joss.01540)
-- **MultiQC** Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. [https://doi.org/10.1093/bioinformatics/btw354](https://doi.org/10.1093/bioinformatics/btw354)
+> **The nf-core framework for community-curated bioinformatics pipelines.**
+>
+> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
+>
+> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).

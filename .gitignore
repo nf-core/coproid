@@ -1,14 +1,9 @@
 .nextflow*
 work/
+data/
 results/
 .DS_Store
-tests/
 testing/
+testing*
 *.pyc
-*.ipynb_checkpoints
-docs/build/
-test/
-_build
-_static
-_templates
-.vscode
+null/

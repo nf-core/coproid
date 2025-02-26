@@ -1,0 +1,2155 @@
+Changes in module 'nf-core/bbmap/bbduk' between (666652151335353eef2fcd58880bcef5bc2928e1) and (a1abf90966a2a4016d3c3e41e228bfcbd4811ccc)
+'modules/nf-core/bbmap/bbduk/meta.yml' is unchanged
+Changes in 'bbmap/bbduk/environment.yml':
+--- a/modules/nf-core/bbmap/bbduk/environment.yml
++++ b/modules/nf-core/bbmap/bbduk/environment.yml
+@@ -2,4 +2,4 @@
+   - conda-forge
+   - bioconda
+ dependencies:
+-  - bioconda::bbmap=39.06
++  - bioconda::bbmap=39.10
+
+Changes in 'bbmap/bbduk/main.nf':
+--- a/modules/nf-core/bbmap/bbduk/main.nf
++++ b/modules/nf-core/bbmap/bbduk/main.nf
+@@ -4,8 +4,8 @@
+ 
+     conda "${moduleDir}/environment.yml"
+     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+-        'https://depot.galaxyproject.org/singularity/bbmap:39.06--h92535d8_1':
+-        'biocontainers/bbmap:39.06--h92535d8_1' }"
++        'https://depot.galaxyproject.org/singularity/bbmap:39.10--h92535d8_0':
++        'biocontainers/bbmap:39.10--h92535d8_0' }"
+ 
+     input:
+     tuple val(meta), path(reads)
+
+'modules/nf-core/bbmap/bbduk/tests/main.nf.test' is unchanged
+'modules/nf-core/bbmap/bbduk/tests/nextflow.config' is unchanged
+'modules/nf-core/bbmap/bbduk/tests/tags.yml' is unchanged
+Changes in 'bbmap/bbduk/tests/main.nf.test.snap':
+--- a/modules/nf-core/bbmap/bbduk/tests/main.nf.test.snap
++++ b/modules/nf-core/bbmap/bbduk/tests/main.nf.test.snap
+@@ -14,38 +14,38 @@
+                 ]
+             ],
+             [
+-                "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+             ]
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "24.04.2"
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.4"
+         },
+-        "timestamp": "2024-06-03T13:11:43.393701616"
++        "timestamp": "2024-10-19T15:58:21.643811233"
+     },
+     "sarscov2 - single end w/ contams [fastq,fasta] - fastq": {
+         "content": [
+             [
+-                "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+             ]
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "24.04.2"
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.4"
+         },
+-        "timestamp": "2024-06-03T13:30:39.201243568"
++        "timestamp": "2024-10-19T15:58:37.601191377"
+     },
+     "sarscov2 - paired end w/ contams [fastq,fasta] - fastq": {
+         "content": [
+             [
+-                "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+             ]
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "24.04.2"
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.4"
+         },
+-        "timestamp": "2024-06-03T13:48:13.446399236"
++        "timestamp": "2024-10-19T15:59:00.943639834"
+     },
+     "sarscov2 - paired end fastq - fastq - stub": {
+         "content": [
+@@ -72,7 +72,7 @@
+                     ]
+                 ],
+                 "2": [
+-                    "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                    "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+                 ],
+                 "log": [
+                     [
+@@ -96,15 +96,15 @@
+                     ]
+                 ],
+                 "versions": [
+-                    "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                    "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+                 ]
+             }
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "24.04.2"
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.4"
+         },
+-        "timestamp": "2024-06-03T13:12:31.910356296"
++        "timestamp": "2024-10-19T15:59:42.05304912"
+     },
+     "sarscov2 - single end fastq - fastq - stub": {
+         "content": [
+@@ -128,7 +128,7 @@
+                     ]
+                 ],
+                 "2": [
+-                    "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                    "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+                 ],
+                 "log": [
+                     [
+@@ -149,15 +149,15 @@
+                     ]
+                 ],
+                 "versions": [
+-                    "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                    "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+                 ]
+             }
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "24.04.2"
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.4"
+         },
+-        "timestamp": "2024-06-03T13:12:22.081697889"
++        "timestamp": "2024-10-19T15:59:25.580963139"
+     },
+     "sarscov2 - single end fastq - fastq": {
+         "content": [
+@@ -171,13 +171,13 @@
+                 ]
+             ],
+             [
+-                "versions.yml:md5,652ed24469a355fbc7a4ca892d23133e"
++                "versions.yml:md5,6d196411d38a3c3011a38e1a87c9203c"
+             ]
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "24.04.2"
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.4"
+         },
+-        "timestamp": "2024-06-03T13:11:31.383328059"
++        "timestamp": "2024-10-19T15:58:00.420305019"
+     }
+ }
+************************************************************
+Changes in module 'nf-core/bowtie2/align' between (666652151335353eef2fcd58880bcef5bc2928e1) and (0e9cb409c32d3ec4f0d3804588e4778971c09b7e)
+'modules/nf-core/bowtie2/align/environment.yml' is unchanged
+Changes in 'bowtie2/align/main.nf':
+--- a/modules/nf-core/bowtie2/align/main.nf
++++ b/modules/nf-core/bowtie2/align/main.nf
+@@ -88,7 +88,6 @@
+     } else {
+         create_unmapped = save_unaligned ? "touch ${prefix}.unmapped_1.fastq.gz && touch ${prefix}.unmapped_2.fastq.gz" : ""
+     }
+-    def reference = fasta && extension=="cram"  ? "--reference ${fasta}" : ""
+     if (!fasta && extension=="cram") error "Fasta reference is required for CRAM output"
+ 
+     def create_index = ""
+@@ -112,4 +111,4 @@
+     END_VERSIONS
+     """
+ 
+-}+}
+
+Changes in 'bowtie2/align/meta.yml':
+--- a/modules/nf-core/bowtie2/align/meta.yml
++++ b/modules/nf-core/bowtie2/align/meta.yml
+@@ -104,11 +104,11 @@
+   - log:
+       - meta:
+           type: file
+-          description: Aligment log
++          description: Alignment log
+           pattern: "*.log"
+       - "*.log":
+           type: file
+-          description: Aligment log
++          description: Alignment log
+           pattern: "*.log"
+   - fastq:
+       - meta:
+
+Changes in 'bowtie2/align/bowtie2-align.diff':
+--- a/modules/nf-core/bowtie2/align/bowtie2-align.diff
++++ b/modules/nf-core/bowtie2/align/bowtie2-align.diff
+@@ -1,6 +1,5 @@
+ Changes in module 'nf-core/bowtie2/align'
+ 'modules/nf-core/bowtie2/align/environment.yml' is unchanged
+-'modules/nf-core/bowtie2/align/meta.yml' is unchanged
+ Changes in 'bowtie2/align/main.nf':
+ --- modules/nf-core/bowtie2/align/main.nf
+ +++ modules/nf-core/bowtie2/align/main.nf
+@@ -15,17 +14,13 @@
+      val   save_unaligned
+      val   sort_bam
+  
+-@@ -114,4 +112,4 @@
+-     END_VERSIONS
+-     """
+- 
+--}
+-+}
++
++'modules/nf-core/bowtie2/align/meta.yml' is unchanged
++'modules/nf-core/bowtie2/align/tests/large_index.config' is unchanged
++'modules/nf-core/bowtie2/align/tests/sam.config' is unchanged
++'modules/nf-core/bowtie2/align/tests/sam2.config' is unchanged
+ 'modules/nf-core/bowtie2/align/tests/tags.yml' is unchanged
+-'modules/nf-core/bowtie2/align/tests/sam.config' is unchanged
+ 'modules/nf-core/bowtie2/align/tests/cram_crai.config' is unchanged
+-'modules/nf-core/bowtie2/align/tests/sam2.config' is unchanged
+ 'modules/nf-core/bowtie2/align/tests/main.nf.test' is unchanged
+-'modules/nf-core/bowtie2/align/tests/large_index.config' is unchanged
+ 'modules/nf-core/bowtie2/align/tests/main.nf.test.snap' is unchanged
+ ************************************************************
+
+'modules/nf-core/bowtie2/align/tests/large_index.config' is unchanged
+'modules/nf-core/bowtie2/align/tests/sam.config' is unchanged
+'modules/nf-core/bowtie2/align/tests/sam2.config' is unchanged
+'modules/nf-core/bowtie2/align/tests/tags.yml' is unchanged
+'modules/nf-core/bowtie2/align/tests/cram_crai.config' is unchanged
+'modules/nf-core/bowtie2/align/tests/main.nf.test' is unchanged
+'modules/nf-core/bowtie2/align/tests/main.nf.test.snap' is unchanged
+************************************************************
+Changes in module 'nf-core/fastqc' between (285a50500f9e02578d90b3ce6382ea3c30216acd) and (08108058ea36a63f141c25c4e75f9f872a5b2296)
+Changes in 'fastqc/meta.yml':
+--- a/modules/nf-core/fastqc/meta.yml
++++ b/modules/nf-core/fastqc/meta.yml
+@@ -11,40 +11,50 @@
+         FastQC gives general quality metrics about your reads.
+         It provides information about the quality score distribution
+         across your reads, the per base sequence content (%A/C/G/T).
++
+         You get information about adapter contamination and other
+         overrepresented sequences.
+       homepage: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+       documentation: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/
+       licence: ["GPL-2.0-only"]
++      identifier: biotools:fastqc
+ input:
+-  - meta:
+-      type: map
+-      description: |
+-        Groovy Map containing sample information
+-        e.g. [ id:'test', single_end:false ]
+-  - reads:
+-      type: file
+-      description: |
+-        List of input FastQ files of size 1 and 2 for single-end and paired-end data,
+-        respectively.
++  - - meta:
++        type: map
++        description: |
++          Groovy Map containing sample information
++          e.g. [ id:'test', single_end:false ]
++    - reads:
++        type: file
++        description: |
++          List of input FastQ files of size 1 and 2 for single-end and paired-end data,
++          respectively.
+ output:
+-  - meta:
+-      type: map
+-      description: |
+-        Groovy Map containing sample information
+-        e.g. [ id:'test', single_end:false ]
+   - html:
+-      type: file
+-      description: FastQC report
+-      pattern: "*_{fastqc.html}"
++      - meta:
++          type: map
++          description: |
++            Groovy Map containing sample information
++            e.g. [ id:'test', single_end:false ]
++      - "*.html":
++          type: file
++          description: FastQC report
++          pattern: "*_{fastqc.html}"
+   - zip:
+-      type: file
+-      description: FastQC report archive
+-      pattern: "*_{fastqc.zip}"
++      - meta:
++          type: map
++          description: |
++            Groovy Map containing sample information
++            e.g. [ id:'test', single_end:false ]
++      - "*.zip":
++          type: file
++          description: FastQC report archive
++          pattern: "*_{fastqc.zip}"
+   - versions:
+-      type: file
+-      description: File containing software versions
+-      pattern: "versions.yml"
++      - versions.yml:
++          type: file
++          description: File containing software versions
++          pattern: "versions.yml"
+ authors:
+   - "@drpatelh"
+   - "@grst"
+
+Changes in 'fastqc/environment.yml':
+--- a/modules/nf-core/fastqc/environment.yml
++++ b/modules/nf-core/fastqc/environment.yml
+@@ -1,7 +1,5 @@
+-name: fastqc
+ channels:
+   - conda-forge
+   - bioconda
+-  - defaults
+ dependencies:
+   - bioconda::fastqc=0.12.1
+
+Changes in 'fastqc/main.nf':
+--- a/modules/nf-core/fastqc/main.nf
++++ b/modules/nf-core/fastqc/main.nf
+@@ -1,5 +1,5 @@
+ process FASTQC {
+-    tag "$meta.id"
++    tag "${meta.id}"
+     label 'process_medium'
+ 
+     conda "${moduleDir}/environment.yml"
+@@ -19,27 +19,30 @@
+     task.ext.when == null || task.ext.when
+ 
+     script:
+-    def args = task.ext.args ?: ''
+-    def prefix = task.ext.prefix ?: "${meta.id}"
++    def args          = task.ext.args ?: ''
++    def prefix        = task.ext.prefix ?: "${meta.id}"
+     // Make list of old name and new name pairs to use for renaming in the bash while loop
+     def old_new_pairs = reads instanceof Path || reads.size() == 1 ? [[ reads, "${prefix}.${reads.extension}" ]] : reads.withIndex().collect { entry, index -> [ entry, "${prefix}_${index + 1}.${entry.extension}" ] }
+-    def rename_to = old_new_pairs*.join(' ').join(' ')
+-    def renamed_files = old_new_pairs.collect{ old_name, new_name -> new_name }.join(' ')
++    def rename_to     = old_new_pairs*.join(' ').join(' ')
++    def renamed_files = old_new_pairs.collect{ _old_name, new_name -> new_name }.join(' ')
+ 
+-    def memory_in_mb = MemoryUnit.of("${task.memory}").toUnit('MB')
++    // The total amount of allocated RAM by FastQC is equal to the number of threads defined (--threads) time the amount of RAM defined (--memory)
++    // https://github.com/s-andrews/FastQC/blob/1faeea0412093224d7f6a07f777fad60a5650795/fastqc#L211-L222
++    // Dividing the task.memory by task.cpu allows to stick to requested amount of RAM in the label
++    def memory_in_mb = task.memory ? task.memory.toUnit('MB').toFloat() / task.cpus : null
+     // FastQC memory value allowed range (100 - 10000)
+     def fastqc_memory = memory_in_mb > 10000 ? 10000 : (memory_in_mb < 100 ? 100 : memory_in_mb)
+ 
+     """
+-    printf "%s %s\\n" $rename_to | while read old_name new_name; do
++    printf "%s %s\\n" ${rename_to} | while read old_name new_name; do
+         [ -f "\${new_name}" ] || ln -s \$old_name \$new_name
+     done
+ 
+     fastqc \\
+-        $args \\
+-        --threads $task.cpus \\
+-        --memory $fastqc_memory \\
+-        $renamed_files
++        ${args} \\
++        --threads ${task.cpus} \\
++        --memory ${fastqc_memory} \\
++        ${renamed_files}
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
+
+Changes in 'fastqc/tests/main.nf.test':
+--- a/modules/nf-core/fastqc/tests/main.nf.test
++++ b/modules/nf-core/fastqc/tests/main.nf.test
+@@ -23,17 +23,14 @@
+ 
+         then {
+             assertAll (
+-            { assert process.success },
+-
+-            // NOTE The report contains the date inside it, which means that the md5sum is stable per day, but not longer than that. So you can't md5sum it.
+-            // looks like this: <div id="header_filename">Mon 2 Oct 2023<br/>test.gz</div>
+-            // https://github.com/nf-core/modules/pull/3903#issuecomment-1743620039
+-
+-            { assert process.out.html[0][1] ==~ ".*/test_fastqc.html" },
+-            { assert process.out.zip[0][1] ==~ ".*/test_fastqc.zip" },
+-            { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-
+-            { assert snapshot(process.out.versions).match("fastqc_versions_single") }
++                { assert process.success },
++                // NOTE The report contains the date inside it, which means that the md5sum is stable per day, but not longer than that. So you can't md5sum it.
++                // looks like this: <div id="header_filename">Mon 2 Oct 2023<br/>test.gz</div>
++                // https://github.com/nf-core/modules/pull/3903#issuecomment-1743620039
++                { assert process.out.html[0][1] ==~ ".*/test_fastqc.html" },
++                { assert process.out.zip[0][1] ==~ ".*/test_fastqc.zip" },
++                { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert snapshot(process.out.versions).match() }
+             )
+         }
+     }
+@@ -54,16 +51,14 @@
+ 
+         then {
+             assertAll (
+-            { assert process.success },
+-
+-            { assert process.out.html[0][1][0] ==~ ".*/test_1_fastqc.html" },
+-            { assert process.out.html[0][1][1] ==~ ".*/test_2_fastqc.html" },
+-            { assert process.out.zip[0][1][0] ==~ ".*/test_1_fastqc.zip" },
+-            { assert process.out.zip[0][1][1] ==~ ".*/test_2_fastqc.zip" },
+-            { assert path(process.out.html[0][1][0]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-            { assert path(process.out.html[0][1][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-
+-            { assert snapshot(process.out.versions).match("fastqc_versions_paired") }
++                { assert process.success },
++                { assert process.out.html[0][1][0] ==~ ".*/test_1_fastqc.html" },
++                { assert process.out.html[0][1][1] ==~ ".*/test_2_fastqc.html" },
++                { assert process.out.zip[0][1][0] ==~ ".*/test_1_fastqc.zip" },
++                { assert process.out.zip[0][1][1] ==~ ".*/test_2_fastqc.zip" },
++                { assert path(process.out.html[0][1][0]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert path(process.out.html[0][1][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert snapshot(process.out.versions).match() }
+             )
+         }
+     }
+@@ -83,13 +78,11 @@
+ 
+         then {
+             assertAll (
+-            { assert process.success },
+-
+-            { assert process.out.html[0][1] ==~ ".*/test_fastqc.html" },
+-            { assert process.out.zip[0][1] ==~ ".*/test_fastqc.zip" },
+-            { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-
+-            { assert snapshot(process.out.versions).match("fastqc_versions_interleaved") }
++                { assert process.success },
++                { assert process.out.html[0][1] ==~ ".*/test_fastqc.html" },
++                { assert process.out.zip[0][1] ==~ ".*/test_fastqc.zip" },
++                { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert snapshot(process.out.versions).match() }
+             )
+         }
+     }
+@@ -109,13 +102,11 @@
+ 
+         then {
+             assertAll (
+-            { assert process.success },
+-
+-            { assert process.out.html[0][1] ==~ ".*/test_fastqc.html" },
+-            { assert process.out.zip[0][1] ==~ ".*/test_fastqc.zip" },
+-            { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-
+-            { assert snapshot(process.out.versions).match("fastqc_versions_bam") }
++                { assert process.success },
++                { assert process.out.html[0][1] ==~ ".*/test_fastqc.html" },
++                { assert process.out.zip[0][1] ==~ ".*/test_fastqc.zip" },
++                { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert snapshot(process.out.versions).match() }
+             )
+         }
+     }
+@@ -138,22 +129,20 @@
+ 
+         then {
+             assertAll (
+-            { assert process.success },
+-
+-            { assert process.out.html[0][1][0] ==~ ".*/test_1_fastqc.html" },
+-            { assert process.out.html[0][1][1] ==~ ".*/test_2_fastqc.html" },
+-            { assert process.out.html[0][1][2] ==~ ".*/test_3_fastqc.html" },
+-            { assert process.out.html[0][1][3] ==~ ".*/test_4_fastqc.html" },
+-            { assert process.out.zip[0][1][0] ==~ ".*/test_1_fastqc.zip" },
+-            { assert process.out.zip[0][1][1] ==~ ".*/test_2_fastqc.zip" },
+-            { assert process.out.zip[0][1][2] ==~ ".*/test_3_fastqc.zip" },
+-            { assert process.out.zip[0][1][3] ==~ ".*/test_4_fastqc.zip" },
+-            { assert path(process.out.html[0][1][0]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-            { assert path(process.out.html[0][1][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-            { assert path(process.out.html[0][1][2]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-            { assert path(process.out.html[0][1][3]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-
+-            { assert snapshot(process.out.versions).match("fastqc_versions_multiple") }
++                { assert process.success },
++                { assert process.out.html[0][1][0] ==~ ".*/test_1_fastqc.html" },
++                { assert process.out.html[0][1][1] ==~ ".*/test_2_fastqc.html" },
++                { assert process.out.html[0][1][2] ==~ ".*/test_3_fastqc.html" },
++                { assert process.out.html[0][1][3] ==~ ".*/test_4_fastqc.html" },
++                { assert process.out.zip[0][1][0] ==~ ".*/test_1_fastqc.zip" },
++                { assert process.out.zip[0][1][1] ==~ ".*/test_2_fastqc.zip" },
++                { assert process.out.zip[0][1][2] ==~ ".*/test_3_fastqc.zip" },
++                { assert process.out.zip[0][1][3] ==~ ".*/test_4_fastqc.zip" },
++                { assert path(process.out.html[0][1][0]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert path(process.out.html[0][1][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert path(process.out.html[0][1][2]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert path(process.out.html[0][1][3]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert snapshot(process.out.versions).match() }
+             )
+         }
+     }
+@@ -173,21 +162,18 @@
+ 
+         then {
+             assertAll (
+-            { assert process.success },
+-
+-            { assert process.out.html[0][1] ==~ ".*/mysample_fastqc.html" },
+-            { assert process.out.zip[0][1] ==~ ".*/mysample_fastqc.zip" },
+-            { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
+-
+-            { assert snapshot(process.out.versions).match("fastqc_versions_custom_prefix") }
++                { assert process.success },
++                { assert process.out.html[0][1] ==~ ".*/mysample_fastqc.html" },
++                { assert process.out.zip[0][1] ==~ ".*/mysample_fastqc.zip" },
++                { assert path(process.out.html[0][1]).text.contains("<tr><td>File type</td><td>Conventional base calls</td></tr>") },
++                { assert snapshot(process.out.versions).match() }
+             )
+         }
+     }
+ 
+     test("sarscov2 single-end [fastq] - stub") {
+ 
+-        options "-stub"
+-
++    options "-stub"
+         when {
+             process {
+                 """
+@@ -201,12 +187,123 @@
+ 
+         then {
+             assertAll (
+-            { assert process.success },
+-            { assert snapshot(process.out.html.collect { file(it[1]).getName() } +
+-                                process.out.zip.collect { file(it[1]).getName() } +
+-                                process.out.versions ).match("fastqc_stub") }
+-            )
+-        }
+-    }
+-
++                { assert process.success },
++                { assert snapshot(process.out).match() }
++            )
++        }
++    }
++
++    test("sarscov2 paired-end [fastq] - stub") {
++
++    options "-stub"
++        when {
++            process {
++                """
++                input[0] = Channel.of([
++                    [id: 'test', single_end: false], // meta map
++                    [ file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_1.fastq.gz', checkIfExists: true),
++                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_2.fastq.gz', checkIfExists: true) ]
++                ])
++                """
++            }
++        }
++
++        then {
++            assertAll (
++                { assert process.success },
++                { assert snapshot(process.out).match() }
++            )
++        }
++    }
++
++    test("sarscov2 interleaved [fastq] - stub") {
++
++    options "-stub"
++        when {
++            process {
++                """
++                input[0] = Channel.of([
++                    [id: 'test', single_end: false], // meta map
++                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_interleaved.fastq.gz', checkIfExists: true)
++                ])
++            """
++            }
++        }
++
++        then {
++            assertAll (
++                { assert process.success },
++                { assert snapshot(process.out).match() }
++            )
++        }
++    }
++
++    test("sarscov2 paired-end [bam] - stub") {
++
++    options "-stub"
++        when {
++            process {
++                """
++                input[0] = Channel.of([
++                    [id: 'test', single_end: false], // meta map
++                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true)
++                ])
++                """
++            }
++        }
++
++        then {
++            assertAll (
++                { assert process.success },
++                { assert snapshot(process.out).match() }
++            )
++        }
++    }
++
++    test("sarscov2 multiple [fastq] - stub") {
++
++    options "-stub"
++        when {
++            process {
++                """
++                input[0] = Channel.of([
++                    [id: 'test', single_end: false], // meta map
++                    [ file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_1.fastq.gz', checkIfExists: true),
++                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_2.fastq.gz', checkIfExists: true),
++                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test2_1.fastq.gz', checkIfExists: true),
++                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test2_2.fastq.gz', checkIfExists: true) ]
++                ])
++                """
++            }
++        }
++
++        then {
++            assertAll (
++                { assert process.success },
++                { assert snapshot(process.out).match() }
++            )
++        }
++    }
++
++    test("sarscov2 custom_prefix - stub") {
++
++    options "-stub"
++        when {
++            process {
++                """
++                input[0] = Channel.of([
++                    [ id:'mysample', single_end:true ], // meta map
++                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_1.fastq.gz', checkIfExists: true)
++                ])
++                """
++            }
++        }
++
++        then {
++            assertAll (
++                { assert process.success },
++                { assert snapshot(process.out).match() }
++            )
++        }
++    }
+ }
+
+Changes in 'fastqc/tests/main.nf.test.snap':
+--- a/modules/nf-core/fastqc/tests/main.nf.test.snap
++++ b/modules/nf-core/fastqc/tests/main.nf.test.snap
+@@ -1,88 +1,392 @@
+ {
+-    "fastqc_versions_interleaved": {
+-        "content": [
+-            [
+-                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-01-31T17:40:07.293713"
+-    },
+-    "fastqc_stub": {
+-        "content": [
+-            [
+-                "test.html",
+-                "test.zip",
+-                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-01-31T17:31:01.425198"
+-    },
+-    "fastqc_versions_multiple": {
+-        "content": [
+-            [
+-                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-01-31T17:40:55.797907"
+-    },
+-    "fastqc_versions_bam": {
+-        "content": [
+-            [
+-                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-01-31T17:40:26.795862"
+-    },
+-    "fastqc_versions_single": {
+-        "content": [
+-            [
+-                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-01-31T17:39:27.043675"
+-    },
+-    "fastqc_versions_paired": {
+-        "content": [
+-            [
+-                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-01-31T17:39:47.584191"
+-    },
+-    "fastqc_versions_custom_prefix": {
+-        "content": [
+-            [
+-                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-01-31T17:41:14.576531"
++    "sarscov2 custom_prefix": {
++        "content": [
++            [
++                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++            ]
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:02:16.374038"
++    },
++    "sarscov2 single-end [fastq] - stub": {
++        "content": [
++            {
++                "0": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": true
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "1": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": true
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "2": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "html": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": true
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "versions": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "zip": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": true
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:02:24.993809"
++    },
++    "sarscov2 custom_prefix - stub": {
++        "content": [
++            {
++                "0": [
++                    [
++                        {
++                            "id": "mysample",
++                            "single_end": true
++                        },
++                        "mysample.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "1": [
++                    [
++                        {
++                            "id": "mysample",
++                            "single_end": true
++                        },
++                        "mysample.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "2": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "html": [
++                    [
++                        {
++                            "id": "mysample",
++                            "single_end": true
++                        },
++                        "mysample.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "versions": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "zip": [
++                    [
++                        {
++                            "id": "mysample",
++                            "single_end": true
++                        },
++                        "mysample.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:03:10.93942"
++    },
++    "sarscov2 interleaved [fastq]": {
++        "content": [
++            [
++                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++            ]
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:01:42.355718"
++    },
++    "sarscov2 paired-end [bam]": {
++        "content": [
++            [
++                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++            ]
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:01:53.276274"
++    },
++    "sarscov2 multiple [fastq]": {
++        "content": [
++            [
++                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++            ]
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:02:05.527626"
++    },
++    "sarscov2 paired-end [fastq]": {
++        "content": [
++            [
++                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++            ]
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:01:31.188871"
++    },
++    "sarscov2 paired-end [fastq] - stub": {
++        "content": [
++            {
++                "0": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "1": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "2": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "html": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "versions": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "zip": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:02:34.273566"
++    },
++    "sarscov2 multiple [fastq] - stub": {
++        "content": [
++            {
++                "0": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "1": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "2": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "html": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "versions": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "zip": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:03:02.304411"
++    },
++    "sarscov2 single-end [fastq]": {
++        "content": [
++            [
++                "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++            ]
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:01:19.095607"
++    },
++    "sarscov2 interleaved [fastq] - stub": {
++        "content": [
++            {
++                "0": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "1": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "2": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "html": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "versions": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "zip": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:02:44.640184"
++    },
++    "sarscov2 paired-end [bam] - stub": {
++        "content": [
++            {
++                "0": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "1": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "2": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "html": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ],
++                "versions": [
++                    "versions.yml:md5,e1cc25ca8af856014824abd842e93978"
++                ],
++                "zip": [
++                    [
++                        {
++                            "id": "test",
++                            "single_end": false
++                        },
++                        "test.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
++                    ]
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.0",
++            "nextflow": "24.04.3"
++        },
++        "timestamp": "2024-07-22T11:02:53.550742"
+     }
+ }
+'modules/nf-core/fastqc/tests/tags.yml' was removed
+************************************************************
+Changes in module 'nf-core/kraken2/kraken2' between (666652151335353eef2fcd58880bcef5bc2928e1) and (0e9cb409c32d3ec4f0d3804588e4778971c09b7e)
+'modules/nf-core/kraken2/kraken2/environment.yml' is unchanged
+'modules/nf-core/kraken2/kraken2/main.nf' is unchanged
+Changes in 'kraken2/kraken2/meta.yml':
+--- a/modules/nf-core/kraken2/kraken2/meta.yml
++++ b/modules/nf-core/kraken2/kraken2/meta.yml
+@@ -84,7 +84,7 @@
+           type: file
+           description: |
+             Kraken2 report containing stats about classified
+-            and not classifed reads.
++            and not classified reads.
+           pattern: "*.{report.txt}"
+   - versions:
+       - versions.yml:
+
+'modules/nf-core/kraken2/kraken2/tests/tags.yml' is unchanged
+'modules/nf-core/kraken2/kraken2/tests/main.nf.test' is unchanged
+'modules/nf-core/kraken2/kraken2/tests/main.nf.test.snap' is unchanged
+************************************************************
+Changes in module 'nf-core/multiqc' between (b7ebe95761cd389603f9cc0e0dc384c0f663815a) and (f0719ae309075ae4a291533883847c3f7c441dad)
+Changes in 'multiqc/meta.yml':
+--- a/modules/nf-core/multiqc/meta.yml
++++ b/modules/nf-core/multiqc/meta.yml
+@@ -1,5 +1,6 @@
+ name: multiqc
+-description: Aggregate results from bioinformatics analyses across many samples into a single report
++description: Aggregate results from bioinformatics analyses across many samples into
++  a single report
+ keywords:
+   - QC
+   - bioinformatics tools
+@@ -12,40 +13,59 @@
+       homepage: https://multiqc.info/
+       documentation: https://multiqc.info/docs/
+       licence: ["GPL-3.0-or-later"]
++      identifier: biotools:multiqc
+ input:
+-  - multiqc_files:
+-      type: file
+-      description: |
+-        List of reports / files recognised by MultiQC, for example the html and zip output of FastQC
+-  - multiqc_config:
+-      type: file
+-      description: Optional config yml for MultiQC
+-      pattern: "*.{yml,yaml}"
+-  - extra_multiqc_config:
+-      type: file
+-      description: Second optional config yml for MultiQC. Will override common sections in multiqc_config.
+-      pattern: "*.{yml,yaml}"
+-  - multiqc_logo:
+-      type: file
+-      description: Optional logo file for MultiQC
+-      pattern: "*.{png}"
++  - - multiqc_files:
++        type: file
++        description: |
++          List of reports / files recognised by MultiQC, for example the html and zip output of FastQC
++  - - multiqc_config:
++        type: file
++        description: Optional config yml for MultiQC
++        pattern: "*.{yml,yaml}"
++  - - extra_multiqc_config:
++        type: file
++        description: Second optional config yml for MultiQC. Will override common sections
++          in multiqc_config.
++        pattern: "*.{yml,yaml}"
++  - - multiqc_logo:
++        type: file
++        description: Optional logo file for MultiQC
++        pattern: "*.{png}"
++  - - replace_names:
++        type: file
++        description: |
++          Optional two-column sample renaming file. First column a set of
++          patterns, second column a set of corresponding replacements. Passed via
++          MultiQC's `--replace-names` option.
++        pattern: "*.{tsv}"
++  - - sample_names:
++        type: file
++        description: |
++          Optional TSV file with headers, passed to the MultiQC --sample_names
++          argument.
++        pattern: "*.{tsv}"
+ output:
+   - report:
+-      type: file
+-      description: MultiQC report file
+-      pattern: "multiqc_report.html"
++      - "*multiqc_report.html":
++          type: file
++          description: MultiQC report file
++          pattern: "multiqc_report.html"
+   - data:
+-      type: directory
+-      description: MultiQC data dir
+-      pattern: "multiqc_data"
++      - "*_data":
++          type: directory
++          description: MultiQC data dir
++          pattern: "multiqc_data"
+   - plots:
+-      type: file
+-      description: Plots created by MultiQC
+-      pattern: "*_data"
++      - "*_plots":
++          type: file
++          description: Plots created by MultiQC
++          pattern: "*_data"
+   - versions:
+-      type: file
+-      description: File containing software versions
+-      pattern: "versions.yml"
++      - versions.yml:
++          type: file
++          description: File containing software versions
++          pattern: "versions.yml"
+ authors:
+   - "@abhi18av"
+   - "@bunop"
+
+Changes in 'multiqc/environment.yml':
+--- a/modules/nf-core/multiqc/environment.yml
++++ b/modules/nf-core/multiqc/environment.yml
+@@ -1,7 +1,5 @@
+-name: multiqc
+ channels:
+   - conda-forge
+   - bioconda
+-  - defaults
+ dependencies:
+-  - bioconda::multiqc=1.21
++  - bioconda::multiqc=1.27
+
+Changes in 'multiqc/main.nf':
+--- a/modules/nf-core/multiqc/main.nf
++++ b/modules/nf-core/multiqc/main.nf
+@@ -3,14 +3,16 @@
+ 
+     conda "${moduleDir}/environment.yml"
+     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+-        'https://depot.galaxyproject.org/singularity/multiqc:1.21--pyhdfd78af_0' :
+-        'biocontainers/multiqc:1.21--pyhdfd78af_0' }"
++        'https://depot.galaxyproject.org/singularity/multiqc:1.27--pyhdfd78af_0' :
++        'biocontainers/multiqc:1.27--pyhdfd78af_0' }"
+ 
+     input:
+     path  multiqc_files, stageAs: "?/*"
+     path(multiqc_config)
+     path(extra_multiqc_config)
+     path(multiqc_logo)
++    path(replace_names)
++    path(sample_names)
+ 
+     output:
+     path "*multiqc_report.html", emit: report
+@@ -23,16 +25,22 @@
+ 
+     script:
+     def args = task.ext.args ?: ''
++    def prefix = task.ext.prefix ? "--filename ${task.ext.prefix}.html" : ''
+     def config = multiqc_config ? "--config $multiqc_config" : ''
+     def extra_config = extra_multiqc_config ? "--config $extra_multiqc_config" : ''
+-    def logo = multiqc_logo ? /--cl-config 'custom_logo: "${multiqc_logo}"'/ : ''
++    def logo = multiqc_logo ? "--cl-config 'custom_logo: \"${multiqc_logo}\"'" : ''
++    def replace = replace_names ? "--replace-names ${replace_names}" : ''
++    def samples = sample_names ? "--sample-names ${sample_names}" : ''
+     """
+     multiqc \\
+         --force \\
+         $args \\
+         $config \\
++        $prefix \\
+         $extra_config \\
+         $logo \\
++        $replace \\
++        $samples \\
+         .
+ 
+     cat <<-END_VERSIONS > versions.yml
+@@ -44,7 +52,7 @@
+     stub:
+     """
+     mkdir multiqc_data
+-    touch multiqc_plots
++    mkdir multiqc_plots
+     touch multiqc_report.html
+ 
+     cat <<-END_VERSIONS > versions.yml
+
+'modules/nf-core/multiqc/tests/tags.yml' is unchanged
+Changes in 'multiqc/tests/main.nf.test':
+--- a/modules/nf-core/multiqc/tests/main.nf.test
++++ b/modules/nf-core/multiqc/tests/main.nf.test
+@@ -8,6 +8,8 @@
+     tag "modules_nfcore"
+     tag "multiqc"
+ 
++    config "./nextflow.config"
++
+     test("sarscov2 single-end [fastqc]") {
+ 
+         when {
+@@ -17,6 +19,8 @@
+                 input[1] = []
+                 input[2] = []
+                 input[3] = []
++                input[4] = []
++                input[5] = []
+                 """
+             }
+         }
+@@ -41,6 +45,8 @@
+                 input[1] = Channel.of(file("https://github.com/nf-core/tools/raw/dev/nf_core/pipeline-template/assets/multiqc_config.yml", checkIfExists: true))
+                 input[2] = []
+                 input[3] = []
++                input[4] = []
++                input[5] = []
+                 """
+             }
+         }
+@@ -66,6 +72,8 @@
+                 input[1] = []
+                 input[2] = []
+                 input[3] = []
++                input[4] = []
++                input[5] = []
+                 """
+             }
+         }
+
+'modules/nf-core/multiqc/tests/nextflow.config' was created
+Changes in 'multiqc/tests/main.nf.test.snap':
+--- a/modules/nf-core/multiqc/tests/main.nf.test.snap
++++ b/modules/nf-core/multiqc/tests/main.nf.test.snap
+@@ -2,14 +2,14 @@
+     "multiqc_versions_single": {
+         "content": [
+             [
+-                "versions.yml:md5,21f35ee29416b9b3073c28733efe4b7d"
++                "versions.yml:md5,8f3b8c1cec5388cf2708be948c9fa42f"
+             ]
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.4"
+         },
+-        "timestamp": "2024-02-29T08:48:55.657331"
++        "timestamp": "2025-01-27T09:29:57.631982377"
+     },
+     "multiqc_stub": {
+         "content": [
+@@ -17,25 +17,25 @@
+                 "multiqc_report.html",
+                 "multiqc_data",
+                 "multiqc_plots",
+-                "versions.yml:md5,21f35ee29416b9b3073c28733efe4b7d"
++                "versions.yml:md5,8f3b8c1cec5388cf2708be948c9fa42f"
+             ]
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.4"
+         },
+-        "timestamp": "2024-02-29T08:49:49.071937"
++        "timestamp": "2025-01-27T09:30:34.743726958"
+     },
+     "multiqc_versions_config": {
+         "content": [
+             [
+-                "versions.yml:md5,21f35ee29416b9b3073c28733efe4b7d"
++                "versions.yml:md5,8f3b8c1cec5388cf2708be948c9fa42f"
+             ]
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.4"
+         },
+-        "timestamp": "2024-02-29T08:49:25.457567"
++        "timestamp": "2025-01-27T09:30:21.44383553"
+     }
+ }
+************************************************************
+Changes in module 'nf-core/pydamage/analyze' between (666652151335353eef2fcd58880bcef5bc2928e1) and (f5de03e33783fe0a303d9f5732e4d3782aa545ed)
+'modules/nf-core/pydamage/analyze/environment.yml' is unchanged
+Changes in 'pydamage/analyze/main.nf':
+--- a/modules/nf-core/pydamage/analyze/main.nf
++++ b/modules/nf-core/pydamage/analyze/main.nf
+@@ -26,7 +26,7 @@
+         $args \\
+         -p $task.cpus \\
+         $bam
+-    
++
+     mv pydamage_results/pydamage_results.csv pydamage_results/${prefix}_pydamage_results.csv
+ 
+     cat <<-END_VERSIONS > versions.yml
+
+Changes in 'pydamage/analyze/meta.yml':
+--- a/modules/nf-core/pydamage/analyze/meta.yml
++++ b/modules/nf-core/pydamage/analyze/meta.yml
+@@ -42,7 +42,7 @@
+           description: |
+             Groovy Map containing sample information
+             e.g. [ id:'test', single_end:false ]
+-      - pydamage_results.csv:
++      - pydamage_results/*_pydamage_results.csv:
+           type: file
+           description: PyDamage results as csv files
+           pattern: "*.csv"
+
+'modules/nf-core/pydamage/analyze/pydamage-analyze.diff' was created
+'modules/nf-core/pydamage/analyze/tests/main.nf.test' is unchanged
+Changes in 'pydamage/analyze/tests/main.nf.test.snap':
+--- a/modules/nf-core/pydamage/analyze/tests/main.nf.test.snap
++++ b/modules/nf-core/pydamage/analyze/tests/main.nf.test.snap
+@@ -8,7 +8,7 @@
+                             "id": "test",
+                             "single_end": false
+                         },
+-                        "pydamage_results.csv:md5,37ee6b4dee6890fd2ec8550337f21ac9"
++                        "test_pydamage_results.csv:md5,37ee6b4dee6890fd2ec8550337f21ac9"
+                     ]
+                 ],
+                 "1": [
+@@ -20,7 +20,7 @@
+                             "id": "test",
+                             "single_end": false
+                         },
+-                        "pydamage_results.csv:md5,37ee6b4dee6890fd2ec8550337f21ac9"
++                        "test_pydamage_results.csv:md5,37ee6b4dee6890fd2ec8550337f21ac9"
+                     ]
+                 ],
+                 "versions": [
+@@ -29,9 +29,9 @@
+             }
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
++            "nf-test": "0.9.0",
+             "nextflow": "24.04.4"
+         },
+-        "timestamp": "2024-08-27T14:06:38.530007"
++        "timestamp": "2024-11-26T15:13:19.888455981"
+     }
+ }
+************************************************************
+Changes in module 'nf-core/quartonotebook' between (0e2d0c6d94f048eb1ba88924a0c87edc2c1bd6ef) and (0e9cb409c32d3ec4f0d3804588e4778971c09b7e)
+'modules/nf-core/quartonotebook/parametrize.nf' is unchanged
+'modules/nf-core/quartonotebook/meta.yml' is unchanged
+Changes in 'quartonotebook/Dockerfile':
+--- a/modules/nf-core/quartonotebook/Dockerfile
++++ b/modules/nf-core/quartonotebook/Dockerfile
+@@ -1,25 +1,17 @@
+-#
+-# First stage: Quarto installation
+-#
+-FROM ubuntu:24.04 as quarto
++FROM condaforge/mambaforge:24.9.2-0
++#@sha256:e4edd160d0a10c6f577b127021d853b460e7e8c1bf1850c9aa4a52c4b8d9c8ee
+ ARG QUARTO_VERSION=1.3.433
+ ARG TARGETARCH
+-RUN apt-get update \
+-    && apt-get install -y --no-install-recommends \
+-        ca-certificates \
+-        curl \
+-    && apt-get clean
+ 
+-RUN mkdir -p /opt/quarto \
+-    && curl -o quarto.tar.gz -L "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" \
+-    && tar -zxvf quarto.tar.gz -C /opt/quarto/ --strip-components=1 \
+-    && rm quarto.tar.gz
++LABEL org.opencontainers.image.authors="Erik Fasterius"
++LABEL org.opencontainers.image.description="Dockerfile for the quartonotebook nf-core module"
++LABEL org.opencontainers.image.version="$QUARTO_VERSION"
++LABEL org.opencontainers.image.documentation="https://github.com/nf-core/modules/blob/master/modules/nf-core/quartonotebook/README.md"
++LABEL org.opencontainers.image.source="https://github.com/nf-core/modules"
++LABEL org.opencontainers.image.vendor="nf-core"
++LABEL org.opencontainers.image.license="https://github.com/nf-core/modules/blob/master/LICENSE"
+ 
+-#
+-# Second stage: Conda environment
+-#
+-FROM condaforge/mambaforge:24.1.2-0@sha256:64c45c1a743737f61cf201f54cae974b5c853be94f9c1a84f5e82e0e854f0407
+-COPY --from=quarto /opt/quarto /opt/quarto
++ADD https://github.com/quarto-dev/quarto-cli#v${QUARTO_VERSION} /opt/quarto
+ ENV PATH="${PATH}:/opt/quarto/bin"
+ 
+ # Install packages using Mamba; also remove static libraries, python bytecode
+@@ -32,7 +24,3 @@
+     && find /opt/conda -follow -type f -name '*.js.map' -delete
+ 
+ CMD /bin/bash
+-
+-LABEL \
+-    authors = "Erik Fasterius" \
+-    description = "Dockerfile for the quartonotebook nf-core module"
+
+Changes in 'quartonotebook/environment.yml':
+--- a/modules/nf-core/quartonotebook/environment.yml
++++ b/modules/nf-core/quartonotebook/environment.yml
+@@ -1,9 +1,15 @@
+ channels:
+   - conda-forge
+   - bioconda
+-
+ dependencies:
++  # renovate: datasource=conda depName=conda-forge/quarto
++  # FIXME https://github.com/nf-core/modules/issues/7006
++  - conda-forge::quarto=1.5.57
++  # renovate: datasource=conda depName=conda-forge/jupyter
+   - conda-forge::jupyter=1.0.0
++  # renovate: datasource=conda depName=conda-forge/matplotlib
+   - conda-forge::matplotlib=3.4.3
++  # renovate: datasource=conda depName=conda-forge/papermill
+   - conda-forge::papermill=2.4.0
++  # renovate: datasource=conda depName=conda-forge/r-rmarkdown
+   - conda-forge::r-rmarkdown=2.25
+
+Changes in 'quartonotebook/main.nf':
+--- a/modules/nf-core/quartonotebook/main.nf
++++ b/modules/nf-core/quartonotebook/main.nf
+@@ -1,16 +1,17 @@
+-include { dumpParamsYaml; indentCodeBlock } from "./parametrize"
++include { dumpParamsYaml ; indentCodeBlock } from "./parametrize"
+ 
++// NB: You'll likely want to override this with a container containing all
++// required dependencies for your analyses. Or use wave to build the container
++// for you from the environment.yml You'll at least need Quarto itself,
++// Papermill and whatever language you are running your analyses on; you can see
++// an example in this module's Dockerfile.
+ process QUARTONOTEBOOK {
+-    tag "$meta.id"
++    tag "${meta.id}"
+     label 'process_low'
+-
+-    // NB: You'll likely want to override this with a container containing all
+-    // required dependencies for your analyses. You'll at least need Quarto
+-    // itself, Papermill and whatever language you are running your analyses on;
+-    // you can see an example in this module's Dockerfile.
+-
+-    container = 'library://meriamos/coproid/quarto_container:latest'
+- //   container "docker.io/erikfas/quartonotebook"
++    conda "${moduleDir}/environment.yml"
++    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
++        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/25/25d0a9decefd5d369b8f9b8c934640bd61493df2c95c39b0c580e765e0d2a644/data'
++        : 'community.wave.seqera.io/library/quarto_jupyter_matplotlib_papermill_r-rmarkdown:95c6620495eabcd1'}"
+ 
+     input:
+     tuple val(meta), path(notebook)
+@@ -19,29 +20,33 @@
+     path extensions
+ 
+     output:
+-    tuple val(meta), path("*.html")     , emit: html
++    tuple val(meta), path("*.html"), emit: html
+     tuple val(meta), path("${notebook}"), emit: notebook
+     tuple val(meta), path("artifacts/*"), emit: artifacts, optional: true
+-    tuple val(meta), path("params.yml") , emit: params_yaml, optional: true
++    tuple val(meta), path("params.yml"), emit: params_yaml, optional: true
+     tuple val(meta), path("_extensions"), emit: extensions, optional: true
+-    path "versions.yml"                 , emit: versions
++    path "versions.yml", emit: versions
+ 
+     when:
+     task.ext.when == null || task.ext.when
+ 
+     script:
+-    // Exit if running this module with -profile conda / -profile mamba
+-    // This is because of issues with getting a homogenous environment across
++    // FIXME https://github.com/nf-core/modules/issues/7006
++    // Exit if running this module with -profile conda / -profile mamba on ARM64
++    // This is because of issues with getting a homogeneous environment across
+     // both AMD64 and ARM64 architectures; please find more information at
+     // https://github.com/nf-core/modules/pull/4876#discussion_r1483541037.
+     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
+-        exit 1, "The QUARTONOTEBOOK module does not support Conda/Mamba, please use Docker / Singularity / Podman instead."
++        arch = System.getProperty("os.arch")
++        if (arch == "arm64" || arch == "aarch64") {
++            exit(1, "The QUARTONOTEBOOK module does not support Conda/Mamba on ARM64. Please use Docker / Singularity / Podman instead.")
++        }
+     }
+     def args = task.ext.args ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}"
+-    def parametrize = (task.ext.parametrize == null) ?  true : task.ext.parametrize
+-    def implicit_params = (task.ext.implicit_params == null) ? true : task.ext.implicit_params
+-    def meta_params = (task.ext.meta_params == null) ? true : task.ext.meta_params
++    def parametrize = task.ext.parametrize == null ? true : task.ext.parametrize
++    def implicit_params = task.ext.implicit_params == null ? true : task.ext.implicit_params
++    def meta_params = task.ext.meta_params == null ? true : task.ext.meta_params
+ 
+     // Dump parameters to yaml file.
+     // Using a YAML file over using the CLI params because
+@@ -76,10 +81,10 @@
+     export XDG_DATA_HOME="./.xdg_data_home"
+ 
+     # Set parallelism for BLAS/MKL etc. to avoid over-booking of resources
+-    export MKL_NUM_THREADS="$task.cpus"
+-    export OPENBLAS_NUM_THREADS="$task.cpus"
+-    export OMP_NUM_THREADS="$task.cpus"
+-    export NUMBA_NUM_THREADS="$task.cpus"
++    export MKL_NUM_THREADS="${task.cpus}"
++    export OPENBLAS_NUM_THREADS="${task.cpus}"
++    export OMP_NUM_THREADS="${task.cpus}"
++    export NUMBA_NUM_THREADS="${task.cpus}"
+ 
+     # Render notebook
+     quarto render \\
+
+'modules/nf-core/quartonotebook/quartonotebook.diff' was created
+'modules/nf-core/quartonotebook/tests/no-parametrization.config' is unchanged
+'modules/nf-core/quartonotebook/tests/tags.yml' is unchanged
+'modules/nf-core/quartonotebook/tests/with-parametrization.config' is unchanged
+Changes in 'quartonotebook/tests/main.nf.test':
+--- a/modules/nf-core/quartonotebook/tests/main.nf.test
++++ b/modules/nf-core/quartonotebook/tests/main.nf.test
+@@ -57,11 +57,11 @@
+             assertAll(
+                 { assert process.success },
+                 { assert snapshot(
+-                    process.out.versions,
+                     process.out.artifacts,
+                     process.out.params_yaml,
++                    path(process.out.versions.get(0)).yaml,
+                 ).match() },
+-                { assert path(process.out.html[0][1]).readLines().any { it.contains('Hello world') } }
++                { assert path(process.out.html[0][1]).readLines().any { it.contains('Hello world') } },
+             )
+         }
+ 
+@@ -116,11 +116,11 @@
+             assertAll(
+                 { assert process.success },
+                 { assert snapshot(
+-                    process.out.versions,
+                     process.out.artifacts,
+                     process.out.params_yaml,
++                    path(process.out.versions.get(0)).yaml,
+                 ).match() },
+-                { assert path(process.out.html[0][1]).readLines().any { it.contains('Hello world') } }
++                { assert path(process.out.html[0][1]).readLines().any { it.contains('Hello world') } },
+             )
+         }
+ 
+
+Changes in 'quartonotebook/tests/main.nf.test.snap':
+--- a/modules/nf-core/quartonotebook/tests/main.nf.test.snap
++++ b/modules/nf-core/quartonotebook/tests/main.nf.test.snap
+@@ -28,7 +28,7 @@
+                     
+                 ],
+                 "5": [
+-                    "versions.yml:md5,93481281b24bb1b44ecc4387e0957a0e"
++                    "versions.yml:md5,ffc26b6a27e3d215b616594faba5c2a9"
+                 ],
+                 "artifacts": [
+                     
+@@ -56,15 +56,15 @@
+                     
+                 ],
+                 "versions": [
+-                    "versions.yml:md5,93481281b24bb1b44ecc4387e0957a0e"
+-                ]
+-            }
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-02-09T11:06:33.408525"
++                    "versions.yml:md5,ffc26b6a27e3d215b616594faba5c2a9"
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.0"
++        },
++        "timestamp": "2024-11-16T13:53:41.964249"
+     },
+     "test notebook - [qmd:r]": {
+         "content": [
+@@ -74,7 +74,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,f09282296a5eee0154665975d842c07e"
++                        "test.html:md5,b9b82aa1595b9987a5b34cb7355daa5f"
+                     ]
+                 ],
+                 "1": [
+@@ -95,7 +95,7 @@
+                     
+                 ],
+                 "5": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
+                 ],
+                 "artifacts": [
+                     
+@@ -108,7 +108,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,f09282296a5eee0154665975d842c07e"
++                        "test.html:md5,b9b82aa1595b9987a5b34cb7355daa5f"
+                     ]
+                 ],
+                 "notebook": [
+@@ -123,21 +123,18 @@
+                     
+                 ],
+                 "versions": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
+-                ]
+-            }
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-02-09T11:05:50.985424"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.0"
++        },
++        "timestamp": "2024-11-16T13:52:40.074638"
+     },
+     "test notebook - parametrized - [qmd:python]": {
+         "content": [
+-            [
+-                "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
+-            ],
+             [
+                 [
+                     {
+@@ -153,13 +150,19 @@
+                     },
+                     "params.yml:md5,efd62bc975f429e8749ba787a93042dd"
+                 ]
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-02-09T09:21:18.194591"
++            ],
++            {
++                "QUARTONOTEBOOK": {
++                    "quarto": "1.5.57",
++                    "papermill": "2.4.0"
++                }
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.0"
++        },
++        "timestamp": "2024-11-16T14:11:57.879957"
+     },
+     "test notebook - parametrized - [rmd]": {
+         "content": [
+@@ -169,7 +172,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,2b2026646ed8b59d49fdcbd54cb3a463"
++                        "test.html:md5,423772071657c5d3c89493fd4e255f48"
+                     ]
+                 ],
+                 "1": [
+@@ -200,7 +203,7 @@
+                     
+                 ],
+                 "5": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
+                 ],
+                 "artifacts": [
+                     [
+@@ -218,7 +221,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,2b2026646ed8b59d49fdcbd54cb3a463"
++                        "test.html:md5,423772071657c5d3c89493fd4e255f48"
+                     ]
+                 ],
+                 "notebook": [
+@@ -238,15 +241,15 @@
+                     ]
+                 ],
+                 "versions": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
+-                ]
+-            }
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-02-09T11:06:25.046249"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.0"
++        },
++        "timestamp": "2024-11-16T13:53:28.301993"
+     },
+     "test notebook - parametrized - [ipynb]": {
+         "content": [
+@@ -256,7 +259,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,d7378ec0d1fd83b44424a68bf03a8fc3"
++                        "test.html:md5,69914f2a054bb4b4a8e953fef551883e"
+                     ]
+                 ],
+                 "1": [
+@@ -282,7 +285,7 @@
+                     
+                 ],
+                 "5": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
+                 ],
+                 "artifacts": [
+                     
+@@ -295,7 +298,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,d7378ec0d1fd83b44424a68bf03a8fc3"
++                        "test.html:md5,69914f2a054bb4b4a8e953fef551883e"
+                     ]
+                 ],
+                 "notebook": [
+@@ -315,33 +318,36 @@
+                     ]
+                 ],
+                 "versions": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
+-                ]
+-            }
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-02-09T11:06:30.278412"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.0"
++        },
++        "timestamp": "2024-11-16T13:53:36.84715"
+     },
+     "test notebook - [qmd:python]": {
+         "content": [
+-            [
+-                "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
+-            ],
+             [
+                 
+             ],
+             [
+                 
+-            ]
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-02-09T09:21:00.324109"
++            ],
++            {
++                "QUARTONOTEBOOK": {
++                    "quarto": "1.5.57",
++                    "papermill": "2.4.0"
++                }
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.0"
++        },
++        "timestamp": "2024-11-16T14:11:31.953539"
+     },
+     "test notebook - parametrized - [qmd:r]": {
+         "content": [
+@@ -351,7 +357,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,a25cdff28851a163d28669d4e62655af"
++                        "test.html:md5,398d97ba8c2aca840fda4a064b1f037b"
+                     ]
+                 ],
+                 "1": [
+@@ -382,7 +388,7 @@
+                     
+                 ],
+                 "5": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
+                 ],
+                 "artifacts": [
+                     [
+@@ -400,7 +406,7 @@
+                         {
+                             "id": "test"
+                         },
+-                        "test.html:md5,a25cdff28851a163d28669d4e62655af"
++                        "test.html:md5,398d97ba8c2aca840fda4a064b1f037b"
+                     ]
+                 ],
+                 "notebook": [
+@@ -420,14 +426,14 @@
+                     ]
+                 ],
+                 "versions": [
+-                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
+-                ]
+-            }
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.10.1"
+-        },
+-        "timestamp": "2024-02-09T11:06:08.013103"
++                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
++                ]
++            }
++        ],
++        "meta": {
++            "nf-test": "0.9.2",
++            "nextflow": "24.10.0"
++        },
++        "timestamp": "2024-11-16T13:53:06.685421"
+     }
+ }
+************************************************************
+Changes in module 'nf-core/sam2lca/analyze' between (666652151335353eef2fcd58880bcef5bc2928e1) and (0e9cb409c32d3ec4f0d3804588e4778971c09b7e)
+'modules/nf-core/sam2lca/analyze/environment.yml' is unchanged
+'modules/nf-core/sam2lca/analyze/main.nf' is unchanged
+Changes in 'sam2lca/analyze/meta.yml':
+--- a/modules/nf-core/sam2lca/analyze/meta.yml
++++ b/modules/nf-core/sam2lca/analyze/meta.yml
+@@ -64,7 +64,7 @@
+       - "*.bam":
+           type: file
+           description: Optional sorted BAM/CRAM/SAM file annotated with LCA taxonomic
+-            informations
++            information
+           pattern: "*.bam"
+   - versions:
+       - versions.yml:
+
+'modules/nf-core/sam2lca/analyze/tests/main.nf.test' is unchanged
+'modules/nf-core/sam2lca/analyze/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/sam2lca/analyze/tests/nextflow.config' is unchanged
+************************************************************
+Changes in module 'nf-core/untar' between (666652151335353eef2fcd58880bcef5bc2928e1) and (3e548877f25a5980a177cc4f81d2d2e8c24164ef)
+Changes in 'untar/environment.yml':
+--- a/modules/nf-core/untar/environment.yml
++++ b/modules/nf-core/untar/environment.yml
+@@ -2,6 +2,9 @@
+   - conda-forge
+   - bioconda
+ dependencies:
++  - conda-forge::coreutils=9.5
+   - conda-forge::grep=3.11
++  - conda-forge::gzip=1.13
++  - conda-forge::lbzip2=2.5
+   - conda-forge::sed=4.8
+   - conda-forge::tar=1.34
+
+Changes in 'untar/main.nf':
+--- a/modules/nf-core/untar/main.nf
++++ b/modules/nf-core/untar/main.nf
+@@ -1,46 +1,46 @@
+ process UNTAR {
+-    tag "$archive"
++    tag "${archive}"
+     label 'process_single'
+ 
+     conda "${moduleDir}/environment.yml"
+-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+-        'https://depot.galaxyproject.org/singularity/ubuntu:22.04' :
+-        'nf-core/ubuntu:22.04' }"
++    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
++        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/52/52ccce28d2ab928ab862e25aae26314d69c8e38bd41ca9431c67ef05221348aa/data'
++        : 'community.wave.seqera.io/library/coreutils_grep_gzip_lbzip2_pruned:838ba80435a629f8'}"
+ 
+     input:
+     tuple val(meta), path(archive)
+ 
+     output:
+-    tuple val(meta), path("$prefix"), emit: untar
+-    path "versions.yml"             , emit: versions
++    tuple val(meta), path("${prefix}"), emit: untar
++    path "versions.yml", emit: versions
+ 
+     when:
+     task.ext.when == null || task.ext.when
+ 
+     script:
+-    def args  = task.ext.args ?: ''
++    def args = task.ext.args ?: ''
+     def args2 = task.ext.args2 ?: ''
+-    prefix    = task.ext.prefix ?: ( meta.id ? "${meta.id}" : archive.baseName.toString().replaceFirst(/\.tar$/, ""))
++    prefix = task.ext.prefix ?: (meta.id ? "${meta.id}" : archive.baseName.toString().replaceFirst(/\.tar$/, ""))
+ 
+     """
+-    mkdir $prefix
++    mkdir ${prefix}
+ 
+     ## Ensures --strip-components only applied when top level of tar contents is a directory
+     ## If just files or multiple directories, place all in prefix
+     if [[ \$(tar -taf ${archive} | grep -o -P "^.*?\\/" | uniq | wc -l) -eq 1 ]]; then
+         tar \\
+-            -C $prefix --strip-components 1 \\
++            -C ${prefix} --strip-components 1 \\
+             -xavf \\
+-            $args \\
+-            $archive \\
+-            $args2
++            ${args} \\
++            ${archive} \\
++            ${args2}
+     else
+         tar \\
+-            -C $prefix \\
++            -C ${prefix} \\
+             -xavf \\
+-            $args \\
+-            $archive \\
+-            $args2
++            ${args} \\
++            ${archive} \\
++            ${args2}
+     fi
+ 
+     cat <<-END_VERSIONS > versions.yml
+@@ -50,7 +50,7 @@
+     """
+ 
+     stub:
+-    prefix    = task.ext.prefix ?: ( meta.id ? "${meta.id}" : archive.toString().replaceFirst(/\.[^\.]+(.gz)?$/, ""))
++    prefix = task.ext.prefix ?: (meta.id ? "${meta.id}" : archive.toString().replaceFirst(/\.[^\.]+(.gz)?$/, ""))
+     """
+     mkdir ${prefix}
+     ## Dry-run untaring the archive to get the files and place all in prefix
+
+Changes in 'untar/meta.yml':
+--- a/modules/nf-core/untar/meta.yml
++++ b/modules/nf-core/untar/meta.yml
+@@ -28,9 +28,12 @@
+           description: |
+             Groovy Map containing sample information
+             e.g. [ id:'test', single_end:false ]
+-      - $prefix:
+-          type: directory
+-          description: Directory containing contents of archive
++          pattern: "*/"
++      - ${prefix}:
++          type: map
++          description: |
++            Groovy Map containing sample information
++            e.g. [ id:'test', single_end:false ]
+           pattern: "*/"
+   - versions:
+       - versions.yml:
+
+'modules/nf-core/untar/tests/tags.yml' is unchanged
+'modules/nf-core/untar/tests/main.nf.test' is unchanged
+'modules/nf-core/untar/tests/main.nf.test.snap' is unchanged
+************************************************************
+Changes in './modules.json'
+************************************************************

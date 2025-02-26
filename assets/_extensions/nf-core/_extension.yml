@@ -1,0 +1,25 @@
+title: nf-core Quarto Extension
+author: Maxime Borry and Meriam van Os
+version: 2.0.0
+quarto-required: ">=1.2.0"
+contributes:
+  formats:
+    html:
+      code-fold: true
+      df-print: paged
+      embed-resources: true
+      highlight-style: nf-core.theme
+      smooth-scroll: true
+      theme: [default, nf-core.scss]
+      toc: true
+      toc-image: coproid_logo.png
+      toc-location: left
+      template-partials:
+        - toc.html
+    revealjs:
+      code-line-numbers: false
+      embed-resources: true
+      logo: coproid_logo.png
+      slide-level: 2
+      slide-number: false
+      theme: [default, nf-core.scss]

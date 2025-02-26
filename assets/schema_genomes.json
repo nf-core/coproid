@@ -1,0 +1,67 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/coproid/master/assets/schema_genomes.json",
+    "title": "nf-core/coproid pipeline - params.genomes schema",
+    "description": "Schema for the file provided with params.genomes",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "genome_name": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Genome name must be provided and cannot contain spaces",
+                "meta": ["genome_name"]
+            },
+            "taxid": {
+                "type": "integer",
+                "pattern": "^\\d+$",
+                "errorMessage": "Taxid must be provided",
+                "meta": ["taxid"]
+            },
+            "genome_size": {
+                "type": "integer",
+                "pattern": "^\\d+$",
+                "errorMessage": "Genome size must be provided and cannot contain spaces",
+                "meta": ["genome_size"]
+            },
+            "igenome": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "file-path",
+                        "pattern": "^\\S+$"
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ],
+                "exists": true,
+                "errorMessage": "iGenome name or fasta must be provided"
+            },
+            "fasta": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "file-path",
+                        "pattern": "^\\S+\\.(fasta|fas|fa|fna)(\\.gz)?$"
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ],
+                "exists": true,
+                "errorMessage": "iGenome name or fasta must be provided"
+            },
+            "index": {
+                "type": "string",
+                "format": "path",
+                "exists": true
+            }
+        },
+        "required": ["genome_name", "taxid", "genome_size"],
+        "oneOf": [{ "required": ["igenome"] }, { "required": ["fasta"] }]
+    }
+}

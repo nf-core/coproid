@@ -1,0 +1,308 @@
+---
+title: "coproID report test"
+format:
+    nf-core-html: default
+editor: visual
+---
+
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+library(ggplot2)
+library(plotly)
+library(tibble)
+library(rlang)
+library(magrittr)
+library(tidyr)
+library(knitr)
+library(ggh4x)
+```
+
+_Pipeline version 2.0_
+
+# Introduction
+
+[coproID](https://github.com/nf-core/coproID) is a pipeline designed to identify the source of coprolites, but can also be used to track the source of other metagenomic samples. More information regarding the pipeline and the output files can be found here: [coproid.readthedocs](https://coproid.readthedocs.io/en/latest/output.html)
+
+# Summary coproID
+
+Figure 1 shows the predicted host species, based on the normalised sam2lca and the sourcepredict proportions per source species (sp), per sample. The probability was calculated by:
+
+$$
+Probability_{sp}  = NormalisedSam2lcaProportion_{sp} * SourcepredictProportion_{sp}
+$$
+
+**Figure1. CoproID probability per source species **
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+sam2lca <- read.csv("coproid.sam2lca_merged_report.csv")
+colnames(sam2lca) <- gsub("name", "Taxa", colnames(sam2lca))
+genomes <- read.csv("genomesheet.csv")
+colnames(genomes) <- gsub("taxid", "TAXID", colnames(genomes))
+
+sam2lca <- merge(sam2lca, genomes[, c("TAXID", "genome_size")],
+                 by = "TAXID", all.x = TRUE)
+sam2lca <- sam2lca[, c(setdiff(colnames(sam2lca), "genome_size")[1:3],
+            "genome_size", setdiff(colnames(sam2lca), "genome_size")[-(1:3)])]
+
+
+sample_columns <- colnames(sam2lca)[5:ncol(sam2lca)]
+
+num_rows <- nrow(sam2lca)
+
+sam2lca$normalisation_factor <- (sum(sam2lca$genome_size) / num_rows) / sam2lca$genome_size
+
+sam2lca <- sam2lca[, c(setdiff(colnames(sam2lca), "normalisation_factor")[1:4],
+            "normalisation_factor", setdiff(colnames(sam2lca),
+            "normalisation_factor")[-(1:4)])]
+
+# Normalize the sample columns by multiplying with the normalization factor
+for (col in sample_columns) {
+  sam2lca[[paste0(col, "_normalised")]] <- sam2lca[[col]] * sam2lca$normalisation_factor
+}
+
+table <- sam2lca
+
+if (ncol(as.data.frame(sam2lca[, -c(1:5)])) > 1) {
+  sam2lca[, -c(1:5)] <- sweep(sam2lca[, -c(1:5)], 2, colSums(sam2lca[, -c(1:5)]), FUN = "/")
+} else {
+  sam2lca[, 6] <- sam2lca[, 6] / sum(sam2lca[, 6])
+}
+
+sam_long <- sam2lca %>%
+  pivot_longer(cols = contains("_normalised"),
+               names_to = "Sample",
+                values_to = "Fraction") %>%
+  .[, c("TAXID", "Taxa", "rank", "genome_size", "normalisation_factor", "Sample", "Fraction")]
+
+
+sam_long_norm <- sam_long[grep("_normalised", sam_long$Sample), ]
+sam_long_norm$Sample <- gsub("_normalised", "", sam_long_norm$Sample)
+
+
+sp <- read.csv("coproid.report.sourcepredict.csv")
+sp$X <- gsub("unknown", "Unknown", sp$X)
+sp$X <- gsub("_", " ", sp$X)
+spT <- t(sp[-1]) %>%
+  as.data.frame()
+colnames(spT) <- sp$X
+spT <- rownames_to_column(spT, var = "Sample")
+
+sp_long <- spT %>%
+  pivot_longer(
+    cols = c(,-1),
+    names_to = "Taxa",
+    values_to = "Fraction")
+
+
+probabilities <- merge(sam_long_norm, sp_long, by = c("Sample", "Taxa"), all.x = TRUE)
+probabilities$probability <- probabilities$Fraction.x * probabilities$Fraction.y
+probabilities <- probabilities[-(3:6)]
+probabilities <- probabilities[, !grepl("^Fraction", colnames(probabilities))]
+
+prob_wide <- probabilities %>%
+  pivot_wider(names_from = Taxa, values_from = probability,
+              names_prefix = "Probability ")
+
+x_col <- colnames(prob_wide)[2]
+y_col <- colnames(prob_wide)[3]
+
+prob_plot <- ggplot(prob_wide, aes(x = .data[[x_col]], y = .data[[y_col]], colour = Sample)) +
+  geom_rect(aes(xmin = 0, xmax = 0.5, ymin = 0, ymax = 0.5),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  geom_rect(aes(xmin = 0.5, xmax = 1, ymin = 0, ymax = 0.5),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  geom_rect(aes(xmin = 0, xmax = 0.5, ymin = 0.5, ymax = 1),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  geom_rect(aes(xmin = 0.5, xmax = 1, ymin = 0.5, ymax = 1),
+        fill = "gray", alpha = 0.2, color = "black", size = 0.25, linetype = "dashed") +
+  annotate("text", x = 0.25, y = 0.25, label = "Unknown", size = 5, colour = "darkgray") +
+  annotate("text", x = 0.75, y = 0.25, label = gsub("Probability", "", colnames(prob_wide)[2]), size = 5, colour = "darkgray") +
+  annotate("text", x = 0.25, y = 0.75, label = gsub("Probability", "", colnames(prob_wide)[3]), size = 5, colour = "darkgray") +
+  annotate("text", x = 0.75, y = 0.75, label = "Unknown", size = 5, colour = "darkgray") +
+  geom_point(size = 3) + xlim(0,1) + ylim(0,1) +
+  labs(colour = "Predicted Organism")
+
+ggplotly(prob_plot, tooltip = "all")
+
+```
+
+# Host DNA
+
+Figure 2 shows the prediction per source species based on the genome references provided.
+
+The host DNA prediction was calculated by aligning the pre-processed reads to the different reference genomes. Alignments were then analysed with sam2lca to retain only reads that are specific to a reference (see Table 1). Reads that aligned equally well to multiple references were identify as belonging to a Common Lower Ancestor and removed from the read counts.
+
+The sam2lca read count was then normalised by the size of the genome. First a normalisation factor was calculation per reference, or source species (sp):
+
+$$
+NormalisationFactor_{sp}  = AverageReferenceLength / ReferenceLength_{sp}
+$$
+
+The normalised read counts were then calculated by:
+
+$$
+NormalisedReads_{sp} = sam2lcaReads_{sp} * NormalisationFactor_{sp}
+$$
+
+**Figure 2.** **Stacked barplot of source prediction per sample based on the mapping and normalised [sam2lca](https://sam2lca.readthedocs.io/en/latest/) results.**
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+sam_plot <- ggplot(sam_long_norm, aes(x = Fraction,
+                  y = Sample, fill = Taxa, text = paste("Sample:", Sample))) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set2")
+
+ggplotly(sam_plot, tooltip = "all")
+```
+<p style="margin-bottom: 0.75cm;"></p>
+
+**Table 1. Raw and normalised number of reads per sample based on the mapping and sam2lca results.**
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+table <- table %>%
+  mutate(
+    normalisation_factor = sprintf("%.2f", normalisation_factor),
+    across(where(is.numeric) & !matches("normalisation_factor"), ~ round(., 0))
+  )
+
+table <- table[, -c(1,3)]
+
+
+table_wide <- table %>%
+  pivot_longer(cols = -c(1:3),
+               names_to = "Sample",
+               values_to = "value") %>%
+  mutate(normalised = ifelse(grepl("_normalised$", Sample), "yes", "no"))
+table_wide$Sample <- gsub("_normalised", "", table_wide$Sample)
+table_wider <- table_wide %>%
+  pivot_wider(names_from = normalised, values_from = value,
+              names_prefix = "value_normalised_") %>%
+  select(Taxa, genome_size, normalisation_factor, Sample,
+         value_normalised_no, value_normalised_yes) %>%
+  select(Sample, everything()) %>%
+  arrange(desc(Sample))
+
+colnames(table_wider) <- gsub("value_normalised_no", "Reads mapped", colnames(table_wider))
+colnames(table_wider) <- gsub("value_normalised_yes", "Reads normalised", colnames(table_wider))
+colnames(table_wider) <- gsub("genome_size", "Genome size (bp)", colnames(table_wider))
+colnames(table_wider) <- gsub("normalisation_factor", "Normalisation factor", colnames(table_wider))
+
+# Create the kable table
+kable(table_wider)
+
+```
+
+# Microbial source tracking
+
+Figure 3 shows the prediction per source species based on the sourcepredict analyses. For further info on the tool and underlying methods see [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html).
+
+**Figure 3.** **Stacked barplot of source prediction per sample based on the sourcepredict analyses.**
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+portions <- ggplot(sp_long, aes(x = Fraction, y = Sample, fill = Taxa)) +
+  geom_col() +
+  scale_fill_brewer(palette = "Set2") +
+  theme(axis.text.x = element_text(hjust = 1, size = 8))
+
+interactive_plot <- ggplotly(portions, tooltip = "all")
+interactive_plot
+```
+
+<p style="margin-bottom: 0.75cm;"></p>
+
+**Table 2. Source prediction per sample based on the [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html) analysis.**
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+kable(spT)
+```
+
+# Embedding
+
+The figure below shows the embedding results calculated by sourcepredict.
+
+**Figure 4. Scatter plot based on the embedding file generated by [sourcepredict](https://sourcepredict.readthedocs.io/en/latest/usage.html).**
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+embedding <- read.csv(file = 'coproid.embedding.sourcepredict.csv')
+colnames(embedding) <- gsub("labels", "Labels", colnames(embedding))
+embedding$Labels <- gsub("_", " ", embedding$Labels)
+embedding$Labels <- gsub("known", "Unknown", embedding$Labels)
+
+scatter <- ggplot(data = embedding,
+       mapping = aes(x = PC2, y = PC1 ,
+                     color = Labels,
+       text = paste("Name:", name))) +
+  geom_point() + theme_classic() +
+  scale_colour_brewer(palette = "Set2")
+
+interactive_plot <- ggplotly(scatter, tooltip = "all")
+interactive_plot
+
+```
+
+# Ancient DNA damage
+
+Figure 5 shows the damage on the '5 end and the -log(10)(p-value). The higher the damage on the '5 end the more likely that the DNA is ancient. A high -log(10)(p-value), means a low p-value, meaning the damage model is a good fit. For further documentation see [pydamage](https://pydamage.readthedocs.io/en/latest/index.html).
+
+**Warning**: If only a few reads align to the reference (see table 1), the pydamge results are not accurate. If this is the case, check the predicted accuracy in the pyDamage output tables.
+
+**Figure 5. Pydamage results**
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+pydamage <- read.csv("coproid.pydamage_merged_report.csv")
+pydamage$Taxa <- gsub("_", " ", pydamage$Taxa)
+pydamage$pvalue <- pydamage$pvalue + 10^(-6)
+pydamage$log <- -log10(pydamage$pvalue)
+
+ggplot(pydamage, aes(x = damage_model_pmax, y = log,
+                      colour = Sample, shape = Taxa)) +
+                  geom_point(size = 3) +
+                  labs(x = "Modelled amount of damage on 5' end",
+                       y = "-log(10)(p-value)",
+                       title = "") +
+                  guides(colour = guide_legend(title = "Sample"),
+                         shape = guide_legend(title = "Taxa"))
+
+#ggplotly(pydamage_plot, tooltip = "all")
+```
+
+**Figure 6. Individual [damage profiler](https://damageprofiler.readthedocs.io/en/latest/) plots with 5' end (left) and 3' end (right)**
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+damage <- read.csv("coproid.damageprofiler_merged_report.csv", header = TRUE, sep = "")
+colnames(damage) <- gsub("X", "", colnames(damage))
+damage$Reference <- gsub("_", " ", damage$Reference)
+
+damage_long <- damage %>%
+  gather(key = "position", value = "value",
+         -c(1:3)) %>%
+  mutate(position = as.numeric(position))
+
+damage_long <- damage_long %>%
+  mutate(prime_end = factor(prime_end, levels = c("5pCtoT", "3pGtoA")))
+
+# Create the plot for each sample with 5pCtoT on the left and 3pGtoA on the right
+damage_plot <- ggplot(damage_long, aes(x = position, y = value,
+                    color = Reference, group = Reference)) +
+  geom_line() +
+  facet_grid(Sample ~ prime_end, scales = "free_x") +
+  theme_minimal() +
+  scale_colour_brewer(palette = "Set2") +
+  labs(x = "Distance (bp)", y = "Deamination frequency") +
+  theme(panel.spacing = unit(1, "lines")) +
+  theme(strip.text.y = element_text(angle = 0, size = 8))
+
+# Set scales for each subplot
+position_scales <- list(
+  scale_x_continuous(), scale_x_reverse())
+
+damage_plot <- damage_plot + facetted_pos_scales(x = position_scales)
+# Final plot
+damage_plot
+```
