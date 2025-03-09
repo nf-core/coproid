@@ -7,3 +7,4 @@ lint:
   files_unchanged:
     - docs/images/nf-core-coproid_logo_light.png
     - docs/images/nf-core-coproid_logo_dark.png
+
