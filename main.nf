@@ -18,7 +18,7 @@
 include { COPROID  } from './workflows/coproid'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_coproid_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_coproid_pipeline'
-include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_coproid_pipeline'
+//include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_coproid_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
