@@ -1,9 +1,16 @@
-nf_core_version: 3.2.0
-repository_type: pipeline
-template:
-  prefix: nf-core
-  skip: []
 lint:
   files_unchanged:
     - docs/images/nf-core-coproid_logo_light.png
     - docs/images/nf-core-coproid_logo_dark.png
+nf_core_version: 3.2.0
+repository_type: pipeline
+template:
+  author: Maxime Borry & Meriam Van Os
+  description: " COPROlite host IDentification "
+  force: false
+  is_nfcore: true
+  name: coproid
+  org: nf-core
+  outdir: .
+  skip_features: []
+  version: 2.0dev
