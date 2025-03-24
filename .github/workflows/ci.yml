@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         NXF_VER:
-          - "24.04.2"
+          - "23.04.0"
         profile:
           - "docker"
           - "singularity"
