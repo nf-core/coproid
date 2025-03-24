@@ -5,7 +5,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v2.0dev - [date]
 
-Initial release of nf-core/coproid, created with the [nf-core](https://nf-co.re/) template.
+nf-core/coproid v2.0 is based on [nf-core](https://nf-co.re/) DSL2 template.
+This release is a complete rewrite of the original nf-core/coproid pipeline, originally written in Nextflow DSL1. It also includes new features, and/or uppdated tools.
+
+### Changed:
+
+- DSL2 rewrite
+- fastp replaced AdapterRemoval for read quality trimming/merging.
+- sam2lca is now used for computing the endogenous host DNA quantity, instead of custom python scripts, allowing for handling more flexibly test host genomes.
+- Pipeline reporting is now performed using Quarto, instead of Jupyter notebook
+
+### New
+
+- aDNA damage testing using PyDamage
+- Interactive plots in report
+- Unit testing of most modules in the pipeline.
 
 ### `Added`
 
