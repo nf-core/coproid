@@ -43,7 +43,7 @@
         "pipeline_options": {
             "title": "Pipeline options",
             "type": "object",
-            "description": "",
+            "description": "Options to be provided to the pipeline",
             "default": "",
             "properties": {
                 "file_prefix": {
