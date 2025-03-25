@@ -21,7 +21,7 @@ _Pipeline version 2.0_
 
 # Introduction
 
-[coproID](https://github.com/nf-core/coproID) is a pipeline designed to identify the source of coprolites, but can also be used to track the source of other metagenomic samples. More information regarding the pipeline and the output files can be found here: [coproid.readthedocs](https://coproid.readthedocs.io/en/latest/output.html)
+[nf-core/coproID](https://github.com/nf-core/coproID) is a pipeline designed to identify the source of coprolites, but can also be used to track the source of other metagenomic samples. More information regarding the pipeline and the output files can be found here: [nf-core/coproid](https://nf-co.re/coproid)
 
 # Summary coproID
 
@@ -246,11 +246,11 @@ interactive_plot
 
 # Ancient DNA damage
 
-Figure 5 shows the damage on the '5 end and the -log(10)(p-value). The higher the damage on the '5 end the more likely that the DNA is ancient. A high -log(10)(p-value), means a low p-value, meaning the damage model is a good fit. For further documentation see [pydamage](https://pydamage.readthedocs.io/en/latest/index.html).
+Figure 5 shows the C to T deamination aDNA damage on the '5 end and the -log(10)(p-value). A high -log(10)(p-value), means a low p-value, meaning the damage model is a good fit. For further documentation see [PyDamage](https://pydamage.readthedocs.io/en/latest/index.html).
 
-**Warning**: If only a few reads align to the reference (see table 1), the pydamge results are not accurate. If this is the case, check the predicted accuracy in the pyDamage output tables.
+**Warning**: If only a few reads align to the reference (see table 1), the PyDamage results are not accurate. If this is the case, check the predicted accuracy in the PyDamage output tables.
 
-**Figure 5. Pydamage results**
+**Figure 5. PyDamage results**
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 

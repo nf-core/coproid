@@ -149,30 +149,6 @@ It is used with nf-core/taxprofiler to allow removal of 'host' (e.g. human) and/
 
 </details>
 
-### untar
-
-untar is used in nf-core/coproid to decompress the kraken2 database archive files ending in `.tar.gz`.
-
-<details markdown="1">
-<summary>Output files</summary>
-
-- `untar/`
-  - `kraken2_database/`: directory containing contents of the decompressed archive
-
-</details>
-
-### xz
-
-xz is used in nf-core/coproid to decompress the taxa_sqlite file for sourcepredict.
-
-<details markdown="1">
-<summary>Output files</summary>
-
-- `xz/`
-  - `taxa_sqlite`: decompressed sqlite file.
-
-</details>
-
 ## Reporting
 
 ### Quarto notebook
@@ -182,7 +158,7 @@ A HTML report is created with [Quarto](https://quarto.org/), summarising the res
 <details markdown="1">
 <summary>Output files</summary>
 
-- `quartonotebook/`
+- `coproid_report/`
   - `_extensions/`: directory with nf-core theme extensions.
   - `<file_prefix>_quarto_report.qmd`: markdown report file.
   - `<file_prefix>_report.html`: a standalone HTML report file that can be viewed in your web browser.
