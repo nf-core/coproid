@@ -7,7 +7,7 @@
                 "nf-core": {
                     "bbmap/bbduk": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "f06465ff69516528b0178b2a2a5f6b1d4287faa9",
                         "installed_by": ["modules"]
                     },
                     "bowtie2/align": {
@@ -28,7 +28,7 @@
                     },
                     "fastp": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "df6f67c19f76671b42ffa395cd2fde8958111eba",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {
