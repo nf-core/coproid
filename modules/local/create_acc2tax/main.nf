@@ -2,7 +2,7 @@ process CREATE_ACC2TAX {
     tag "${meta.genome_name}"
     label 'process_single'
 
-    conda (params.enable_conda ? "bioconda::sam2lca=1.1.4" : null)
+    conda "${ params.conda.enabled ? "bioconda::sam2lca=1.1.4" : null }"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/sam2lca:1.1.4--pyhdfd78af_0' :
         'biocontainers/sam2lca:1.1.4--pyhdfd78af_0'            }"
