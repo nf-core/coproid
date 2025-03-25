@@ -3,6 +3,20 @@ report_comment: >
   analysis pipeline. For information about how to interpret these results, please see the
   <a href="https://nf-co.re/coproid/dev/docs/output" target="_blank">documentation</a>.
 report_section_order:
+  general_stats:
+    order: 1000
+  fastqc:
+    order: 900
+  fastp:
+    order: 750
+  bowtie2:
+    order: 700
+  kraken:
+    order: 650
+  damageprofiler:
+    order: 600
+  mapdamage:
+    order: 550
   "nf-core-coproid-methods-description":
     order: -1000
   software_versions:
