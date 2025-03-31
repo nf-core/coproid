@@ -14,6 +14,7 @@ This release is a complete rewrite of the original nf-core/coproid pipeline, ori
 - fastp replaced AdapterRemoval for read quality trimming/merging.
 - sam2lca is now used for computing the endogenous host DNA quantity, instead of custom python scripts, allowing for handling more flexibly test host genomes.
 - Pipeline reporting is now performed using Quarto, instead of Jupyter notebook
+- Minor JSON schema updates
 
 ### New
 
