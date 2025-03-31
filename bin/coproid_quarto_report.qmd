@@ -1,5 +1,5 @@
 ---
-title: "coproID report test"
+title: "coproID report"
 format:
     nf-core-html: default
 editor: visual
@@ -303,6 +303,9 @@ position_scales <- list(
   scale_x_continuous(), scale_x_reverse())
 
 damage_plot <- damage_plot + facetted_pos_scales(x = position_scales)
-# Final plot
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE, fig.width=8, fig.height= max(4, length(unique(damage_long$Sample)) * 1.57), dev='png'}
+
 damage_plot
 ```
