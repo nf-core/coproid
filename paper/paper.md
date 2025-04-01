@@ -39,7 +39,7 @@ Coming
 
 # Statement of need
 
-(Palaeo)faeces are valuable resources to study the depositor's DNA, diet, microbiome, health and more (sources). However, it is often difficult to distinguish between the depositor based on the faeces morphology alone. For example, humans and dogs often overlap in their diets, and produce similar faeces in size and shape. In 2020, the pipeline coproID v1.0 was published, which uses both host and microbial DNA to predict the depositor of faecal samples. The microbiome can be a crucial part for a host prediction, as the host DNA content in faeces can be very low in certain species (sources). Here we present the newest version of the pipeline, nf-core/coproid 2.XXX, rewritten in the newest Nextflow DLS2 language and with newly incorporated tools.
+(Palaeo)faeces are valuable resources to study the depositor's DNA, diet, microbiome, health and more (sources). However, it is often difficult to distinguish between the depositor based on the faeces morphology alone. For example, humans and dogs often overlap in their diets, and produce similar faeces in size and shape. In 2020, the pipeline nf-core/coproID v1.0 was published, which uses both host and microbial DNA to predict the depositor of faecal samples. The microbiome can be a crucial part for a host prediction, as the host DNA content in faeces can be very low in certain species (sources). Since its first release, new tools have become available that can improve the accuracy and usability of nf-core/coproID. Here we present the newest version of the pipeline, nf-core/coproID 2.XXX, rewritten in the newest Nextflow DLS2 language and with newly incorporated tools.
 
 # Materials and Methods
 
@@ -53,7 +53,7 @@ It combines the analysis of the putative host (ancient) DNA with a machine learn
 
 ## Workflow
 
-The newest version of coproID, v2.XXX, was entirely rewritten in the newest DSL2 language of Nextflow to enhance modularity, reusability, and scalability. Additionally, various modifications were made to the workflow to improve accuracy and reporting.
+The newest version of coproID, v2.XXX, was entirely rewritten in the newest DSL2 language of Nextflow to enhance modularity, reusability, and scalability [DITommaso:2017]. Additionally, various modifications were made to the workflow to improve accuracy and reporting.
 
 Figure 1 describes the newest workflow:
 
@@ -113,9 +113,5 @@ Here we present a new version of the nf-core/coproID pipeline, designed to ident
 # Figures
 
 ![Figure 1](coproid_figure.png)
-
-# Acknowledgements
-
-XXX
 
 # References
