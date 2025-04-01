@@ -42,6 +42,22 @@ year = {2017}
    type = {Computer Program}
 }
 
+@article{Langmead:2018,
+    author = {Langmead, Ben and Wilks, Christopher and Antonescu, Valentin and Charles, Rone},
+    title = {Scaling read aligners to hundreds of threads on general-purpose processors},
+    journal = {Bioinformatics},
+    volume = {35},
+    number = {3},
+    pages = {421-432},
+    year = {2018},
+    month = {07},
+    abstract = {General-purpose processors can now contain many dozens of processor cores and support hundreds of simultaneous threads of execution. To make best use of these threads, genomics software must contend with new and subtle computer architecture issues. We discuss some of these and propose methods for improving thread scaling in tools that analyze each read independently, such as read aligners.We implement these methods in new versions of Bowtie, Bowtie 2 and HISAT. We greatly improve thread scaling in many scenarios, including on the recent Intel Xeon Phi architecture. We also highlight how bottlenecks are exacerbated by variable-record-length file formats like FASTQ and suggest changes that enable superior scaling.Experiments for this study: https://github.com/BenLangmead/bowtie-scaling.http://bowtie-bio.sourceforge.net.http://bowtie-bio.sourceforge.net/bowtie2.http://www.ccb.jhu.edu/software/hisatSupplementary data are available at Bioinformatics online.},
+    issn = {1367-4803},
+    doi = {10.1093/bioinformatics/bty648},
+    url = {https://doi.org/10.1093/bioinformatics/bty648},
+    eprint = {https://academic.oup.com/bioinformatics/article-pdf/35/3/421/48965413/bioinformatics\_35\_3\_421.pdf},
+}
+
 @article{Chen:2018,
 abstract = {Motivation Quality control and preprocessing of FASTQ files are essential to providing clean data for downstream analysis. Traditionally, a different tool is used for each operation, such as quality control, adapter trimming and quality filtering. These tools are often insufficiently fast as most are developed using high-level programming languages (e.g. Python and Java) and provide limited multi-threading support. Reading and loading data multiple times also renders preprocessing slow and I/O inefficient. Results We developed fastp as an ultra-fast FASTQ preprocessor with useful quality control and data-filtering features. It can perform quality control, adapter trimming, quality filtering, per-read quality pruning and many other operations with a single scan of the FASTQ data. This tool is developed in C++ and has multi-threading support. Based on our evaluation, fastp is 2-5 times faster than other FASTQ preprocessing tools such as Trimmomatic or Cutadapt despite performing far more operations than similar tools. Availability and implementation The open-source code and corresponding instructions are available at https://github.com/OpenGene/fastp.},
 author = {Chen, Shifu and Zhou, Yanqing and Chen, Yaru and Gu, Jia},
@@ -95,7 +111,7 @@ volume = {17},
 year = {2022}
 }
 
-@online{andrews_fastqc_2010,
+@online{Andrews:2010,
     title = {Babraham Bioinformatics - {FastQC} A Quality Control tool for High Throughput Sequence Data},
     url = {https://www.bioinformatics.babraham.ac.uk/projects/fastqc/},
     author = {Andrews, S},
@@ -103,7 +119,7 @@ year = {2022}
     date = {2010}
 }
 
-@article{ewels_multiqc_2016,
+@article{Ewels:2016,
     title = {{MultiQC}: summarize analysis results for multiple tools and samples in a single report},
     volume = {32},
     issn = {1367-4811, 1367-4803},
@@ -124,7 +140,7 @@ year = {2022}
     langid = {english}
 }
 
-@article{danecek_twelve_2021,
+@article{Danecek:2021,
     title = {Twelve years of {SAMtools} and {BCFtools}},
     volume = {10},
     issn = {2047-217X},
@@ -140,7 +156,7 @@ year = {2022}
     date = {2021-02-01}
 }
 
-@article{danecek_twelve_2021,
+@article{Danecek:2021,
     title = {Twelve years of {SAMtools} and {BCFtools}},
     volume = {10},
     issn = {2047-217X},
@@ -156,7 +172,7 @@ year = {2022}
     date = {2021-02-01}
 }
 
-@article{Borry2019Sourcepredict,
+@article{Borry:2019,
 	journal = {Journal of Open Source Software},
 	doi = {10.21105/joss.01540},
 	issn = {2475-9066},
@@ -173,7 +189,7 @@ year = {2022}
 	day = {4}
 }
 
-@article{Borry2022,
+@article{Borry:2022,
   doi = {10.21105/joss.04360},
   url = {https://doi.org/10.21105/joss.04360},
   year = {2022},
@@ -186,7 +202,7 @@ year = {2022}
   journal = {Journal of Open Source Software}
 }
 
-@article{borry_pydamage_2021,
+@article{Borry:2021,
     author = {Borry, Maxime and Hübner, Alexander and Rohrlach, Adam B. and Warinner, Christina},
     doi = {10.7717/peerj.11845},
     issn = {2167-8359},
@@ -203,7 +219,7 @@ year = {2022}
     year = {2021}
 }
 
-@article{10.1093/bioinformatics/btab190,
+@article{Neukamm:2021,
     author = {Neukamm, Judith and Peltzer, Alexander and Nieselt, Kay},
     title = {DamageProfiler: fast damage pattern calculation for ancient DNA},
     journal = {Bioinformatics},
@@ -219,7 +235,7 @@ year = {2022}
     eprint = {https://academic.oup.com/bioinformatics/article-pdf/37/20/3652/50338221/btab190.pdf},
 }
 
-@software{Allaire_Quarto_2024,
+@software{Allaire:2024,
 author = {Allaire, J.J. and Teague, Charles and Scheidegger, Carlos and Xie, Yihui and Dervieux, Christophe and Woodhull, Gordon},
 doi = {10.5281/zenodo.5960048},
 month = nov,

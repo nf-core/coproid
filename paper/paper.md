@@ -48,9 +48,9 @@ nf-core/coproID is a bioinformatics pipeline that helps identify the "true depos
 
 It combines the analysis of the putative host (ancient) DNA with a machine learning prediction of the faeces source, based on microbiome taxonomic composition:
 
-A. First, coproID performs parallel mapping of all reads agains two (or more) target genomes (genome1, genome2, ..., genomeX) and computes a host-DNA species ratio (NormalisedProportion) using sam2lca.
-B. Next, coproID performs metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using machine learning, coproID then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
-C. Finally, coproID combines the A and B proportions to predict the likely host of the metagenomic sample.
+1. First, coproID performs parallel mapping of all reads agains two (or more) target genomes (genome1, genome2, ..., genomeX) using bowtie2 [Langmead:2018], and computes a host-DNA species ratio (NormalisedProportion) using sam2lca [Borry:2022].
+1. Next, coproID performs metagenomic taxonomic profiling with kraken2 [Wood:2019], and compares the obtained profiles to user supplied modern reference samples of the target species metagenomes. Using machine learning, sourcepredict [Borry:2019] then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
+1. Finally, coproID combines the A and B proportions to predict the likely host of the metagenomic sample.
 
 ## Workflow
 
@@ -58,31 +58,31 @@ The newest version of coproID, v2.XXX, was entirely rewritten in the newest DSL2
 
 Figure 1 describes the newest workflow:
 
-1. Quality check of the input fastq reads [andrews_fastqc_2010].
+1. Quality check of the input fastq reads with FastQC [Andrews:2010].
 1. Fastp is used to remove adapters and low-complexity reads [Chen:2018].
-1. Mapping of pre-processed reads to multiple reference genomes [`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2).
-1. Lowest Common Ancestor analysis with sam2lca [Borry2022] to retain only genome specific reads, i.e. reads that aligned equally well to multiple references were identify as belonging to a Lower Common Ancestor and removed from the read counts. The sam2lca read counts were normalised by the size of the genome. First, a normalisation factor was calculated per reference, or source species (sp):
+1. Mapping of pre-processed reads to multiple reference genomes with Bowtie2 [Langmead:2018].
+1. Lowest Common Ancestor analysis with sam2lca [Borry:2022] to retain only genome specific reads, i.e. reads that align equally well to multiple references are identified as belonging to a Lower Common Ancestor and removed from the read counts. The sam2lca read counts are normalised by the size of the genome. First, a normalisation factor is calculated per reference, or source species (sp):
 
 $$
 NormalisationFactor_{sp}  = AverageReferenceLength / ReferenceLength_{sp}
 $$
 
-The normalised read counts were then calculated by:
+The normalised read counts are then calculated by:
 
 $$
 NormalisedReads_{sp}  = sam2lcaReads_{sp} * NormalisationFactor_{sp}
 $$
 
-1. Taxonomic profiling is performed on pre-processed reads with [`kraken2`](https://ccb.jhu.edu/software/kraken2/), and by using a customer supplied database. Kraken2 reports are parsed and merged into one table, including all samples.
-1. Sourcepredict [Borry2019Sourcepredict] is then used to predict the source proportions, based on the kraken2 taxonomic profiles, and by using customer supplied reference sources.
-1. Both the host DNA (NormalisedReads) and sourcepredict proportion are used to predict by whom the (palaeo)faeces was produced. The probability of each reference species is calculated by:
+1. Taxonomic profiling is performed on pre-processed reads with kraken2 [Wood:2019], and by using a customer supplied database. Kraken2 reports are parsed and merged into one table for all samples.
+1. Sourcepredict [Borry:2019] is then used to predict the source proportions, based on the kraken2 taxonomic profiles, and by using customer supplied reference sources (which should have been created with the same reference database).
+1. Both the host DNA (NormalisedReads) and sourcepredict proportion are used to predict the most likely depositor of the (palaeo)faeces. The probability of each reference species is calculated by:
 
 $$
 Probability_{sp}  = NormalisedSam2lcaProportion_{sp} * SourcepredictProportion_{sp}
 $$
 
-1. [`MultiQC`](http://multiqc.info/) aggregates results of several individual nf-core modules.
-1. [`Quartonotebook`](https://quarto.org/) creates a report with an overview of all sample results (indcl. tables and figures). This includes the (normalised) sam2lca results and calculations, the sourcepredict results, and DNA damage patterns analysed by pyDamage and damgeprofiler.
+1. MultiQC [Ewels:2016] aggregates results of several individual nf-core modules.
+1. Quartonotebook [Allaire:2024] creates a report with an overview of all sample results (incl. tables and figures). This includes the (normalised) sam2lca results and calculations, the sourcepredict results, and DNA damage patterns analysed by pyDamage [Borry:2021] and damageprofiler [Neukamm:2021].
 
 ## Output
 
