@@ -1,5 +1,5 @@
 ---
-title: 'nf-core/coproID: 2.0'
+title: 'nf-core/coproID: 2.0XXX'
 tags:
   - Nextflow
   - nf-core
@@ -28,7 +28,7 @@ affiliations:
    index: 4
 
 
-date: X April 2025
+date: X AprilMarch 2025
 bibliography: paper.bib
 
 ---
@@ -56,12 +56,11 @@ C. Finally, coproID combines the A and B proportions to predict the likely host 
 
 The newest version of coproID, v2.XXX, was entirely rewritten in the newest DSL2 language of Nextflow to enhance modularity, reusability, and scalability. Additionally, various modifications were made to the workflow to improve accuracy and reporting.
 
-\autoref{fig:Figure1} describes the newest workflow:
-
+Figure 1 describes the newest workflow:
 
 1. Quality check of the input fastq reads [andrews_fastqc_2010].
 1. Fastp is used to remove adapters and low-complexity reads [Chen:2018].
-1. Mapping of pre-processed reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2)).
+1. Mapping of pre-processed reads to multiple reference genomes [`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2).
 1. Lowest Common Ancestor analysis with sam2lca [Borry2022] to retain only genome specific reads, i.e. reads that aligned equally well to multiple references were identify as belonging to a Lower Common Ancestor and removed from the read counts. The sam2lca read counts were normalised by the size of the genome. First, a normalisation factor was calculated per reference, or source species (sp):
 
 $$
@@ -74,7 +73,7 @@ $$
 NormalisedReads_{sp}  = sam2lcaReads_{sp} * NormalisationFactor_{sp}
 $$
 
-1. Taxonomic profiling is performed on pre-processed reads with ([`kraken2`](https://ccb.jhu.edu/software/kraken2/)), and by using a customer supplied database. Kraken2 reports are parsed and merged into one table, including all samples.
+1. Taxonomic profiling is performed on pre-processed reads with [`kraken2`](https://ccb.jhu.edu/software/kraken2/), and by using a customer supplied database. Kraken2 reports are parsed and merged into one table, including all samples.
 1. Sourcepredict [Borry2019Sourcepredict] is then used to predict the source proportions, based on the kraken2 taxonomic profiles, and by using customer supplied reference sources.
 1. Both the host DNA (NormalisedReads) and sourcepredict proportion are used to predict by whom the (palaeo)faeces was produced. The probability of each reference species is calculated by:
 
@@ -82,8 +81,8 @@ $$
 Probability_{sp}  = NormalisedSam2lcaProportion_{sp} * SourcepredictProportion_{sp}
 $$
 
-1. ([`MultiQC`](http://multiqc.info/)) aggregates results of several individual nf-core modules.
-1. ([Quartonotebook])(https://quarto.org/) creates a report with an overview of all sample results (indcl. tables and figures). This includes the (normalised) sam2lca results and calculations, the sourcepredict results, and DNA damage patterns analysed by pyDamage and damgeprofiler.
+1. [`MultiQC`](http://multiqc.info/) aggregates results of several individual nf-core modules.
+1. [`Quartonotebook`](https://quarto.org/) creates a report with an overview of all sample results (indcl. tables and figures). This includes the (normalised) sam2lca results and calculations, the sourcepredict results, and DNA damage patterns analysed by pyDamage and damgeprofiler.
 
 ## Output
 
@@ -114,8 +113,7 @@ Here we present a new version of the nf-core/coproID pipeline, designed to ident
 
 # Figures
 
-![Flowchart of nf-core/coproID workflow.\label{fig:Figure1}](coproid_figure.png)
-
+![Figure 1](coproid_figure.png)
 
 # Acknowledgements
 
