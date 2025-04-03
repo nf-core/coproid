@@ -34,7 +34,7 @@ include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporti
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-if (params.kraken2_db ) { ch_kraken2_db = file(params.kraken2_db) } else { error("Kraken2 database path not specified!") }
+ch_kraken2_db = file(params.kraken2_db)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
