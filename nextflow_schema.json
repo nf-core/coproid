@@ -53,24 +53,30 @@
                 },
                 "kraken2_db": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Path to a kraken2 database, can be a directory or *.tar.gz"
                 },
                 "sp_sources": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Sources TAXID count table in csv format for sourcepredict"
                 },
                 "sp_labels": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Labels for the sources table in csv format for sourcepredict"
                 },
                 "taxa_sqlite": {
                     "type": "string",
-                    "default": "params.modules_testdata_base_path + /genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite.xz",
+                    "default": params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite.xz',
                     "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite file, if not supplied it will be pulled from the test-data repository"
                 },
                 "taxa_sqlite_traverse_pkl": {
                     "type": "string",
-                    "default": "params.modules_testdata_base_path + /genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl",
+                    "default": params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl',
                     "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite.traverse.pkl file, if not supplied it will be pulled from the test-data repository"
                 },
                 "sam2lca_db": {
