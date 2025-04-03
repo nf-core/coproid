@@ -174,14 +174,6 @@ workflow PIPELINE_COMPLETION {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 //
-// Check and validate pipeline parameters
-//
-def validateInputParameters() {
-    if (!params.input       ) { error("Input samplesheet not specified!") }
-    if (!params.genome_sheet) { error("Genomes sheet not specified!") }
-}
-
-//
 // Validate channels from input samplesheet
 //
 def validateInputSamplesheet(input) {
