@@ -5,6 +5,10 @@ include { SOURCEPREDICT   } from '../../../modules/nf-core/sourcepredict/main'
 include { UNTAR           } from '../../../modules/nf-core/untar/main'
 include { XZ_DECOMPRESS   } from '../../../modules/nf-core/xz/decompress/main'
 
+ch_sp_sources      = file(params.sp_sources) 
+ch_sp_labels       = file(params.sp_labels) 
+ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) 
+
 workflow KRAKEN2_CLASSIFICATION {
     take:
         reads
