@@ -5,10 +5,6 @@ include { SOURCEPREDICT   } from '../../../modules/nf-core/sourcepredict/main'
 include { UNTAR           } from '../../../modules/nf-core/untar/main'
 include { XZ_DECOMPRESS   } from '../../../modules/nf-core/xz/decompress/main'
 
-if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
-if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
-if (params.taxa_sqlite_traverse_pkl ) { ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) } else { error("Ete3 taxa.sqlite.traverse file not specified!") }
-
 workflow KRAKEN2_CLASSIFICATION {
     take:
         reads
