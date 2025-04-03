@@ -156,7 +156,7 @@ workflow COPROID {
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name], bam] // meta.id, bam
-    }.groupTuple()
+    }.groupTuple(size: 2)
     .set { bams_synced }
 
     // SUBWORKFLOW: sort indices
