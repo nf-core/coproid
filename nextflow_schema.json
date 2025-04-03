@@ -71,12 +71,12 @@
                 },
                 "taxa_sqlite": {
                     "type": "string",
-                    "default": params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite.xz',
+                    "default": "params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite.xz'",
                     "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite file, if not supplied it will be pulled from the test-data repository"
                 },
                 "taxa_sqlite_traverse_pkl": {
                     "type": "string",
-                    "default": params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl',
+                    "default": "params.modules_testdata_base_path + '/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl'",
                     "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite.traverse.pkl file, if not supplied it will be pulled from the test-data repository"
                 },
                 "sam2lca_db": {
