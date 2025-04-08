@@ -23,10 +23,13 @@
 
 It combines the analysis of putative host (ancient) DNA with a machine learning prediction of the faeces source based on microbiome taxonomic composition:
 
-(A) First coproID performs comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and potentially genome3) and computes a host-DNA species ratio (NormalisedProportion).
-(B) Then coproID performs metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using machine learning, coproID then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
+1. First coproID performs comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and potentially genome3) and computes a host-DNA species ratio (NormalisedProportion).
+2. Then coproID performs metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using machine learning, coproID then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
+3. Finally, coproID combines A and B proportions to predict the likely host of the metagenomic sample.
 
-Finally, coproID combines A and B proportions to predict the likely host of the metagenomic sample.
+<!-- Workflow overview -->
+
+![nf-core-coproid workflow overview](docs/images/coproid_workflow.jpg?raw=true "nf-core-coproid workflow overview")
 
 **Wokflow overview**
 
