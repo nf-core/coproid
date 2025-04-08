@@ -25,11 +25,11 @@ process SAM2LCA_UPDATEDB {
         task.ext.when == null || task.ext.when
 
     script:
-        def args = task.ext.args ?: ''
-        def names = taxo_names ? "--taxo_names ${taxo_names}" : ''
-        def nodes = taxo_nodes ? "--taxo_nodes ${taxo_nodes}" : ''
+        def args   = task.ext.args ?: ''
+        def names  = taxo_names ? "--taxo_names ${taxo_names}" : ''
+        def nodes  = taxo_nodes ? "--taxo_nodes ${taxo_nodes}" : ''
         def merged = taxo_merged ? "--taxo_merged ${taxo_merged}" : ''
-        def json = acc2tax_json ? "--acc2tax_json ${acc2tax_json}" : ''
+        def json   = acc2tax_json ? "--acc2tax_json ${acc2tax_json}" : ''
         """
         mkdir -p sam2lca_db
 

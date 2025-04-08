@@ -95,9 +95,9 @@ workflow KRAKEN2_CLASSIFICATION {
     ch_versions = ch_versions.mix(SOURCEPREDICT.out.versions.first())
 
     emit:
-        sp_report = SOURCEPREDICT.out.report
-        sp_embedding = SOURCEPREDICT.out.embedding
+        sp_report            = SOURCEPREDICT.out.report
+        sp_embedding         = SOURCEPREDICT.out.embedding
         kraken_merged_report = KRAKEN_MERGE.out.kraken_merged_report
-        kraken_report = KRAKEN2_KRAKEN2.out.report
-        versions = ch_versions
+        kraken_report        = KRAKEN2_KRAKEN2.out.report
+        versions             = ch_versions
 }

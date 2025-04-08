@@ -19,9 +19,9 @@ workflow ALIGN_INDEX {
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     emit:
-        bam =  BOWTIE2_ALIGN.out.bam
-        bai = SAMTOOLS_INDEX.out.bai
-        fastq = BOWTIE2_ALIGN.out.fastq
-        versions = ch_versions
+        bam           = BOWTIE2_ALIGN.out.bam
+        bai           = SAMTOOLS_INDEX.out.bai
+        fastq         = BOWTIE2_ALIGN.out.fastq
+        versions      = ch_versions
         multiqc_files = BOWTIE2_ALIGN.out.log
 }
