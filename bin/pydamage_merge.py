@@ -7,6 +7,8 @@ import pandas as pd
 import sys
 import pathlib
 
+usage = """Merges pydamage results from multiple samples into a single CSV file. Merged table is used for the Quarto report."""
+
 def process_file(file_path):
     # Extract sample and taxa names from the directory structure
     sample_file = pathlib.Path(file_path).stem
