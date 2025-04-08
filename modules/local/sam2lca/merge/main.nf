@@ -1,6 +1,6 @@
 process SAM2LCA_MERGE {
     // tag "kraken_merge"
-    label 'process_single'
+    label 'process_short'
 
     conda "conda-forge::pandas=1.4.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

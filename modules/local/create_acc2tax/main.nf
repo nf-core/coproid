@@ -1,6 +1,6 @@
 process CREATE_ACC2TAX {
     tag "${meta.genome_name}"
-    label 'process_single'
+    label 'process_short'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
