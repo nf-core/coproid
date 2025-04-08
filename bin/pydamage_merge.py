@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Written by Meriam van Os, released under the MIT license
+# See https://opensource.org/license/mit for details
+
 import pandas as pd
 import sys
 import pathlib
