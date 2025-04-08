@@ -24,7 +24,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def write_json(acc2taxid, md5, db_name="adnamap"):
+def write_json(acc2taxid, md5):
+    db_name = "adnamap"
     sam2lca_dict = {
         "mapfiles": {db_name: [acc2taxid.as_posix()]},
         "mapmd5": {db_name: [md5.as_posix()]},
