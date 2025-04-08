@@ -131,7 +131,7 @@ workflow COPROID {
     DAMAGEPROFILER_MERGE(
         damageprofiler_reports
     )
-    ch_versions      = ch_versions.mix(DAMAGEPROFILER_MERGE.out.versions.first())
+    ch_versions = ch_versions.mix(DAMAGEPROFILER_MERGE.out.versions.first())
 
     ALIGN_INDEX.out.bam.join(
         ALIGN_INDEX.out.bai
