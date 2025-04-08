@@ -150,6 +150,7 @@ workflow COPROID {
     PYDAMAGE_MERGE (
         pydamage_reports
     )
+    ch_versions = ch_versions.mix(PYDAMAGE_MERGE.out.versions.first())
 
     // join bam with indices
     ALIGN_INDEX.out.bam.join(
