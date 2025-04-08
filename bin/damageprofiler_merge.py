@@ -3,10 +3,10 @@
 # Written by Meriam van Os, released under the MIT license
 # See https://opensource.org/license/mit for details
 
+"""Merges damageprofiler results from multiple samples into a single CSV file. Merged table is used for the Quarto report."""
+
 import sys
 import pandas as pd
-
-usage = """Merges damageprofiler results from multiple samples into a single CSV file. Merged table is used for the Quarto report."""
 
 def merge_and_reshape(output_file, input_file_list):
     # Initialize a list to hold all dataframes
