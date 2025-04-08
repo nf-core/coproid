@@ -7,6 +7,8 @@ import sys
 import os
 import pandas as pd
 
+usage = """Merges sam2lca results from multiple samples into a single CSV file. Merged table is used for the Quarto report."""
+
 # Get command-line arguments
 if len(sys.argv) < 3:
     print("Usage: python script.py <output_file> <csv_file_1> <csv_file_2> ...")
