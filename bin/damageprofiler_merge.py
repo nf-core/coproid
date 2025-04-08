@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+# Written by Meriam van Os, released under the MIT license
+# See https://opensource.org/license/mit for details
+
 import sys
 import pandas as pd
 
