@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Written by Maxime Borry, released under the MIT license
+# See https://opensource.org/license/mit for details
+
 import argparse
 import pysam
 from pathlib import Path
