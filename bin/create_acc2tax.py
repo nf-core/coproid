@@ -7,6 +7,7 @@ import argparse
 import pysam
 from pathlib import Path
 
+usage = """Creates an acc2tax mapping file from a genome FASTA."""
 
 def parse_args():
     parser = argparse.ArgumentParser("Create acc2tax file")
