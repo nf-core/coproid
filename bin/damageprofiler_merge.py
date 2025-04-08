@@ -7,6 +7,9 @@ import sys
 import pandas as pd
 
 def merge_and_reshape(output_file, input_file_list):
+    """
+    Merges damageprofiler results from multiple samples into a single CSV file. Merged table is used for the Quarto report.
+    """
     # Initialize a list to hold all dataframes
     data_frames = []
 
