@@ -11,7 +11,8 @@ process KRAKEN_MERGE {
     path kraken2_reports
 
     output:
-    path("*.csv"), emit: kraken_merged_report
+    path("*.csv")      , emit: kraken_merged_report
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args   ?: ''
@@ -19,6 +20,10 @@ process KRAKEN_MERGE {
     """
     kraken_merge.py \\
         -or ${prefix}.kraken2_merged_report.csv \\
-    """
 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }
