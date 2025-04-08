@@ -10,8 +10,8 @@ process PYDAMAGE_MERGE {
     path pydamage_reports
 
     output:
-    path("*.csv"), emit: pydamage_merged_report
-    path "versions.yml" , emit: versions
+    path("*.csv")      , emit: pydamage_merged_report
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args   ?: ''

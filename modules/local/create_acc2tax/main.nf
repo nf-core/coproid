@@ -12,7 +12,7 @@ process CREATE_ACC2TAX {
 
     output:
     path("*.accession2taxid"), emit: acc2tax
-    path "versions.yml" , emit: versions
+    path "versions.yml"      , emit: versions
 
     script:
     def args = task.ext.args ?: ""

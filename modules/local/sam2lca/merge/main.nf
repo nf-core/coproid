@@ -11,8 +11,8 @@ process SAM2LCA_MERGE {
     path sam2lca_reports
 
     output:
-    path("*.csv"), emit: sam2lca_merged_report
-    path "versions.yml" , emit: versions
+    path("*.csv")      , emit: sam2lca_merged_report
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args   ?: ''

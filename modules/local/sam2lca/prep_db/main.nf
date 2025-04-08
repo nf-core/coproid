@@ -10,10 +10,10 @@ process SAM2LCA_PREPDB {
     path(acc2tax)
 
     output:
-    path("*.md5"), emit: acc2tax_md5
-    path("*.json"), emit: acc2tax_json
-    path("*.gz"), emit: acc2tax_gz
-    path "versions.yml" , emit: versions
+    path("*.md5")      , emit: acc2tax_md5
+    path("*.json")     , emit: acc2tax_json
+    path("*.gz")       , emit: acc2tax_gz
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args ?: ""
