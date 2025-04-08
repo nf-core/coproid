@@ -12,11 +12,17 @@ process CREATE_ACC2TAX {
 
     output:
     path("*.accession2taxid"), emit: acc2tax
+    path "versions.yml" , emit: versions
 
     script:
     def args = task.ext.args ?: ""
 
     """
     create_acc2tax.py $fasta -t ${meta.taxid}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
     """
 }

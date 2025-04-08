@@ -177,11 +177,10 @@ workflow COPROID {
                 []
             )
         ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db.first()
+        ch_versions = ch_versions.mix(SAM2LCA_DB.out.versions.first())
     } else {
         ch_sam2lca_db = Channel.fromPath(params.sam2lca_db).first()
     }
-
-//    ch_versions = ch_versions.mix(SAM2LCA_DB.out.versions.first())
 
     //
     // MODULE: Run sam2lca
@@ -201,6 +200,7 @@ workflow COPROID {
     SAM2LCA_MERGE (
         sam2lca_reports
     )
+    ch_versions = ch_versions.mix(SAM2LCA_MERGE.out.versions.first())
 
     //
     // SUBWORKFLOW: kraken classification and parse reports
@@ -239,6 +239,7 @@ workflow COPROID {
     QUARTO_REPORTING (
         ch_quarto
     )
+    ch_versions = ch_versions.mix(QUARTO_REPORTING.out.versions.first())
 
     //
     // MODULE: MultiQC

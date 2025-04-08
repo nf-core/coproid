@@ -12,9 +12,11 @@ workflow SAM2LCA_DB {
 
     main:
 
-//        ch_versions = Channel.empty()
+        ch_versions = Channel.empty()
 
         CREATE_ACC2TAX(genomes)
+
+        ch_versions = ch_versions.mix(CREATE_ACC2TAX.out.versions.first())
 
         acc2tax = CREATE_ACC2TAX.out.acc2tax.collectFile(
             name: 'adnamap.accession2taxid',
@@ -22,6 +24,8 @@ workflow SAM2LCA_DB {
         )
 
         SAM2LCA_PREPDB(acc2tax)
+
+        ch_versions = ch_versions.mix(SAM2LCA_PREPDB.out.versions.first())
 
         SAM2LCA_UPDATEDB(
             "adnamap",
@@ -34,11 +38,9 @@ workflow SAM2LCA_DB {
             SAM2LCA_PREPDB.out.acc2tax_md5
         )
 
-//        ch_versions = ch_versions.mix(CREATE_ACC2TAX.out.versions.first())
-//        ch_versions = ch_versions.mix(SAM2LCA_PREPDB.out.versions.first())
-//        ch_versions = ch_versions.mix(SAM2LCA_UPDATEDB.out.versions.first())
+        ch_versions = ch_versions.mix(SAM2LCA_UPDATEDB.out.versions.first())
 
     emit:
-        sam2lca_db = SAM2LCA_UPDATEDB.out.sam2lca_db
-//        versions = ch_versions
+    sam2lca_db = SAM2LCA_UPDATEDB.out.sam2lca_db
+    versions   = ch_versions
 }

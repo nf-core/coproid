@@ -11,6 +11,7 @@ process PYDAMAGE_MERGE {
 
     output:
     path("*.csv"), emit: pydamage_merged_report
+    path "versions.yml" , emit: versions
 
     script:
     def args = task.ext.args   ?: ''
@@ -18,6 +19,10 @@ process PYDAMAGE_MERGE {
     """
     pydamage_merge.py ${prefix}.pydamage_merged_report.csv $pydamage_reports
 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
     """
 
 }

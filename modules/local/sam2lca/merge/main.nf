@@ -12,12 +12,18 @@ process SAM2LCA_MERGE {
 
     output:
     path("*.csv"), emit: sam2lca_merged_report
+    path "versions.yml" , emit: versions
 
     script:
     def args = task.ext.args   ?: ''
     prefix   = task.ext.prefix
     """
     sam2lca_merge.py ${prefix}.sam2lca_merged_report.csv $sam2lca_reports
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
 
     """
 
