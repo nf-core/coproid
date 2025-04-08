@@ -3,11 +3,11 @@
 # Written by Meriam van Os, released under the MIT license
 # See https://opensource.org/license/mit for details
 
+"""Merges sam2lca results from multiple samples into a single CSV file. Merged table is used for the Quarto report."""
+
 import sys
 import os
 import pandas as pd
-
-usage = """Merges sam2lca results from multiple samples into a single CSV file. Merged table is used for the Quarto report."""
 
 # Get command-line arguments
 if len(sys.argv) < 3:
