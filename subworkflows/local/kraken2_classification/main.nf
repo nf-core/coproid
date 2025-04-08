@@ -74,13 +74,12 @@ workflow KRAKEN2_CLASSIFICATION {
                     [],
                     file(params.taxa_sqlite) ]
                 )
-            sqlite = XZ_DECOMPRESS.out.file.map{ it[1] }
+            sqlite      = XZ_DECOMPRESS.out.file.map{ it[1] }
+            ch_versions = ch_versions.mix(XZ_DECOMPRESS.out.versions.first())
 
     } else {
             sqlite = file(params.taxa_sqlite)
     }
-
-    ch_versions = ch_versions.mix(XZ_DECOMPRESS.out.versions.first())
 
     //
     // MODULE: Run sourcepredict
