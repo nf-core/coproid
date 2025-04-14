@@ -24,7 +24,16 @@ process SAM2LCA_MERGE {
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
     END_VERSIONS
-
     """
 
+    stub:
+    prefix   = task.ext.prefix
+    """
+    touch ${prefix}.sam2lca_merged_report.csv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }

@@ -26,4 +26,15 @@ process KRAKEN_MERGE {
         python: \$(python --version | sed 's/Python //g')
     END_VERSIONS
     """
+
+    stub:
+    prefix   = task.ext.prefix
+    """
+    touch ${prefix}.kraken2_merged_report.csv \\
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }

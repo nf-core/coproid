@@ -30,4 +30,18 @@ process SAM2LCA_PREPDB {
         python: \$(python --version | sed 's/Python //g')
     END_VERSIONS
     """
+
+    stub:
+    """
+    touch acc2tax.gz
+    touch acc2tax.gz.md5
+    touch acc2tax.json
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        gzip: \$(gzip --version | head -n1 | awk '{print \$NF}')
+        md5sum: \$(md5sum --version | head -n1 | awk '{print \$NF}')
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }

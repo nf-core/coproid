@@ -29,4 +29,14 @@ process DAMAGEPROFILER_MERGE {
     END_VERSIONS
     """
 
+    stub:
+    prefix   = task.ext.prefix
+    """
+    touch ${prefix}.damageprofiler_merged_report.csv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }
