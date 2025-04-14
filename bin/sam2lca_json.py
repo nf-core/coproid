@@ -3,7 +3,7 @@
 # Written by Maxime Borry, released under the MIT license
 # See https://opensource.org/license/mit for details
 
-"""Generates a sam2lca JSON configuration file from acc2tax and MD5 inputs."""
+"""Generate a sam2lca JSON configuration file from acc2tax and MD5 inputs."""
 
 import os
 import json

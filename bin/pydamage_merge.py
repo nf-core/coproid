@@ -3,7 +3,7 @@
 # Written by Meriam van Os, released under the MIT license
 # See https://opensource.org/license/mit for details
 
-"""Merges pydamage results from multiple samples into a single CSV file. Merged table is used for the Quarto report."""
+"""Merge pydamage results from multiple samples into a single CSV file used for the Quarto report."""
 
 import pandas as pd
 import sys
