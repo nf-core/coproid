@@ -66,11 +66,6 @@ workflow PIPELINE_INITIALISATION {
     )
 
     //
-    // Custom validation for pipeline parameters
-    //
-    validateInputParameters()
-
-    //
     // Create channel from input file provided through params.input
     //
     Channel
@@ -173,14 +168,6 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-//
-// Check and validate pipeline parameters
-//
-def validateInputParameters() {
-    if (!params.input       ) { error("Input samplesheet not specified!") }
-    if (!params.genome_sheet) { error("Genomes sheet not specified!") }
-}
-
 //
 // Validate channels from input samplesheet
 //

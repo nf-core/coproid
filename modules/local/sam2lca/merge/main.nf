@@ -1,6 +1,6 @@
 process SAM2LCA_MERGE {
     // tag "kraken_merge"
-    label 'process_single'
+    label 'process_short'
 
     conda "conda-forge::pandas=1.4.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -11,7 +11,8 @@ process SAM2LCA_MERGE {
     path sam2lca_reports
 
     output:
-    path("*.csv"), emit: sam2lca_merged_report
+    path("*.csv")      , emit: sam2lca_merged_report
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args   ?: ''
@@ -19,6 +20,20 @@ process SAM2LCA_MERGE {
     """
     sam2lca_merge.py ${prefix}.sam2lca_merged_report.csv $sam2lca_reports
 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
     """
 
+    stub:
+    prefix   = task.ext.prefix
+    """
+    touch ${prefix}.sam2lca_merged_report.csv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }

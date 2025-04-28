@@ -1,5 +1,5 @@
 process DAMAGEPROFILER_MERGE {
-    label 'process_single'
+    label 'process_short'
 
     conda "conda-forge::pandas=1.4.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -10,7 +10,8 @@ process DAMAGEPROFILER_MERGE {
     path damageprofiler_reports
 
     output:
-    path("*.csv"), emit: damageprofiler_merged_report
+    path("*.csv")      , emit: damageprofiler_merged_report
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args   ?: ''
@@ -22,6 +23,20 @@ process DAMAGEPROFILER_MERGE {
 
     damageprofiler_merge.py ${prefix}.damageprofiler_merged_report.csv file_paths.txt
 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
     """
 
+    stub:
+    prefix   = task.ext.prefix
+    """
+    touch ${prefix}.damageprofiler_merged_report.csv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }

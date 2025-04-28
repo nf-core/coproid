@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+# Written by Meriam van Os, released under the MIT license
+# See https://opensource.org/license/mit for details
+
+"""Merge damageprofiler results from multiple samples into a single CSV file used for the Quarto report."""
+
 import sys
 import pandas as pd
 

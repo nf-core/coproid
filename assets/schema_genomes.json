@@ -10,50 +10,34 @@
             "genome_name": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Genome name must be provided and cannot contain spaces",
+                "errorMessage": "Genome name must be provided as a string value and cannot contain spaces",
                 "meta": ["genome_name"]
             },
             "taxid": {
                 "type": "integer",
                 "pattern": "^\\d+$",
-                "errorMessage": "Taxid must be provided",
+                "errorMessage": "Taxid must be provided as an integer value",
                 "meta": ["taxid"]
             },
             "genome_size": {
                 "type": "integer",
                 "pattern": "^\\d+$",
-                "errorMessage": "Genome size must be provided and cannot contain spaces",
+                "errorMessage": "Genome size must be provided as an integer value and cannot contain spaces",
                 "meta": ["genome_size"]
             },
             "igenome": {
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "format": "file-path",
-                        "pattern": "^\\S+$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ],
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+$",
                 "exists": true,
-                "errorMessage": "iGenome name or fasta must be provided"
+                "errorMessage": "iGenome name or fasta must be an existing file path that does not contain spaces"
             },
             "fasta": {
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "format": "file-path",
-                        "pattern": "^\\S+\\.(fasta|fas|fa|fna)(\\.gz)?$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ],
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+\\.(fasta|fas|fa|fna)(\\.gz)?$",
                 "exists": true,
-                "errorMessage": "iGenome name or fasta must be provided"
+                "errorMessage": "Fasta must be an existing file that ends with '.fasta', '.fai', '.fna' or '.fa'. This file can be gzipped"
             },
             "index": {
                 "type": "string",

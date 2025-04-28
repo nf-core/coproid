@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
+# Written by Maxime Borry, released under the MIT license
+# See https://opensource.org/license/mit for details
+
+"""Generate a sam2lca JSON configuration file from acc2tax and MD5 inputs."""
 
 import os
 import json
 import argparse
 from pathlib import Path
-
 
 def parse_args():
     parser = argparse.ArgumentParser("Create sam2lca json file")
@@ -21,7 +24,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def write_json(acc2taxid, md5, db_name="adnamap"):
+def write_json(acc2taxid, md5):
+    db_name = "adnamap"
     sam2lca_dict = {
         "mapfiles": {db_name: [acc2taxid.as_posix()]},
         "mapmd5": {db_name: [md5.as_posix()]},

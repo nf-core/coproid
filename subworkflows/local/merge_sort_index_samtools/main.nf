@@ -25,7 +25,7 @@ workflow MERGE_SORT_INDEX_SAMTOOLS {
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     emit:
-    bam = SAMTOOLS_SORT.out.bam
-    bai = SAMTOOLS_INDEX.out.bai
+    bam      = SAMTOOLS_SORT.out.bam
+    bai      = SAMTOOLS_INDEX.out.bai
     versions = ch_versions
 }
