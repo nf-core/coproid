@@ -23,9 +23,9 @@
 
 It combines the analysis of putative host (ancient) DNA with a machine learning prediction of the faeces source based on microbiome taxonomic composition:
 
-1. First coproID performs comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and potentially genome3) and computes a host-DNA species ratio (NormalisedProportion).
-2. Then coproID performs metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using machine learning, coproID then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
-3. Finally, coproID combines A and B proportions to predict the likely host of the metagenomic sample.
+A. First coproID performs comparative mapping of all reads agains two (or three) target genomes (genome1, genome2, and potentially genome3) and computes a host-DNA species ratio (NormalisedProportion).
+B. Then coproID performs metagenomic taxonomic profiling, and compares the obtained profiles to modern reference samples of the target species metagenomes. Using machine learning, coproID then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
+C. Finally, coproID combines the A and B proportions to predict the likely host of the metagenomic sample.
 
 <!-- Workflow overview -->
 
@@ -37,6 +37,7 @@ It combines the analysis of putative host (ancient) DNA with a machine learning 
 1. Fastp to remove adapters and low-complexity reads ([`fastp`](https://doi.org/10.1002/imt2.107))
 1. Mapping or reads to multiple reference genomes ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2))
 1. Lowest Common Ancestor analysis to retain only genome specific reads ([`sam2lca`](github.com/maxibor/sam2lca))
+1. Ancient DNA damage estimation with [pyDamage](https://pydamage.readthedocs.io/en/latest/README.html) and [DamageProfiler](https://github.com/Integrative-Transcriptomics/DamageProfiler)
 1. Taxonomic profiling of unmapped reads ([`kraken2`](https://ccb.jhu.edu/software/kraken2/))
 1. Source predicting based on taxonic profiles ([`sourcepredict`](https://sourcepredict.readthedocs.io/))
 1. Combining host and microbial predictions to calculate overall proportions.
