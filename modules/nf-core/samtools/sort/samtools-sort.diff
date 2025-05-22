@@ -1,0 +1,44 @@
+Changes in module 'nf-core/samtools/sort'
+'modules/nf-core/samtools/sort/environment.yml' is unchanged
+Changes in 'samtools/sort/meta.yml':
+--- modules/nf-core/samtools/sort/meta.yml
++++ modules/nf-core/samtools/sort/meta.yml
+@@ -89,4 +89,4 @@
+ maintainers:
+   - "@drpatelh"
+   - "@ewels"
+-  - "@matthdsm"
++  - "@matthdsm"
+Changes in 'samtools/sort/main.nf':
+--- modules/nf-core/samtools/sort/main.nf
++++ modules/nf-core/samtools/sort/main.nf
+@@ -28,7 +28,7 @@
+                     args.contains("--output-fmt cram") ? "cram" :
+                     "bam"
+     def reference = fasta ? "--reference ${fasta}" : ""
+-    if ("$bam" == "${prefix}.bam") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
++    if ("$bam" == "${prefix}.sorted.bam") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
+ 
+     """
+     samtools cat \\
+@@ -39,7 +39,7 @@
+         -T ${prefix} \\
+         --threads $task.cpus \\
+         ${reference} \\
+-        -o ${prefix}.${extension} \\
++        -o ${prefix}.sorted.${extension} \\
+         -
+ 
+     cat <<-END_VERSIONS > versions.yml
+@@ -69,4 +69,4 @@
+         samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+     END_VERSIONS
+     """
+-}
++}
+'modules/nf-core/samtools/sort/tests/nextflow_cram.config' is unchanged
+'modules/nf-core/samtools/sort/tests/nextflow.config' is unchanged
+'modules/nf-core/samtools/sort/tests/tags.yml' is unchanged
+'modules/nf-core/samtools/sort/tests/main.nf.test' is unchanged
+'modules/nf-core/samtools/sort/tests/main.nf.test.snap' is unchanged
+************************************************************

@@ -1,0 +1,51 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/coproid/master/assets/schema_genomes.json",
+    "title": "nf-core/coproid pipeline - params.genomes schema",
+    "description": "Schema for the file provided with params.genomes",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "genome_name": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Genome name must be provided as a string value and cannot contain spaces",
+                "meta": ["genome_name"]
+            },
+            "taxid": {
+                "type": "integer",
+                "pattern": "^\\d+$",
+                "errorMessage": "Taxid must be provided as an integer value",
+                "meta": ["taxid"]
+            },
+            "genome_size": {
+                "type": "integer",
+                "pattern": "^\\d+$",
+                "errorMessage": "Genome size must be provided as an integer value and cannot contain spaces",
+                "meta": ["genome_size"]
+            },
+            "igenome": {
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+$",
+                "exists": true,
+                "errorMessage": "iGenome name or fasta must be an existing file path that does not contain spaces"
+            },
+            "fasta": {
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+\\.(fasta|fas|fa|fna)(\\.gz)?$",
+                "exists": true,
+                "errorMessage": "Fasta must be an existing file that ends with '.fasta', '.fai', '.fna' or '.fa'. This file can be gzipped"
+            },
+            "index": {
+                "type": "string",
+                "format": "path",
+                "exists": true
+            }
+        },
+        "required": ["genome_name", "taxid", "genome_size"],
+        "oneOf": [{ "required": ["igenome"] }, { "required": ["fasta"] }]
+    }
+}
