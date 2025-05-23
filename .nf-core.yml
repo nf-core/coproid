@@ -1,7 +1,7 @@
 lint:
   files_unchanged:
-    - docs/images/nf-core-coproid_logo_light.png
-    - docs/images/nf-core-coproid_logo_dark.png
+  - docs/images/nf-core-coproid_logo_light.png
+  - docs/images/nf-core-coproid_logo_dark.png
 nf_core_version: 3.2.0
 repository_type: pipeline
 template:
@@ -13,4 +13,4 @@ template:
   org: nf-core
   outdir: .
   skip_features: []
-  version: 2.0.0
+  version: 2.1.0dev
