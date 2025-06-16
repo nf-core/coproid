@@ -1,5 +1,5 @@
 ---
-title: 'nf-core/coproID 2.0XXX - An improved pipeline for the identification of (palaeo)faecal depositors'
+title: 'nf-core/coproID 2.0 - An improved pipeline for the identification of (palaeo)faecal depositors'
 tags:
   - Nextflow
   - nf-core
@@ -55,20 +55,24 @@ Figure 1 describes the newest workflow:
 
 1. Quality check of the input fastq reads with FastQC [Andrews:2010].
 2. Fastp is used to remove adapters and low-complexity reads [Chen:2018].
-3. Mapping of pre-processed reads to multiple reference genomes with Bowtie2 [Langmead:2018].
+3. Mapping of adapter trimmed reads to multiple reference genomes with Bowtie2 [Langmead:2018].
 4. Lowest Common Ancestor analysis with sam2lca [Borry:2022] to retain only genome specific reads, i.e. reads that align equally well to multiple references are identified as belonging to a Lower Common Ancestor and removed from the read counts. The sam2lca read counts are normalised by the size of the genome. First, a normalisation factor is calculated per reference, or source species (sp):
 
 $$
-NormalisationFactor_{sp}  = AverageReferenceLength / ReferenceLength_{sp}
+Average Reference Length = ∑_{sp} Reference Length_{sp} / Number of References
 $$
 
-The normalised read counts are then calculated by:
-
 $$
-NormalisedReads_{sp}  = sam2lcaReads_{sp} * NormalisationFactor_{sp}
+Normalisation Factor_{sp}  = Average Reference Length / Reference Length_{sp}
 $$
 
-5. Taxonomic profiling is performed on pre-processed reads with kraken2 [Wood:2019], and by using a customer supplied database. Kraken2 reports are parsed and merged into one table for all samples.
+The normalised read counts were then calculated by:
+
+$$
+Normalised Reads_{sp}  = sam2lca Reads_{sp} * Normalisation Factor_{sp}
+$$
+
+5. Taxonomic profiling is performed on adapter trimmed reads with kraken2 [Wood:2019], and by using a custom supplied database. Kraken2 reports are then parsed and merged into one table for all samples.
 6. Sourcepredict [Borry:2019] is then used to predict the source proportions, based on the kraken2 taxonomic profiles, and by using customer supplied reference sources (which should have been created with the same reference database).
 7. Both the host DNA (NormalisedReads) and sourcepredict proportion are used to predict the most likely depositor of the (palaeo)faeces. The probability of each reference species is calculated by:
 
