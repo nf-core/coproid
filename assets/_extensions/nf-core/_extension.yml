@@ -12,14 +12,14 @@ contributes:
       smooth-scroll: true
       theme: [default, nf-core.scss]
       toc: true
-      toc-image: coproid_logo.png
+      toc-image: nf-core-coproid_logo_light.png
       toc-location: left
       template-partials:
         - toc.html
     revealjs:
       code-line-numbers: false
       embed-resources: true
-      logo: coproid_logo.png
+      logo: nf-core-coproid_logo_light.png
       slide-level: 2
       slide-number: false
       theme: [default, nf-core.scss]

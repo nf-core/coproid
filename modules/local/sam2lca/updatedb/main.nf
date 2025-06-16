@@ -18,18 +18,18 @@ process SAM2LCA_UPDATEDB {
         path(acc2tax_md5) // acc2tax.gz.md5
 
     output:
-        path "sam2lca_db" , emit: sam2lca_db
-        path "versions.yml" , emit: versions
+        path "sam2lca_db"  , emit: sam2lca_db
+        path "versions.yml", emit: versions
 
     when:
         task.ext.when == null || task.ext.when
 
     script:
-        def args = task.ext.args ?: ''
-        def names = taxo_names ? "--taxo_names ${taxo_names}" : ''
-        def nodes = taxo_nodes ? "--taxo_nodes ${taxo_nodes}" : ''
+        def args   = task.ext.args ?: ''
+        def names  = taxo_names ? "--taxo_names ${taxo_names}" : ''
+        def nodes  = taxo_nodes ? "--taxo_nodes ${taxo_nodes}" : ''
         def merged = taxo_merged ? "--taxo_merged ${taxo_merged}" : ''
-        def json = acc2tax_json ? "--acc2tax_json ${acc2tax_json}" : ''
+        def json   = acc2tax_json ? "--acc2tax_json ${acc2tax_json}" : ''
         """
         mkdir -p sam2lca_db
 

@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# Written by Meriam van Os, released under the MIT license
+# See https://opensource.org/license/mit for details
+
+"""Merge sam2lca results from multiple samples into a single CSV file used for the Quarto report."""
+
 import sys
 import os
 import pandas as pd

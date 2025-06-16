@@ -34,7 +34,7 @@ workflow PREPARE_GENOMES {
     ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions.first())
 
     emit:
-    genomes = ch_genomes
+    genomes  = ch_genomes
     versions = ch_versions
 }
 

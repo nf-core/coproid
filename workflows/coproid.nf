@@ -34,7 +34,7 @@ include { QUARTO_REPORTING          } from '../subworkflows/local/quarto_reporti
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-if (params.kraken2_db ) { ch_kraken2_db = file(params.kraken2_db) } else { error("Kraken2 database path not specified!") }
+ch_kraken2_db = file(params.kraken2_db)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,7 +50,7 @@ workflow COPROID {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions      = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
     //
@@ -69,7 +69,7 @@ workflow COPROID {
         ch_samplesheet
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    ch_versions      = ch_versions.mix(FASTQC.out.versions.first())
 
     //
     // MODULE: Preprocessing with fastp
@@ -81,9 +81,9 @@ workflow COPROID {
         false,
         true
     )
-    ch_trimmed = FASTP.out.reads
+    ch_trimmed       = FASTP.out.reads
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTP.out.versions.first())
+    ch_versions      = ch_versions.mix(FASTP.out.versions.first())
 
     //
     // SUBWORKFLOW: Align reads to all genomes and index alignments
@@ -113,7 +113,7 @@ workflow COPROID {
     ALIGN_INDEX (
         ch_reads_genomes_index
     )
-    ch_versions = ch_versions.mix(ALIGN_INDEX.out.versions.first())
+    ch_versions      = ch_versions.mix(ALIGN_INDEX.out.versions.first())
     ch_multiqc_files = ch_multiqc_files.mix(ALIGN_INDEX.out.multiqc_files.collect{it[1]})
 
     DAMAGEPROFILER(
@@ -122,7 +122,7 @@ workflow COPROID {
         [],
         []
     )
-    ch_versions = ch_versions.mix(DAMAGEPROFILER.out.versions.first())
+    ch_versions      = ch_versions.mix(DAMAGEPROFILER.out.versions.first())
     ch_multiqc_files = ch_multiqc_files.mix(DAMAGEPROFILER.out.results.collect{it[1]})
 
     DAMAGEPROFILER.out.results.collect({it[1]})
@@ -131,6 +131,7 @@ workflow COPROID {
     DAMAGEPROFILER_MERGE(
         damageprofiler_reports
     )
+    ch_versions = ch_versions.mix(DAMAGEPROFILER_MERGE.out.versions.first())
 
     ALIGN_INDEX.out.bam.join(
         ALIGN_INDEX.out.bai
@@ -150,13 +151,14 @@ workflow COPROID {
     PYDAMAGE_MERGE (
         pydamage_reports
     )
+    ch_versions = ch_versions.mix(PYDAMAGE_MERGE.out.versions.first())
 
     // join bam with indices
     ALIGN_INDEX.out.bam.join(
         ALIGN_INDEX.out.bai
     ).map {
         meta, bam, bai -> [['id':meta.sample_name], bam] // meta.id, bam
-    }.groupTuple()
+    }.groupTuple(size: 2)
     .set { bams_synced }
 
     // SUBWORKFLOW: sort indices
@@ -177,11 +179,10 @@ workflow COPROID {
                 []
             )
         ch_sam2lca_db = SAM2LCA_DB.out.sam2lca_db.first()
+        ch_versions = ch_versions.mix(SAM2LCA_DB.out.versions.first())
     } else {
         ch_sam2lca_db = Channel.fromPath(params.sam2lca_db).first()
     }
-
-//    ch_versions = ch_versions.mix(SAM2LCA_DB.out.versions.first())
 
     //
     // MODULE: Run sam2lca
@@ -192,7 +193,7 @@ workflow COPROID {
         ),
         ch_sam2lca_db
     )
-    ch_sam2lca = SAM2LCA_ANALYZE.out.csv
+    ch_sam2lca  = SAM2LCA_ANALYZE.out.csv
     ch_versions = ch_versions.mix(SAM2LCA_ANALYZE.out.versions.first())
 
     SAM2LCA_ANALYZE.out.csv.collect({it[1]})
@@ -201,6 +202,7 @@ workflow COPROID {
     SAM2LCA_MERGE (
         sam2lca_reports
     )
+    ch_versions = ch_versions.mix(SAM2LCA_MERGE.out.versions.first())
 
     //
     // SUBWORKFLOW: kraken classification and parse reports
@@ -210,7 +212,7 @@ workflow COPROID {
         ch_kraken2_db
     )
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_CLASSIFICATION.out.kraken_report.collect{it[1]})
-    ch_versions = ch_versions.mix(KRAKEN2_CLASSIFICATION.out.versions.first())
+    ch_versions      = ch_versions.mix(KRAKEN2_CLASSIFICATION.out.versions.first())
 
     //
     // Collate and save software versions
@@ -239,6 +241,7 @@ workflow COPROID {
     QUARTO_REPORTING (
         ch_quarto
     )
+    ch_versions = ch_versions.mix(QUARTO_REPORTING.out.versions.first())
 
     //
     // MODULE: MultiQC
@@ -252,11 +255,13 @@ workflow COPROID {
         Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
         Channel.empty()
 
-    summary_params      = paramsSummaryMap(
+    summary_params = paramsSummaryMap(
         workflow, parameters_schema: "nextflow_schema.json")
-    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
-    ch_multiqc_files = ch_multiqc_files.mix(
+
+    ch_workflow_summary      = Channel.value(paramsSummaryMultiqc(summary_params))
+    ch_multiqc_files         = ch_multiqc_files.mix(
         ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+
     ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
         file(params.multiqc_methods_description, checkIfExists: true) :
         file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
@@ -280,7 +285,8 @@ workflow COPROID {
         []
     )
 
-    emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    emit:
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

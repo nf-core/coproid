@@ -5,9 +5,9 @@ include { SOURCEPREDICT   } from '../../../modules/nf-core/sourcepredict/main'
 include { UNTAR           } from '../../../modules/nf-core/untar/main'
 include { XZ_DECOMPRESS   } from '../../../modules/nf-core/xz/decompress/main'
 
-if (params.sp_sources  )              { ch_sp_sources = file(params.sp_sources) } else { error("SourcePredict sources file not specified!") }
-if (params.sp_labels   )              { ch_sp_labels  = file(params.sp_labels) } else { error("SourcePredict labels file not specified!") }
-if (params.taxa_sqlite_traverse_pkl ) { ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl) } else { error("Ete3 taxa.sqlite.traverse file not specified!") }
+ch_sp_sources      = file(params.sp_sources)
+ch_sp_labels       = file(params.sp_labels)
+ch_sqlite_traverse = file(params.taxa_sqlite_traverse_pkl)
 
 workflow KRAKEN2_CLASSIFICATION {
     take:
@@ -29,31 +29,32 @@ workflow KRAKEN2_CLASSIFICATION {
                 .set { archive }
 
             UNTAR ( archive )
-            database = UNTAR.out.untar.map{ it -> it[1] }
+
+            database    = UNTAR.out.untar.map{ it -> it[1] }
+            ch_versions = ch_versions.mix(UNTAR.out.versions.first())
 
     } else {
             database = kraken2_db
     }
 
-        KRAKEN2_KRAKEN2(
-            reads,
-            database,
-            false,
-            false
-        )
-        ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first())
-        ch_versions = ch_versions.mix(UNTAR.out.versions.first())
+    KRAKEN2_KRAKEN2(
+        reads,
+        database,
+        false,
+        false
+    )
+    ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first())
 
-        KRAKEN_PARSE(KRAKEN2_KRAKEN2.out.report)
-        KRAKEN_PARSE.out.kraken_read_count.map {
-            it -> it[1]
-        }.collect()
-        .set { kraken_read_count }
+    KRAKEN_PARSE(KRAKEN2_KRAKEN2.out.report)
+    KRAKEN_PARSE.out.kraken_read_count.map {
+        it -> it[1]
+    }.collect()
+    .set { kraken_read_count }
 
-        KRAKEN_MERGE(kraken_read_count)
+    KRAKEN_MERGE(kraken_read_count)
 
-//    ch_versions = ch_versions.mix(KRAKEN_MERGE.out.versions.first())
-//    ch_versions = ch_versions.mix(KRAKEN_PARSE.out.versions.first())
+    ch_versions = ch_versions.mix(KRAKEN_MERGE.out.versions.first())
+    ch_versions = ch_versions.mix(KRAKEN_PARSE.out.versions.first())
 
     KRAKEN_MERGE.out.kraken_merged_report
         .map {
@@ -73,13 +74,12 @@ workflow KRAKEN2_CLASSIFICATION {
                     [],
                     file(params.taxa_sqlite) ]
                 )
-            sqlite = XZ_DECOMPRESS.out.file.map{ it[1] }
+            sqlite      = XZ_DECOMPRESS.out.file.map{ it[1] }
+            ch_versions = ch_versions.mix(XZ_DECOMPRESS.out.versions.first())
 
     } else {
             sqlite = file(params.taxa_sqlite)
     }
-
-    ch_versions = ch_versions.mix(XZ_DECOMPRESS.out.versions.first())
 
     //
     // MODULE: Run sourcepredict
@@ -95,9 +95,9 @@ workflow KRAKEN2_CLASSIFICATION {
     ch_versions = ch_versions.mix(SOURCEPREDICT.out.versions.first())
 
     emit:
-        sp_report = SOURCEPREDICT.out.report
-        sp_embedding = SOURCEPREDICT.out.embedding
+        sp_report            = SOURCEPREDICT.out.report
+        sp_embedding         = SOURCEPREDICT.out.embedding
         kraken_merged_report = KRAKEN_MERGE.out.kraken_merged_report
-        kraken_report = KRAKEN2_KRAKEN2.out.report
-        versions = ch_versions
+        kraken_report        = KRAKEN2_KRAKEN2.out.report
+        versions             = ch_versions
 }

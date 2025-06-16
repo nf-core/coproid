@@ -43,6 +43,6 @@ workflow QUARTO_REPORTING {
     ch_versions = ch_versions.mix(QUARTONOTEBOOK.out.versions.first())
 
     emit:
-    versions          = ch_versions
+    versions = ch_versions
 
 }

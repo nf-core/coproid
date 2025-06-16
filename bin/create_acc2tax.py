@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
+# Written by Maxime Borry, released under the MIT license
+# See https://opensource.org/license/mit for details
+
+"""Create an acc2tax mapping file from a genome FASTA."""
+
 import argparse
 import pysam
 from pathlib import Path
-
 
 def parse_args():
     parser = argparse.ArgumentParser("Create acc2tax file")
