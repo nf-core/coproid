@@ -22,7 +22,7 @@ affiliations:
  - name: Associated Research Group of Archaeogenetics, Leibniz Institute for Natural Product Research and Infection Biology Hans Knöll Institute, Jena, Germany
    index: 3
 
-date: X May 2025
+date: 17 June 2025
 bibliography: paper.bib
 
 ---
