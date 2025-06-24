@@ -1,5 +1,5 @@
 ---
-title: 'nf-core/coproID v2.0.0: An improved pipeline for the identification of (palaeo)faecal depositors'
+title: 'nf-core/coproID v2.0: An improved pipeline for the identification of (palaeo)faecal depositors'
 tags:
   - Nextflow
   - nf-core
@@ -22,7 +22,7 @@ affiliations:
  - name: Associated Research Group of Archaeogenetics, Leibniz Institute for Natural Product Research and Infection Biology Hans Knöll Institute, Jena, Germany
    index: 3
 
-date: 17 June 2025
+date: 24 June 2025
 bibliography: paper.bib
 
 ---
