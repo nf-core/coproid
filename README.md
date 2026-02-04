@@ -64,9 +64,8 @@ SINGLE_END,SINGLE_END_S4_L003_R1_001.fastq.gz,
 
 Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
 
-:::warning
-Make sure that your reference genomes are from ncbi, so sam2lca can extract the taxid!
-:::
+> [!WARNING]
+> Make sure that your reference genomes are from ncbi, so sam2lca can extract the taxid!
 
 Second, prepare a genomesheet with your input genome references that looks as follows:
 
@@ -99,6 +98,9 @@ nextflow run nf-core/coproid \
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
+
+#Running the pipeline offline or on an HPC with container restrictions
+If you are working offline or on an HPC system with container restrictions, the sam2lca database download may fail. To work around this issue, you can pre-download (see [sam2lca documentation](https://sam2lca.readthedocs.io/en/latest/README.html)) or transfer the sam2lca database and use the `--sam2lca_db` parameter to point directly to the ~/.sam2lca directory. In this instance, adjust the name of the pre-downloaded database (e.g. nucl) accordingly with `--sam2lca_acc2tax`. 
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/coproid/usage) and the [parameter documentation](https://nf-co.re/coproid/parameters).
 
