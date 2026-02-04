@@ -100,7 +100,7 @@ nextflow run nf-core/coproid \
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
 ### Running the pipeline offline or on an HPC with container restrictions
-If you are working offline or on an HPC system with container restrictions, the sam2lca database download may fail. To work around this issue, you can pre-download (see [sam2lca documentation](https://sam2lca.readthedocs.io/en/latest/README.html)) or transfer the sam2lca database and use the `--sam2lca_db` parameter to point directly to the ~/.sam2lca directory. In this instance, adjust the name of the pre-downloaded database (e.g. nucl) accordingly with `--sam2lca_acc2tax`. 
+If you are working offline or on an HPC system with container restrictions, the sam2lca database download may fail. To work around this issue, you can pre-download (see [sam2lca documentation](https://sam2lca.readthedocs.io/en/latest/README.html)) or transfer the sam2lca database and use the `--sam2lca_db` parameter to point directly to the ~/.sam2lca directory. In this instance, adjust the name of the pre-downloaded database (e.g. nucl) accordingly with `--sam2lca_acc2tax`.
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/coproid/usage) and the [parameter documentation](https://nf-co.re/coproid/parameters).
 
