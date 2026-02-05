@@ -1,5 +1,5 @@
 ---
-title: 'nf-core/coproID v2.0: An improved pipeline for the identification of (palaeo)faecal depositors'
+title: 'nf-core/coproID v2.0.0: An improved pipeline for the identification of (palaeo)faecal depositors'
 tags:
   - Nextflow
   - nf-core
@@ -7,20 +7,22 @@ tags:
   - Palaeogenomics
 authors:
   - name: Meriam van Os
-    affiliation: "1, 2"
+    affiliation: "1, 2, 3"
     orcid: 0009-0008-9835-8874
     corresponding: true
   - name: Maxime Borry
-    affiliation: "2, 3"
+    affiliation: "3, 4"
     orcid: 0000-0001-9140-7559
 
 affiliations:
  - name: Department of Anatomy, University of Otago, Dunedin, New Zealand
    index: 1
- - name: Microbiome Sciences Group, Department of Archaeogenetics, Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
+ - name: Archaeology, School of Social Sciences, University of Otago, Dunedin, Otago, New Zealand
    index: 2
- - name: Associated Research Group of Archaeogenetics, Leibniz Institute for Natural Product Research and Infection Biology Hans Knöll Institute, Jena, Germany
+ - name: Microbiome Sciences Group, Department of Archaeogenetics, Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
    index: 3
+ - name: Associated Research Group of Archaeogenetics, Leibniz Institute for Natural Product Research and Infection Biology Hans Knöll Institute, Jena, Germany
+   index: 4
 
 date: 24 June 2025
 bibliography: paper.bib
