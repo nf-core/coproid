@@ -17,7 +17,7 @@ authors:
 affiliations:
  - name: Department of Anatomy, University of Otago, Dunedin, New Zealand
    index: 1
- - name: Archaeology, School of Social Sciences, University of Otago, Dunedin, Otago, New Zealand
+ - name: Archaeology, School of Social Sciences, University of Otago, Dunedin, New Zealand
    index: 2
  - name: Microbiome Sciences Group, Department of Archaeogenetics, Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
    index: 3
