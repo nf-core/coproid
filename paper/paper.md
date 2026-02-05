@@ -113,6 +113,6 @@ The nf-core/coproID pipeline is freely available from the nf-core pipeline repos
 
 # Figures
 
-![Figure 1](coproid_figure.png)
+![Workflow of nf-core/coproID version 2.0.0, showing the tools used for each step of the process.](coproid_figure.png)
 
 # References
