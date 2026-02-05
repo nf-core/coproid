@@ -6,7 +6,7 @@
 </h1>
 
 [![GitHub Actions CI Status](https://github.com/nf-core/coproid/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/coproid/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/coproid/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/coproid/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/coproid/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.7292889-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.7292889)
+[![GitHub Actions Linting Status](https://github.com/nf-core/coproid/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/coproid/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/coproid/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.2653756-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.2653756)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A424.10.5-23aa62.svg)](https://www.nextflow.io/)
@@ -124,7 +124,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-If you use nf-core/coproid for your analysis, please cite it using the following doi: [10.5281/zenodo.7292889](https://doi.org/10.5281/zenodo.7292889)
+If you use nf-core/coproid for your analysis, please cite it using the following doi: [10.5281/zenodo.2653756](https://doi.org/10.5281/zenodo.2653756)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
