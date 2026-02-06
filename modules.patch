@@ -9,12 +9,12 @@ Changes in 'bowtie2/align/main.nf':
      }
 -    def reference = fasta && extension=="cram"  ? "--reference ${fasta}" : ""
      if (!fasta && extension=="cram") error "Fasta reference is required for CRAM output"
- 
+
      def create_index = ""
 @@ -112,4 +111,4 @@
      END_VERSIONS
      """
- 
+
 -}+}
 
 Changes in 'bowtie2/align/meta.yml':
@@ -48,11 +48,11 @@ Changes in 'bowtie2/align/bowtie2-align.diff':
 @@ -15,17 +14,13 @@
       val   save_unaligned
       val   sort_bam
-  
+
 -@@ -114,4 +112,4 @@
 -     END_VERSIONS
 -     """
-- 
+-
 --}
 -+}
 +
@@ -177,11 +177,11 @@ Changes in 'fastqc/main.nf':
 -    tag "$meta.id"
 +    tag "${meta.id}"
      label 'process_medium'
- 
+
      conda "${moduleDir}/environment.yml"
 @@ -19,27 +19,30 @@
      task.ext.when == null || task.ext.when
- 
+
      script:
 -    def args = task.ext.args ?: ''
 -    def prefix = task.ext.prefix ?: "${meta.id}"
@@ -193,7 +193,7 @@ Changes in 'fastqc/main.nf':
 -    def renamed_files = old_new_pairs.collect{ old_name, new_name -> new_name }.join(' ')
 +    def rename_to     = old_new_pairs*.join(' ').join(' ')
 +    def renamed_files = old_new_pairs.collect{ _old_name, new_name -> new_name }.join(' ')
- 
+
 -    def memory_in_mb = MemoryUnit.of("${task.memory}").toUnit('MB')
 +    // The total amount of allocated RAM by FastQC is equal to the number of threads defined (--threads) time the amount of RAM defined (--memory)
 +    // https://github.com/s-andrews/FastQC/blob/1faeea0412093224d7f6a07f777fad60a5650795/fastqc#L211-L222
@@ -201,13 +201,13 @@ Changes in 'fastqc/main.nf':
 +    def memory_in_mb = task.memory ? task.memory.toUnit('MB').toFloat() / task.cpus : null
      // FastQC memory value allowed range (100 - 10000)
      def fastqc_memory = memory_in_mb > 10000 ? 10000 : (memory_in_mb < 100 ? 100 : memory_in_mb)
- 
+
      """
 -    printf "%s %s\\n" $rename_to | while read old_name new_name; do
 +    printf "%s %s\\n" ${rename_to} | while read old_name new_name; do
          [ -f "\${new_name}" ] || ln -s \$old_name \$new_name
      done
- 
+
      fastqc \\
 -        $args \\
 -        --threads $task.cpus \\
@@ -217,7 +217,7 @@ Changes in 'fastqc/main.nf':
 +        --threads ${task.cpus} \\
 +        --memory ${fastqc_memory} \\
 +        ${renamed_files}
- 
+
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":
 
@@ -225,7 +225,7 @@ Changes in 'fastqc/tests/main.nf.test':
 --- a/modules/nf-core/fastqc/tests/main.nf.test
 +++ b/modules/nf-core/fastqc/tests/main.nf.test
 @@ -23,17 +23,14 @@
- 
+
          then {
              assertAll (
 -            { assert process.success },
@@ -251,7 +251,7 @@ Changes in 'fastqc/tests/main.nf.test':
          }
      }
 @@ -54,16 +51,14 @@
- 
+
          then {
              assertAll (
 -            { assert process.success },
@@ -276,7 +276,7 @@ Changes in 'fastqc/tests/main.nf.test':
          }
      }
 @@ -83,13 +78,11 @@
- 
+
          then {
              assertAll (
 -            { assert process.success },
@@ -295,7 +295,7 @@ Changes in 'fastqc/tests/main.nf.test':
          }
      }
 @@ -109,13 +102,11 @@
- 
+
          then {
              assertAll (
 -            { assert process.success },
@@ -314,7 +314,7 @@ Changes in 'fastqc/tests/main.nf.test':
          }
      }
 @@ -138,22 +129,20 @@
- 
+
          then {
              assertAll (
 -            { assert process.success },
@@ -351,7 +351,7 @@ Changes in 'fastqc/tests/main.nf.test':
          }
      }
 @@ -173,21 +162,18 @@
- 
+
          then {
              assertAll (
 -            { assert process.success },
@@ -369,9 +369,9 @@ Changes in 'fastqc/tests/main.nf.test':
              )
          }
      }
- 
+
      test("sarscov2 single-end [fastq] - stub") {
- 
+
 -        options "-stub"
 -
 +    options "-stub"
@@ -379,7 +379,7 @@ Changes in 'fastqc/tests/main.nf.test':
              process {
                  """
 @@ -201,12 +187,123 @@
- 
+
          then {
              assertAll (
 -            { assert process.success },
@@ -1132,14 +1132,14 @@ Changes in 'multiqc/main.nf':
 --- a/modules/nf-core/multiqc/main.nf
 +++ b/modules/nf-core/multiqc/main.nf
 @@ -3,14 +3,16 @@
- 
+
      conda "${moduleDir}/environment.yml"
      container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
 -        'https://depot.galaxyproject.org/singularity/multiqc:1.21--pyhdfd78af_0' :
 -        'biocontainers/multiqc:1.21--pyhdfd78af_0' }"
 +        'https://depot.galaxyproject.org/singularity/multiqc:1.27--pyhdfd78af_0' :
 +        'biocontainers/multiqc:1.27--pyhdfd78af_0' }"
- 
+
      input:
      path  multiqc_files, stageAs: "?/*"
      path(multiqc_config)
@@ -1147,11 +1147,11 @@ Changes in 'multiqc/main.nf':
      path(multiqc_logo)
 +    path(replace_names)
 +    path(sample_names)
- 
+
      output:
      path "*multiqc_report.html", emit: report
 @@ -23,16 +25,22 @@
- 
+
      script:
      def args = task.ext.args ?: ''
 +    def prefix = task.ext.prefix ? "--filename ${task.ext.prefix}.html" : ''
@@ -1172,7 +1172,7 @@ Changes in 'multiqc/main.nf':
 +        $replace \\
 +        $samples \\
          .
- 
+
      cat <<-END_VERSIONS > versions.yml
 @@ -44,7 +52,7 @@
      stub:
@@ -1181,7 +1181,7 @@ Changes in 'multiqc/main.nf':
 -    touch multiqc_plots
 +    mkdir multiqc_plots
      touch multiqc_report.html
- 
+
      cat <<-END_VERSIONS > versions.yml
 
 'modules/nf-core/multiqc/tests/tags.yml' is unchanged
@@ -1191,11 +1191,11 @@ Changes in 'multiqc/tests/main.nf.test':
 @@ -8,6 +8,8 @@
      tag "modules_nfcore"
      tag "multiqc"
- 
+
 +    config "./nextflow.config"
 +
      test("sarscov2 single-end [fastqc]") {
- 
+
          when {
 @@ -17,6 +19,8 @@
                  input[1] = []
@@ -1292,10 +1292,10 @@ Changes in 'pydamage/analyze/main.nf':
          $args \\
          -p $task.cpus \\
          $bam
--    
+-
 +
      mv pydamage_results/pydamage_results.csv pydamage_results/${prefix}_pydamage_results.csv
- 
+
      cat <<-END_VERSIONS > versions.yml
 
 Changes in 'pydamage/analyze/meta.yml':
@@ -1367,7 +1367,7 @@ Changes in 'quartonotebook/Dockerfile':
 -        ca-certificates \
 -        curl \
 -    && apt-get clean
- 
+
 -RUN mkdir -p /opt/quarto \
 -    && curl -o quarto.tar.gz -L "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" \
 -    && tar -zxvf quarto.tar.gz -C /opt/quarto/ --strip-components=1 \
@@ -1379,7 +1379,7 @@ Changes in 'quartonotebook/Dockerfile':
 +LABEL org.opencontainers.image.source="https://github.com/nf-core/modules"
 +LABEL org.opencontainers.image.vendor="nf-core"
 +LABEL org.opencontainers.image.license="https://github.com/nf-core/modules/blob/master/LICENSE"
- 
+
 -#
 -# Second stage: Conda environment
 -#
@@ -1387,11 +1387,11 @@ Changes in 'quartonotebook/Dockerfile':
 -COPY --from=quarto /opt/quarto /opt/quarto
 +ADD https://github.com/quarto-dev/quarto-cli#v${QUARTO_VERSION} /opt/quarto
  ENV PATH="${PATH}:/opt/quarto/bin"
- 
+
  # Install packages using Mamba; also remove static libraries, python bytecode
 @@ -32,7 +24,3 @@
      && find /opt/conda -follow -type f -name '*.js.map' -delete
- 
+
  CMD /bin/bash
 -
 -LABEL \
@@ -1425,7 +1425,7 @@ Changes in 'quartonotebook/main.nf':
 @@ -1,16 +1,17 @@
 -include { dumpParamsYaml; indentCodeBlock } from "./parametrize"
 +include { dumpParamsYaml ; indentCodeBlock } from "./parametrize"
- 
+
 +// NB: You'll likely want to override this with a container containing all
 +// required dependencies for your analyses. Or use wave to build the container
 +// for you from the environment.yml You'll at least need Quarto itself,
@@ -1447,12 +1447,12 @@ Changes in 'quartonotebook/main.nf':
 +    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
 +        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/25/25d0a9decefd5d369b8f9b8c934640bd61493df2c95c39b0c580e765e0d2a644/data'
 +        : 'community.wave.seqera.io/library/quarto_jupyter_matplotlib_papermill_r-rmarkdown:95c6620495eabcd1'}"
- 
+
      input:
      tuple val(meta), path(notebook)
 @@ -19,29 +20,33 @@
      path extensions
- 
+
      output:
 -    tuple val(meta), path("*.html")     , emit: html
 +    tuple val(meta), path("*.html"), emit: html
@@ -1463,10 +1463,10 @@ Changes in 'quartonotebook/main.nf':
      tuple val(meta), path("_extensions"), emit: extensions, optional: true
 -    path "versions.yml"                 , emit: versions
 +    path "versions.yml", emit: versions
- 
+
      when:
      task.ext.when == null || task.ext.when
- 
+
      script:
 -    // Exit if running this module with -profile conda / -profile mamba
 -    // This is because of issues with getting a homogenous environment across
@@ -1490,12 +1490,12 @@ Changes in 'quartonotebook/main.nf':
 +    def parametrize = task.ext.parametrize == null ? true : task.ext.parametrize
 +    def implicit_params = task.ext.implicit_params == null ? true : task.ext.implicit_params
 +    def meta_params = task.ext.meta_params == null ? true : task.ext.meta_params
- 
+
      // Dump parameters to yaml file.
      // Using a YAML file over using the CLI params because
 @@ -76,10 +81,10 @@
      export XDG_DATA_HOME="./.xdg_data_home"
- 
+
      # Set parallelism for BLAS/MKL etc. to avoid over-booking of resources
 -    export MKL_NUM_THREADS="$task.cpus"
 -    export OPENBLAS_NUM_THREADS="$task.cpus"
@@ -1505,7 +1505,7 @@ Changes in 'quartonotebook/main.nf':
 +    export OPENBLAS_NUM_THREADS="${task.cpus}"
 +    export OMP_NUM_THREADS="${task.cpus}"
 +    export NUMBA_NUM_THREADS="${task.cpus}"
- 
+
      # Render notebook
      quarto render \\
 
@@ -1529,7 +1529,7 @@ Changes in 'quartonotebook/tests/main.nf.test':
 +                { assert path(process.out.html[0][1]).readLines().any { it.contains('Hello world') } },
              )
          }
- 
+
 @@ -116,11 +116,11 @@
              assertAll(
                  { assert process.success },
@@ -1543,22 +1543,22 @@ Changes in 'quartonotebook/tests/main.nf.test':
 +                { assert path(process.out.html[0][1]).readLines().any { it.contains('Hello world') } },
              )
          }
- 
+
 
 Changes in 'quartonotebook/tests/main.nf.test.snap':
 --- a/modules/nf-core/quartonotebook/tests/main.nf.test.snap
 +++ b/modules/nf-core/quartonotebook/tests/main.nf.test.snap
 @@ -28,7 +28,7 @@
-                     
+
                  ],
                  "5": [
 -                    "versions.yml:md5,93481281b24bb1b44ecc4387e0957a0e"
 +                    "versions.yml:md5,ffc26b6a27e3d215b616594faba5c2a9"
                  ],
                  "artifacts": [
-                     
+
 @@ -56,15 +56,15 @@
-                     
+
                  ],
                  "versions": [
 -                    "versions.yml:md5,93481281b24bb1b44ecc4387e0957a0e"
@@ -1592,14 +1592,14 @@ Changes in 'quartonotebook/tests/main.nf.test.snap':
                  ],
                  "1": [
 @@ -95,7 +95,7 @@
-                     
+
                  ],
                  "5": [
 -                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
 +                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
                  ],
                  "artifacts": [
-                     
+
 @@ -108,7 +108,7 @@
                          {
                              "id": "test"
@@ -1610,7 +1610,7 @@ Changes in 'quartonotebook/tests/main.nf.test.snap':
                  ],
                  "notebook": [
 @@ -123,21 +123,18 @@
-                     
+
                  ],
                  "versions": [
 -                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
@@ -1677,7 +1677,7 @@ Changes in 'quartonotebook/tests/main.nf.test.snap':
                  ],
                  "1": [
 @@ -200,7 +203,7 @@
-                     
+
                  ],
                  "5": [
 -                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
@@ -1729,14 +1729,14 @@ Changes in 'quartonotebook/tests/main.nf.test.snap':
                  ],
                  "1": [
 @@ -282,7 +285,7 @@
-                     
+
                  ],
                  "5": [
 -                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
 +                    "versions.yml:md5,cb29d1dcc3f1531b5b219f5147739463"
                  ],
                  "artifacts": [
-                     
+
 @@ -295,7 +298,7 @@
                          {
                              "id": "test"
@@ -1775,10 +1775,10 @@ Changes in 'quartonotebook/tests/main.nf.test.snap':
 -                "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
 -            ],
              [
-                 
+
              ],
              [
-                 
+
 -            ]
 -        ],
 -        "meta": {
@@ -1812,7 +1812,7 @@ Changes in 'quartonotebook/tests/main.nf.test.snap':
                  ],
                  "1": [
 @@ -382,7 +388,7 @@
-                     
+
                  ],
                  "5": [
 -                    "versions.yml:md5,55e1f767fbd72aae14cbbfb638e38a90"
@@ -1897,7 +1897,7 @@ Changes in 'untar/main.nf':
 -    tag "$archive"
 +    tag "${archive}"
      label 'process_single'
- 
+
      conda "${moduleDir}/environment.yml"
 -    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
 -        'https://depot.galaxyproject.org/singularity/ubuntu:22.04' :
@@ -1905,30 +1905,30 @@ Changes in 'untar/main.nf':
 +    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
 +        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/52/52ccce28d2ab928ab862e25aae26314d69c8e38bd41ca9431c67ef05221348aa/data'
 +        : 'community.wave.seqera.io/library/coreutils_grep_gzip_lbzip2_pruned:838ba80435a629f8'}"
- 
+
      input:
      tuple val(meta), path(archive)
- 
+
      output:
 -    tuple val(meta), path("$prefix"), emit: untar
 -    path "versions.yml"             , emit: versions
 +    tuple val(meta), path("${prefix}"), emit: untar
 +    path "versions.yml", emit: versions
- 
+
      when:
      task.ext.when == null || task.ext.when
- 
+
      script:
 -    def args  = task.ext.args ?: ''
 +    def args = task.ext.args ?: ''
      def args2 = task.ext.args2 ?: ''
 -    prefix    = task.ext.prefix ?: ( meta.id ? "${meta.id}" : archive.baseName.toString().replaceFirst(/\.tar$/, ""))
 +    prefix = task.ext.prefix ?: (meta.id ? "${meta.id}" : archive.baseName.toString().replaceFirst(/\.tar$/, ""))
- 
+
      """
 -    mkdir $prefix
 +    mkdir ${prefix}
- 
+
      ## Ensures --strip-components only applied when top level of tar contents is a directory
      ## If just files or multiple directories, place all in prefix
      if [[ \$(tar -taf ${archive} | grep -o -P "^.*?\\/" | uniq | wc -l) -eq 1 ]]; then
@@ -1954,11 +1954,11 @@ Changes in 'untar/main.nf':
 +            ${archive} \\
 +            ${args2}
      fi
- 
+
      cat <<-END_VERSIONS > versions.yml
 @@ -50,7 +50,7 @@
      """
- 
+
      stub:
 -    prefix    = task.ext.prefix ?: ( meta.id ? "${meta.id}" : archive.toString().replaceFirst(/\.[^\.]+(.gz)?$/, ""))
 +    prefix = task.ext.prefix ?: (meta.id ? "${meta.id}" : archive.toString().replaceFirst(/\.[^\.]+(.gz)?$/, ""))
