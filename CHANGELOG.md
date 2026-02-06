@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.0.1 - 06/02/2026
+
+### Changed:
+
+- Fixed the Nextflow version badge to ≤24.10.5
+- Added some extra information to the README about running the pipeline offline and on HPC with container restrictions
+
 ## v2.0.0 - 22/05/2025
 
 nf-core/coproid v2.0 is based on [nf-core](https://nf-co.re/) DSL2 template.
