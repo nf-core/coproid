@@ -68,7 +68,6 @@ workflow COPROID {
         ch_samplesheet
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions      = ch_versions.mix(FASTQC.out.versions.first())
 
     //
     // MODULE: Preprocessing with fastp
@@ -300,7 +299,8 @@ workflow COPROID {
         []
     )
 
-    emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    emit:
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

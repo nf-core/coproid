@@ -55,7 +55,7 @@
                     },
                     "sam2lca/analyze": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "e657cdd0198cc26f2e501325eb7f70fbd740b6ee",
                         "installed_by": ["modules"]
                     },
                     "samtools/index": {
