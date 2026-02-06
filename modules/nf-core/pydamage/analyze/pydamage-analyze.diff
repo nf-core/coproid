@@ -1,0 +1,40 @@
+Changes in module 'nf-core/pydamage/analyze'
+'modules/nf-core/pydamage/analyze/environment.yml' is unchanged
+Changes in 'pydamage/analyze/meta.yml':
+--- modules/nf-core/pydamage/analyze/meta.yml
++++ modules/nf-core/pydamage/analyze/meta.yml
+@@ -42,7 +42,7 @@
+           description: |
+             Groovy Map containing sample information
+             e.g. [ id:'test', single_end:false ]
+-      - pydamage_results/pydamage_results.csv:
++      - pydamage_results.csv:
+           type: file
+           description: PyDamage results as csv files
+           pattern: "*.csv"
+
+Changes in 'pydamage/analyze/main.nf':
+--- modules/nf-core/pydamage/analyze/main.nf
++++ modules/nf-core/pydamage/analyze/main.nf
+@@ -11,7 +11,7 @@
+     tuple val(meta), path(bam), path(bai)
+ 
+     output:
+-    tuple val(meta), path("pydamage_results/pydamage_results.csv"), emit: csv
++    tuple val(meta), path("pydamage_results/*_pydamage_results.csv"), emit: csv
+     path "versions.yml"           , emit: versions
+ 
+     when:
+@@ -26,6 +26,8 @@
+         $args \\
+         -p $task.cpus \\
+         $bam
++    
++    mv pydamage_results/pydamage_results.csv pydamage_results/${prefix}_pydamage_results.csv
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
+
+'modules/nf-core/pydamage/analyze/tests/main.nf.test' is unchanged
+'modules/nf-core/pydamage/analyze/tests/main.nf.test.snap' is unchanged
+************************************************************
