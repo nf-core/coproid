@@ -16,7 +16,7 @@ process SOURCEPREDICT {
     val save_embedding
 
     output:
-    tuple val(meta), path("*.sourcepredict.csv"), emit: report
+    tuple val(meta), path("*.report.sourcepredict.csv"), emit: report
     tuple val(meta), path("*.embedding.sourcepredict.csv"), optional: true, emit: embedding
     tuple val("${task.process}"), val('sourcepredict'), eval('python -c "import sourcepredict; print(sourcepredict.__version__)"'), topic: versions, emit: versions_sourcepredict
     tuple val("${task.process}"), val('python'), eval('python -V | sed "s/Python //g"'), topic: versions, emit: versions_python
