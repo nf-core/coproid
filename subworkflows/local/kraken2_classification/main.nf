@@ -97,7 +97,6 @@ workflow KRAKEN2_CLASSIFICATION {
         ch_sqlite_traverse,
         true,
     )
-    ch_versions = ch_versions.mix(SOURCEPREDICT.out.versions.first())
 
     emit:
     sp_report            = SOURCEPREDICT.out.report
