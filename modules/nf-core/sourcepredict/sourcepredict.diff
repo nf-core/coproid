@@ -4,7 +4,7 @@ Changes in component 'nf-core/sourcepredict'
 Changes in 'sourcepredict/main.nf':
 --- modules/nf-core/sourcepredict/main.nf
 +++ modules/nf-core/sourcepredict/main.nf
-@@ -1,25 +1,25 @@
+@@ -1,25 +1,26 @@
  process SOURCEPREDICT {
 -    tag "$meta.id"
 +    tag "${meta.id}"
@@ -26,6 +26,7 @@ Changes in 'sourcepredict/main.nf':
 -    path(taxa_sqlite_traverse_pkl, stageAs: '.etetoolkit/*')
 +    path taxa_sqlite, stageAs: '.etetoolkit/taxa.sqlit'
 +    path taxa_sqlite_traverse_pkl, stageAs: '.etetoolkit/*'
++    val save_embedding
  
      output:
      tuple val(meta), path("*.sourcepredict.csv"), emit: report
@@ -37,11 +38,11 @@ Changes in 'sourcepredict/main.nf':
  
      when:
      task.ext.when == null || task.ext.when
-@@ -27,16 +27,18 @@
+@@ -27,16 +28,18 @@
      script:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
-+    def save_embedding = save_embedding ? "-e ${prefix}.embedding.sourcepredict.csv" : ""
++    def save_embedding_cmd = save_embedding ? "-e ${prefix}.embedding.sourcepredict.csv" : ""
      """
      export NUMBA_CACHE_DIR='./tmp'
      export HOME='./'
@@ -55,7 +56,7 @@ Changes in 'sourcepredict/main.nf':
 +        -s ${sources} \\
 +        -l ${labels} \\
 +        ${args} \\
-+        ${save_embedding} \\
++        ${save_embedding_cmd} \\
 +        -t ${task.cpus} \\
 +        -o ${prefix}.report.sourcepredict.csv \\
          ${kraken_parse}

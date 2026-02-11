@@ -13,6 +13,7 @@ process SOURCEPREDICT {
     path labels
     path taxa_sqlite, stageAs: '.etetoolkit/taxa.sqlit'
     path taxa_sqlite_traverse_pkl, stageAs: '.etetoolkit/*'
+    val save_embedding
 
     output:
     tuple val(meta), path("*.sourcepredict.csv"), emit: report
@@ -27,7 +28,7 @@ process SOURCEPREDICT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def save_embedding = save_embedding ? "-e ${prefix}.embedding.sourcepredict.csv" : ""
+    def save_embedding_cmd = save_embedding ? "-e ${prefix}.embedding.sourcepredict.csv" : ""
     """
     export NUMBA_CACHE_DIR='./tmp'
     export HOME='./'
@@ -36,7 +37,7 @@ process SOURCEPREDICT {
         -s ${sources} \\
         -l ${labels} \\
         ${args} \\
-        ${save_embedding} \\
+        ${save_embedding_cmd} \\
         -t ${task.cpus} \\
         -o ${prefix}.report.sourcepredict.csv \\
         ${kraken_parse}
