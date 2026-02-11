@@ -5,10 +5,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v2.0.1 - 06/02/2026
 
-### Changed:
+### `Changed`
 
 - Fixed the Nextflow version badge to ≤24.10.5
 - Added some extra information to the README about running the pipeline offline and on HPC with container restrictions
+- Updated nf-core/tools to the latest version (by @jfy133)
 
 ### `Dependencies`
 
