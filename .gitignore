@@ -8,3 +8,5 @@ testing*
 *.pyc
 null/
 .qodo
+.nf-test
+.nf-test.log
