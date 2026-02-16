@@ -37,6 +37,19 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email address for completion summary.",
+                    "fa_icon": "fas fa-envelope",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                },
+                "multiqc_title": {
+                    "type": "string",
+                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
+                    "fa_icon": "fas fa-file-signature",
+                    "default": "coproid"
                 }
             }
         },
@@ -45,6 +58,7 @@
             "type": "object",
             "description": "Options to be provided to the pipeline",
             "default": "",
+            "required": ["kraken2_db", "sp_sources", "sp_labels"],
             "properties": {
                 "file_prefix": {
                     "type": "string",
@@ -73,13 +87,15 @@
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
-                    "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite file, if not supplied it will be pulled from the test-data repository"
+                    "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite file, if not supplied it will be pulled from the test-data repository",
+                    "default": "[:]/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite.xz"
                 },
                 "taxa_sqlite_traverse_pkl": {
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
-                    "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite.traverse.pkl file, if not supplied it will be pulled from the test-data repository"
+                    "description": "Path to pre-downloaded ~/.etetoolkit/taxa.sqlite.traverse.pkl file, if not supplied it will be pulled from the test-data repository",
+                    "default": "[:]/genomics/prokaryotes/metagenome/taxonomy/misc/taxa_sqlite_traverse.pkl"
                 },
                 "sam2lca_db": {
                     "type": "string",
@@ -94,9 +110,72 @@
                     "type": "number",
                     "default": 0.9,
                     "description": "Set the sam2lca --identity parameter"
+                },
+                "igenomes_ignore": {
+                    "type": "boolean",
+                    "description": "Do not load the iGenomes reference config.",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true,
+                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.",
+                    "default": true
+                },
+                "igenomes_base": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The base path to the igenomes reference files",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true,
+                    "default": "s3://ngi-igenomes/igenomes/"
                 }
-            },
-            "required": ["kraken2_db", "sp_sources", "sp_labels"]
+            }
+        },
+        "institutional_config_options": {
+            "title": "Institutional config options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
+            "properties": {
+                "custom_config_version": {
+                    "type": "string",
+                    "description": "Git commit id for Institutional configs.",
+                    "default": "master",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "custom_config_base": {
+                    "type": "string",
+                    "description": "Base directory for Institutional configs.",
+                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+                    "hidden": true,
+                    "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Institutional config name.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Institutional config description.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_contact": {
+                    "type": "string",
+                    "description": "Institutional config contact information.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_url": {
+                    "type": "string",
+                    "description": "Institutional config URL link.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                }
+            }
         },
         "generic_options": {
             "title": "Generic options",
@@ -105,11 +184,67 @@
             "description": "Less common options for the pipeline, typically set in a config file.",
             "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
             "properties": {
-                "version": {
-                    "type": "boolean",
-                    "description": "Display version and exit.",
-                    "fa_icon": "fas fa-question-circle",
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
                     "hidden": true
+                },
+                "email_on_fail": {
+                    "type": "string",
+                    "description": "Email address for completion summary, only when pipeline fails.",
+                    "fa_icon": "fas fa-exclamation-triangle",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+                    "help_text": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
+                    "hidden": true
+                },
+                "plaintext_email": {
+                    "type": "boolean",
+                    "description": "Send plain-text email instead of HTML.",
+                    "fa_icon": "fas fa-remove-format",
+                    "hidden": true
+                },
+                "max_multiqc_email_size": {
+                    "type": "string",
+                    "description": "File size limit when attaching MultiQC reports to summary emails.",
+                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+                    "default": "25.MB",
+                    "fa_icon": "fas fa-file-upload",
+                    "hidden": true
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette",
+                    "hidden": true
+                },
+                "hook_url": {
+                    "type": "string",
+                    "description": "Incoming hook URL for messaging service",
+                    "fa_icon": "fas fa-people-group",
+                    "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
+                    "hidden": true
+                },
+                "multiqc_config": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Custom config file to supply to MultiQC.",
+                    "fa_icon": "fas fa-cog",
+                    "hidden": true
+                },
+                "multiqc_logo": {
+                    "type": "string",
+                    "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
+                    "fa_icon": "fas fa-image",
+                    "hidden": true
+                },
+                "multiqc_methods_description": {
+                    "type": "string",
+                    "description": "Custom MultiQC yaml file containing HTML including a methods description.",
+                    "fa_icon": "fas fa-cog"
                 },
                 "validate_params": {
                     "type": "boolean",
@@ -118,118 +253,37 @@
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
                 },
-                "multiqc_title": {
+                "pipelines_testdata_base_path": {
                     "type": "string",
-                    "default": "coproid",
-                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
-                },
-                "email": {
-                    "type": "string",
-                    "description": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits.",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
                     "hidden": true
                 },
-                "email_on_fail": {
+                "trace_report_suffix": {
                     "type": "string",
-                    "hidden": true,
-                    "description": "This works exactly as with --email, except emails are only sent if the workflow is not successful."
-                },
-                "igenomes_base": {
-                    "type": "string",
-                    "default": "s3://ngi-igenomes/igenomes/",
-                    "description": "Path to igenomes base",
+                    "fa_icon": "far calendar",
+                    "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
                     "hidden": true
                 },
-                "igenomes_ignore": {
+                "help": {
+                    "type": ["boolean", "string"],
+                    "description": "Display the help message."
+                },
+                "help_full": {
                     "type": "boolean",
-                    "default": true,
-                    "description": "Boolean whether to ignore igenomes",
-                    "hidden": true
+                    "description": "Display the full detailed help message."
                 },
-                "multiqc_methods_description": {
-                    "type": "string",
-                    "description": "Custom MultiQC yaml file containing HTML including a methods description.",
-                    "hidden": true
+                "show_hidden": {
+                    "type": "boolean",
+                    "description": "Display hidden parameters in the help message (only works when --help or --help_full are provided)."
                 },
                 "modules_testdata_base_path": {
                     "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data",
-                    "description": "Base path to test data.",
-                    "hidden": true
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data"
                 },
-                "pipelines_testdata_base_path": {
-                    "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
-                    "description": "Base path to pipelines data.",
-                    "hidden": true
-                },
-                "config_profile_name": {
-                    "type": "string",
-                    "description": "Name of the config profile.",
-                    "hidden": true
-                },
-                "config_profile_description": {
-                    "type": "string",
-                    "description": "Description of the config profile.",
-                    "hidden": true
-                },
-                "custom_config_version": {
-                    "type": "string",
-                    "default": "master",
-                    "description": "Provide git commit id for custom Institutional configs hosted at nf-core/configs. This was implemented for reproducibility purposes. Default: master.",
-                    "hidden": true
-                },
-                "custom_config_base": {
-                    "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
-                    "description": "Base path to custom config files.",
-                    "hidden": true
-                },
-                "config_profile_contact": {
-                    "type": "string",
-                    "description": "Contact of the config profile.",
-                    "hidden": true
-                },
-                "config_profile_url": {
-                    "type": "string",
-                    "description": "URL to config file.",
-                    "hidden": true
-                },
-                "multiqc_config": {
-                    "type": "string",
-                    "hidden": true,
-                    "description": "Config file for multiQC."
-                },
-                "multiqc_logo": {
-                    "type": "string",
-                    "hidden": true,
-                    "description": "Logo for multiQC."
-                },
-                "max_multiqc_email_size": {
-                    "type": "string",
-                    "default": "25.MB",
-                    "hidden": true,
-                    "description": "Maximum email size."
-                },
-                "publish_dir_mode": {
-                    "type": "string",
-                    "default": "copy",
-                    "hidden": true,
-                    "description": "Value passed to Nextflow publishDir directive for publishing results in the output directory. Available: 'symlink', 'rellink', 'link', 'copy', 'copyNoFollow' and 'move' (Default: 'copy')."
-                },
-                "plaintext_email": {
-                    "type": "boolean",
-                    "hidden": true,
-                    "description": "Set to receive plain-text e-mails instead of HTML formatted."
-                },
-                "monochrome_logs": {
-                    "type": "boolean",
-                    "hidden": true,
-                    "description": "Set to disable colourful command line output and live life in monochrome."
-                },
-                "hook_url": {
-                    "type": "string",
-                    "hidden": true,
-                    "description": "Specify YOUR-HOOK-URL to receive notifications from your pipeline in Microsoft Teams or Slack."
+                "version": {
+                    "type": "boolean"
                 }
             }
         }
@@ -240,6 +294,9 @@
         },
         {
             "$ref": "#/$defs/pipeline_options"
+        },
+        {
+            "$ref": "#/$defs/institutional_config_options"
         },
         {
             "$ref": "#/$defs/generic_options"
