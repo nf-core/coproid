@@ -37,13 +37,13 @@ The raw sequencing data is first pre-processed to trim adapters and remove low q
 
 # Statement of need
 
-As mentioned above, (palaeo)faeces are valuable resources to study the depositor's DNA, diet, microbiome, health and more. However, it is often difficult to identify the depositor based on the faeces morphology alone. For example, humans and dogs often overlap in their diets, and produce similarly sized faeces. In 2020, the pipeline nf-core/coproID v1.0 was published [@Borry:2020], which uses both host and microbial DNA to predict the depositor of faecal samples. The microbiome can be a crucial part for a host prediction, as the host DNA content in faeces can be very low in certain species and/or individuals [@Ang:2020; @Perry:2010], including humans and modern dogs [@Borry:2020]. Since its first release, new tools have become available that can improve the accuracy and usability of nf-core/coproID. Here we present the newest version of the pipeline, nf-core/coproID v2.0.0, rewritten in the newest Nextflow DLS2 language to enhance modularity, reusability, and scalability [@DITommaso:2017], and with newly added features to improve accuracy and reporting.
+As mentioned above, (palaeo)faeces are valuable resources to study the depositor's DNA, diet, microbiome, health and more. However, it is often difficult to identify the depositor based on the faeces morphology alone. For example, humans and dogs often overlap in their diets, and produce similarly sized faeces. In 2020, the pipeline nf-core/coproID v1.0 was published [@Borry:2020], which uses both host and microbial DNA to predict the depositor of faecal samples. The microbiome can be a crucial part for a host prediction, as the host DNA content in faeces can be very low in certain species and/or individuals [@Ang:2020; @Perry:2010], including humans and modern dogs [@Borry:2020]. Since its first release, new tools have become available that can improve the accuracy and usability of nf-core/coproID. Here we present the newest version of the pipeline, nf-core/coproID v2.0, rewritten in the newest Nextflow DSL2 language to enhance modularity, reusability, and scalability [@DITommaso:2017], and with newly added features to improve accuracy and reporting.
 
 # Materials and Methods
 
 nf-core/coproID combines the analysis of the putative host (ancient) DNA with a machine learning prediction of the faeces source, based on microbiome taxonomic composition:
 
-A. First, nf-core/coproID performs parallel mapping of all reads agains two (or more) target genomes (genome1, genome2, ..., genomeX) using bowtie2 [@Langmead:2018], and computes a host-DNA species ratio (NormalisedProportion) using sam2lca [@Borry:2022].
+A. First, nf-core/coproID performs parallel mapping of all reads against two (or more) target genomes (genome1, genome2, ..., genomeX) using bowtie2 [@Langmead:2018], and computes a host-DNA species ratio (NormalisedProportion) using sam2lca [@Borry:2022].
 B. Next, nf-core/coproID performs metagenomic taxonomic profiling with kraken2 [@Wood:2019], and compares the obtained profiles to user supplied modern reference samples of the target species metagenomes. Using machine learning, sourcepredict [@Borry:2019] then estimates the host source from the metagenomic taxonomic composition (SourcepredictProportion).
 C. Finally, nf-core/coproID combines the A and B proportions to predict the likely host of the metagenomic sample.
 
@@ -102,17 +102,17 @@ The results are located in a nested folder architecture. Fourteen subfolders are
 
 # Discussion and conclusions
 
-We present a new version of the nf-core/coproID pipeline, v2.0.0, designed to identify the true depositor of (palaeo)faeces. Written in Nextflow DSL2, and adhering to the latest nf-core standards and guidelines, nf-core/coproID v2.0.0 is more modular, reusable, and scalable. It includes several new features, including fastp for faster pre-processing of the sequencing reads, sam2lca to improve and generalise host DNA prediction, pyDamage to discriminate between ancient and modern DNA, and the automated creation of a Quarto notebook html report. The modular design also makes it easier for users to customise the pipeline, for example by adding more modules and workflows.
+We present a new version of the nf-core/coproID pipeline, v2.0, designed to identify the true depositor of (palaeo)faeces. Written in Nextflow DSL2, and adhering to the latest nf-core standards and guidelines, nf-core/coproID v2.0 is more modular, reusable, and scalable. It includes several new features, including fastp for faster pre-processing of the sequencing reads, sam2lca to improve and generalise host DNA prediction, pyDamage to discriminate between ancient and modern DNA, and the automated creation of a Quarto notebook html report. The modular design also makes it easier for users to customise the pipeline, for example by adding more modules and workflows.
 
 # Funding source declaration
 MO was supported by a University of Otago Doctoral Scholarship.
 
 # Availability
 
-The nf-core/coproID pipeline is freely available from the nf-core pipeline repository [https://nf-co.re/coproid/2.0.0/](https://nf-co.re/coproid/2.0.0/).
+The nf-core/coproID pipeline is freely available from the nf-core pipeline repository [https://nf-co.re/coproid/2.0.1/](https://nf-co.re/coproid/2.0.1/).
 
 # Figures
 
-![Workflow of nf-core/coproID version 2.0.0, showing the tools used for each step of the process.](coproid_figure.png)
+![Workflow of nf-core/coproID version 2.0, showing the tools used for each step of the process.](coproid_figure.png)
 
 # References
