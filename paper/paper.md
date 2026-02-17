@@ -85,22 +85,20 @@ $$
 ## Output
 
 The results are located in a nested folder architecture. Fourteen subfolders are created within the user identified output folder:
-<ul>
-  <li>bowtie2</li>
-  <li>create</li>
-  <li>damageprofiler</li>
-  <li>fastp</li>
-  <li>fastqc</li>
-  <li>kraken</li>
-  <li>kraken2</li>
-  <li>multiqc</li>
-  <li>pipeline_info</li>
-  <li>pydamage</li>
-  <li>quartonotebook</li>
-  <li>sam2lca</li>
-  <li>samtools</li>
-  <li>sourcepredict</li>
-</ul>
+* bowtie2
+* create
+* damageprofiler
+* fastp
+* fastqc
+* kraken
+* kraken2
+* multiqc
+* pipeline_info
+* pydamage
+* quartonotebook
+* sam2lca
+* samtools
+* sourcepredict
 
 # Discussion and conclusions
 
