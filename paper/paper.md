@@ -85,6 +85,7 @@ $$
 ## Output
 
 The results are located in a nested folder architecture. Fourteen subfolders are created within the user identified output folder:
+
 - bowtie2
 - create
 - damageprofiler
