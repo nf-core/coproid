@@ -2,6 +2,10 @@ lint:
   files_unchanged:
     - docs/images/nf-core-coproid_logo_light.png
     - docs/images/nf-core-coproid_logo_dark.png
+    - .github/workflows/branch.yml
+    - .github/workflows/linting.yml
+  files_exist:
+    - .github/workflows/linting_comment.yml
 nf_core_version: 3.5.2
 repository_type: pipeline
 template:
